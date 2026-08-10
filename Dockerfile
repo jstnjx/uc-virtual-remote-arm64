@@ -1,7 +1,7 @@
 FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS configurator-builder
 
 ARG TARGETARCH
-RUN test "$TARGETARCH" = "arm64"
+RUN case "$TARGETARCH" in arm64|amd64) ;; *) echo "Unsupported target architecture: $TARGETARCH" >&2; exit 1 ;; esac
 
 WORKDIR /build
 
@@ -20,7 +20,7 @@ RUN apt-get update \
 FROM node:22-bookworm-slim
 
 ARG TARGETARCH
-RUN test "$TARGETARCH" = "arm64"
+RUN case "$TARGETARCH" in arm64|amd64) ;; *) echo "Unsupported target architecture: $TARGETARCH" >&2; exit 1 ;; esac
 
 WORKDIR /app
 
@@ -38,6 +38,12 @@ COPY --from=configurator-builder /build/web-configurator-source ./web-configurat
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager rfkill tar usbutils \
+    && if [ "$TARGETARCH" = "amd64" ]; then \
+         apt-get install -y --no-install-recommends qemu-user-static libc6-arm64-cross libgcc-s1-arm64-cross; \
+         cp /usr/bin/qemu-aarch64-static /usr/local/bin/qemu-aarch64-static; \
+         chmod 0755 /usr/local/bin/qemu-aarch64-static; \
+         apt-get purge -y qemu-user-static; \
+       fi \
     && rm -rf /var/lib/apt/lists/* \
     && chmod 0755 /usr/local/bin/ucvr-entrypoint \
     && setcap 'cap_net_bind_service=+ep' "$(readlink -f "$(command -v node)")" \
@@ -50,7 +56,9 @@ ENV NODE_ENV=production \
     UCVR_HOST=0.0.0.0 \
     UCVR_REST_PORT=11090 \
     UCVR_INTEGRATION_PORT_START=11091 \
-    UCVR_REQUIRE_ARM64=true \
+    UCVR_REQUIRE_ARM64=false \
+    UCVR_ARM64_EMULATOR=/usr/local/bin/qemu-aarch64-static \
+    UCVR_ARM64_LD_PREFIX=/usr/aarch64-linux-gnu \
     UCVR_DIND=true \
     UCVR_DIND_DATA_ROOT=/data/docker \
     UCVR_DIND_STORAGE_DRIVER=overlay2 \
