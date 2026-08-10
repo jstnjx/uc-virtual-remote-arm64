@@ -37,7 +37,7 @@ COPY --from=configurator-builder /build/web-configurator-source ./web-configurat
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager rfkill tar usbutils \
+       bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager rfkill tar usbutils util-linux \
     && if [ "$TARGETARCH" = "amd64" ]; then \
          dpkg --add-architecture arm64; \
          apt-get update; \

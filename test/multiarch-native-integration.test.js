@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
-import { driverLaunchCommand } from "../src/native-integrations/service.js";
+import { driverLaunchCommand, pyInstallerOnedirEnvironment, wrapArm64HelperExecutables } from "../src/native-integrations/service.js";
 
 const record = {
   driver_id: "test-driver",
@@ -50,4 +53,45 @@ test("script integrations remain direct on amd64", () => {
     emulated: false,
     architecture: "script"
   });
+});
+
+
+test("PyInstaller onedir ARM64 drivers skip the guest self-exec on amd64", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ucvr-pyi-"));
+  try {
+    const executable = path.join(root, "bin", "driver");
+    fs.mkdirSync(path.join(root, "bin", "_internal"), { recursive: true });
+    fs.writeFileSync(executable, "placeholder");
+    const env = pyInstallerOnedirEnvironment({ driver_id: "pyi", executable, architecture: "arm64" }, {
+      runtimeArch: "x64",
+      ldLibraryPath: "/existing/lib"
+    });
+    assert.equal(env._PYI_ARCHIVE_FILE, executable);
+    assert.equal(env._PYI_PARENT_PROCESS_LEVEL, "-1");
+    assert.equal(env.LD_LIBRARY_PATH, `${path.join(root, "bin", "_internal")}:/existing/lib`);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("secondary ARM64 executables are wrapped without replacing the main driver", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ucvr-helper-"));
+  try {
+    const bin = path.join(root, "bin");
+    fs.mkdirSync(bin, { recursive: true });
+    const main = path.join(bin, "driver");
+    const helper = path.join(bin, "node");
+    fs.writeFileSync(main, "main", { mode: 0o755 });
+    fs.writeFileSync(helper, "helper", { mode: 0o755 });
+    const wrapped = wrapArm64HelperExecutables(root, main, {
+      runtimeArch: "x64",
+      architectureOf: (filename) => filename === helper ? "arm64" : null
+    });
+    assert.deepEqual(wrapped, [path.join("bin", "node")]);
+    assert.equal(fs.readFileSync(main, "utf8"), "main");
+    assert.match(fs.readFileSync(helper, "utf8"), /qemu-aarch64-static/);
+    assert.equal(fs.readFileSync(`${helper}.ucvr-arm64`, "utf8"), "helper");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

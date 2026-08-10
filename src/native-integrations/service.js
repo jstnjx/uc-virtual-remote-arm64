@@ -58,6 +58,8 @@ function nativeEnvironment(record, host, configDir, dataDir) {
     UC_DISABLE_MDNS_PUBLISH: "true",
     UC_CLIENT_NAME: `ucvr-${record.driver_id}`,
     UC_LOG_LEVEL: String(process.env.UCVR_NATIVE_LOG_LEVEL || process.env.LOG_LEVEL || "INFO").toUpperCase(),
+    UCVR_ARM64_EMULATOR: String(process.env.UCVR_ARM64_EMULATOR || "/usr/local/bin/qemu-aarch64-static"),
+    UCVR_ARM64_LD_PREFIX: String(process.env.UCVR_ARM64_LD_PREFIX || "/usr/aarch64-linux-gnu"),
     PYTHONUNBUFFERED: "1"
   };
 }
@@ -224,6 +226,71 @@ export function executableArchitecture(filename) {
   }
 }
 
+export function pyInstallerOnedirEnvironment(record, options = {}) {
+  const runtimeArch = String(options.runtimeArch || process.arch);
+  const executable = String(record?.executable || "");
+  const architecture = record?.architecture || (executable ? executableArchitecture(executable) : null);
+  if (architecture !== "arm64" || !["x64", "amd64"].includes(runtimeArch) || !executable) return {};
+
+  const internalDir = path.join(path.dirname(executable), "_internal");
+  const isDirectory = options.isDirectory || ((filename) => {
+    try { return fs.statSync(filename).isDirectory(); }
+    catch { return false; }
+  });
+  if (!isDirectory(internalDir)) return {};
+
+  // PyInstaller 6.x onedir applications normally restart their bootloader once
+  // after modifying LD_LIBRARY_PATH. Under process-scoped QEMU that guest
+  // execve would escape the emulator. Seed the post-restart environment so the
+  // bootloader proceeds directly as its main process instead.
+  const inheritedLd = String(options.ldLibraryPath ?? process.env.LD_LIBRARY_PATH ?? "").trim();
+  return {
+    _PYI_ARCHIVE_FILE: executable,
+    _PYI_PARENT_PROCESS_LEVEL: "-1",
+    LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":")
+  };
+}
+
+function arm64HelperWrapper(realSuffix = ".ucvr-arm64") {
+  return `#!/bin/sh\nset -eu\nemulator="${'${UCVR_ARM64_EMULATOR:-/usr/local/bin/qemu-aarch64-static}'}"\nld_prefix="${'${UCVR_ARM64_LD_PREFIX:-/usr/aarch64-linux-gnu}'}"\nreal="${'${0}'}${realSuffix}"\nif [ -n "$ld_prefix" ]; then\n  exec "$emulator" -L "$ld_prefix" "$real" "$@"\nfi\nexec "$emulator" "$real" "$@"\n`;
+}
+
+export function wrapArm64HelperExecutables(root, mainExecutable, options = {}) {
+  const runtimeArch = String(options.runtimeArch || process.arch);
+  if (!["x64", "amd64"].includes(runtimeArch)) return [];
+  const architectureOf = options.architectureOf || executableArchitecture;
+  const suffix = String(options.suffix || ".ucvr-arm64");
+  const wrapped = [];
+  const resolvedMain = path.resolve(mainExecutable);
+  const stack = [path.resolve(root)];
+
+  while (stack.length) {
+    const current = stack.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const filename = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(filename);
+        continue;
+      }
+      if (!entry.isFile() || path.resolve(filename) === resolvedMain || filename.endsWith(suffix)) continue;
+      const stat = fs.statSync(filename);
+      if (!(stat.mode & 0o111)) continue;
+      let architecture = null;
+      try { architecture = architectureOf(filename); }
+      catch { continue; }
+      if (architecture !== "arm64") continue;
+
+      const real = `${filename}${suffix}`;
+      if (fs.existsSync(real)) continue;
+      fs.renameSync(filename, real);
+      fs.writeFileSync(filename, arm64HelperWrapper(suffix), { mode: 0o755 });
+      fs.chmodSync(real, stat.mode & 0o777);
+      wrapped.push(path.relative(root, filename));
+    }
+  }
+  return wrapped;
+}
+
 export function driverLaunchCommand(record, options = {}) {
   const executable = String(record?.executable || "");
   const architecture = record?.architecture
@@ -375,6 +442,9 @@ export class NativeIntegrationService {
       if (architecture && architecture !== "arm64") {
         throw Object.assign(new Error(`Integration executable is ${architecture}; an ARM64/aarch64 package is required`), { status: 409 });
       }
+      const emulatedHelpers = architecture === "arm64"
+        ? wrapArm64HelperExecutables(sourceRoot, executable)
+        : [];
 
       const existing = this.managedRecord(driverId);
       const update = options.update === true;
@@ -401,6 +471,7 @@ export class NativeIntegrationService {
         executable: path.join(packageDir, relativeExecutable),
         port,
         architecture: architecture || "script",
+        emulated_helpers: emulatedHelpers,
         metadata,
         installed_at: existing?.installed_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -523,12 +594,19 @@ export class NativeIntegrationService {
     chownTree(dataDir, this.runUid, this.runGid);
     const logFile = path.join(this.logsDir, `${record.driver_id}.log`);
     const launch = driverLaunchCommand(record);
+    const processEnv = {
+      ...nativeEnvironment(record, this.host, configDir, dataDir),
+      ...pyInstallerOnedirEnvironment(record)
+    };
     if (launch.emulated) {
       log.info(`Starting ARM64 integration ${record.driver_id} through ${path.basename(launch.command)} on ${process.arch}`);
+      if (processEnv._PYI_PARENT_PROCESS_LEVEL) {
+        log.info(`Enabled PyInstaller onedir compatibility for ${record.driver_id}`);
+      }
     }
     const child = spawn(launch.command, launch.args, {
       cwd: record.package_dir,
-      env: nativeEnvironment(record, this.host, configDir, dataDir),
+      env: processEnv,
       ...(this.runUid !== null && this.runGid !== null && typeof process.getuid === "function" && process.getuid() === 0
         ? { uid: this.runUid, gid: this.runGid }
         : {}),
