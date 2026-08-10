@@ -26,6 +26,46 @@ require_dind_namespace_access() {
   exit 1
 }
 
+prepare_dind_cgroups() {
+  export container=docker
+
+  if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+    probe="/sys/fs/cgroup/.ucvr-cgroup-probe-$$"
+    if ! mkdir "$probe" >/dev/null 2>&1; then
+      mount -o remount,rw /sys/fs/cgroup >/dev/null 2>&1 || true
+    fi
+    if ! mkdir "$probe" >/dev/null 2>&1; then
+      mount -t cgroup2 -o rw,nosuid,nodev,noexec cgroup2 /sys/fs/cgroup >/dev/null 2>&1 || true
+    fi
+    if ! mkdir "$probe" >/dev/null 2>&1; then
+      echo "UC Virtual Remote: internal Docker cannot create child cgroups under /sys/fs/cgroup." >&2
+      echo "UC Virtual Remote: the cgroup v2 hierarchy is read-only or not delegated to this container." >&2
+      exit 1
+    fi
+    rmdir "$probe" >/dev/null 2>&1 || true
+
+    # Docker's DinD cgroup-v2 setup: move processes out of the namespace root
+    # and enable all controllers delegated to this container.
+    mkdir -p /sys/fs/cgroup/init
+    attempts=0
+    enabled=0
+    while [ "$attempts" -lt 5 ]; do
+      xargs -rn1 < /sys/fs/cgroup/cgroup.procs > /sys/fs/cgroup/init/cgroup.procs 2>/dev/null || true
+      if sed -e 's/ / +/g' -e 's/^/+/' < /sys/fs/cgroup/cgroup.controllers > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null; then
+        enabled=1
+        break
+      fi
+      attempts=$((attempts + 1))
+    done
+    if [ "$enabled" != "1" ]; then
+      echo "UC Virtual Remote: unable to delegate cgroup v2 controllers to internal Docker." >&2
+      exit 1
+    fi
+  fi
+
+  mount --make-rshared / >/dev/null 2>&1 || true
+}
+
 wait_for_docker() {
   timeout="${1:-45}"
   elapsed=0
@@ -68,6 +108,7 @@ start_dockerd() {
   fi
 
   require_dind_namespace_access
+  prepare_dind_cgroups
   mkdir -p "$DIND_DATA_ROOT" /var/run/docker
   export DOCKER_HOST="unix://$DOCKER_SOCKET"
 

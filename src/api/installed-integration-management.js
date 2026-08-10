@@ -176,6 +176,86 @@ async function containerRuntime(service, managed) {
   }
 }
 
+function reconciliationDriverId(record) {
+  return String(record?.driver_id || record?.metadata?.driver_id || record?.id || "");
+}
+
+function reconciliationInternal(record) {
+  return Boolean(record?.metadata?.internal || String(record?.driver_type || "").toUpperCase() === "INTERNAL");
+}
+
+function reconciliationReferences(platform, id) {
+  return (platform.db.listConfiguredEntities(id)?.length || 0)
+    + platform.db.listActivities().filter((item) => String(item.integration_id || "") === String(id)).length
+    + platform.db.listMacros().filter((item) => String(item.integration_id || "") === String(id)).length;
+}
+
+export function integrationReconciliationReport(platform) {
+  const records = platform.db.listIntegrations();
+  const nativeRecords = platform.nativeIntegrations?.records?.() || Object.values(platform.nativeIntegrations?.state?.integrations || {});
+  const externalRecords = Object.values(platform.externalIntegrations?.state?.integrations || {});
+  const nativeIds = new Set(nativeRecords.map((item) => String(item.driver_id || "")).filter(Boolean));
+  const externalIds = new Set(externalRecords.map((item) => String(item.driver_id || "")).filter(Boolean));
+  const canonical = records.filter((item) => !reconciliationInternal(item) && !item.metadata?.instance_alias);
+  const canonicalIds = new Set(canonical.map(reconciliationDriverId).filter(Boolean));
+  const issues = [];
+
+  for (const record of records) {
+    if (record?.metadata?.instance_alias) {
+      const target = String(record.metadata.connection_record_id || "");
+      if (!target || !platform.db.getIntegration(target)) {
+        issues.push({ type: "orphan_instance_alias", record_id: record.id, driver_id: reconciliationDriverId(record), repairable: true, message: `Instance alias ${record.id} points to missing integration ${target || "(none)"}` });
+      }
+      continue;
+    }
+    if (reconciliationInternal(record)) continue;
+    const id = reconciliationDriverId(record);
+    const references = reconciliationReferences(platform, record.id);
+    if (record.metadata?.native_runtime && !nativeIds.has(id)) {
+      issues.push({ type: "stale_native_database_record", record_id: record.id, driver_id: id, references, repairable: references === 0, message: `Database contains native driver ${id}, but its native runtime state is missing` });
+    }
+    if ((record.metadata?.registry_managed || record.registry_managed) && !externalIds.has(id)) {
+      issues.push({ type: "stale_external_database_record", record_id: record.id, driver_id: id, references, repairable: references === 0, message: `Database contains managed driver ${id}, but its container runtime state is missing` });
+    }
+  }
+
+  const groups = new Map();
+  for (const record of canonical) {
+    const id = reconciliationDriverId(record);
+    if (!id) continue;
+    const values = groups.get(id) || [];
+    values.push(record);
+    groups.set(id, values);
+  }
+  for (const [id, values] of groups) {
+    if (values.length > 1) {
+      issues.push({ type: "duplicate_driver_id", driver_id: id, record_ids: values.map((item) => item.id), repairable: false, message: `Driver ID ${id} is used by ${values.length} database records: ${values.map((item) => item.id).join(", ")}` });
+    }
+  }
+
+  for (const record of nativeRecords) {
+    if (record.driver_id && !canonicalIds.has(String(record.driver_id))) issues.push({ type: "orphan_native_runtime", driver_id: String(record.driver_id), repairable: false, message: `Native runtime state exists for ${record.driver_id}, but no database record exists` });
+  }
+  for (const record of externalRecords) {
+    if (record.driver_id && !canonicalIds.has(String(record.driver_id))) issues.push({ type: "orphan_external_runtime", driver_id: String(record.driver_id), container: record.container || null, repairable: false, message: `Managed container state exists for ${record.driver_id}, but no database record exists` });
+  }
+
+  return { healthy: issues.length === 0, database_records: canonical.length, native_runtime_records: nativeRecords.length, external_runtime_records: externalRecords.length, repairable: issues.filter((item) => item.repairable).length, issues };
+}
+
+export async function repairIntegrationReconciliation(platform) {
+  const before = integrationReconciliationReport(platform);
+  const repaired = [];
+  for (const issue of before.issues.filter((item) => item.repairable)) {
+    if (issue.type === "orphan_instance_alias") {
+      if (platform.db.deleteIntegration(issue.record_id)) repaired.push(issue);
+    } else if (["stale_native_database_record", "stale_external_database_record"].includes(issue.type)) {
+      if (await platform.integrations.remove(issue.record_id).catch(() => false)) repaired.push(issue);
+    }
+  }
+  return { repaired, before, after: integrationReconciliationReport(platform) };
+}
+
 export async function installedIntegrationItems(platform) {
   const service = platform.externalIntegrations;
   const records = visibleIntegrations(platform.db.listIntegrations());
@@ -406,6 +486,13 @@ async function handle(request, response, url, httpServer, platform) {
   const pathname = url.pathname.replace(/\/+$/, "") || "/";
   const matched = route(pathname);
   if (!matched) return json(response, 404, { error: "Not found" });
+
+  if (pathname === `${ROUTE_ROOT}/reconcile` && request.method === "GET") {
+    return json(response, 200, integrationReconciliationReport(platform));
+  }
+  if (pathname === `${ROUTE_ROOT}/reconcile` && request.method === "POST") {
+    return json(response, 200, await repairIntegrationReconciliation(platform));
+  }
 
   if (request.method === "OPTIONS") {
     response.writeHead(204, {

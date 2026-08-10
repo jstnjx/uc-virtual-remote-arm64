@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { driverLaunchCommand, pyInstallerOnedirEnvironment, wrapArm64HelperExecutables } from "../src/native-integrations/service.js";
+import { driverLaunchCommand, packageExecutable, pyInstallerOnedirEnvironment, wrapArm64HelperExecutables } from "../src/native-integrations/service.js";
 
 const record = {
   driver_id: "test-driver",
@@ -67,7 +67,7 @@ test("PyInstaller onedir ARM64 drivers skip the guest self-exec on amd64", () =>
       ldLibraryPath: "/existing/lib"
     });
     assert.equal(env._PYI_ARCHIVE_FILE, executable);
-    assert.equal(env._PYI_PARENT_PROCESS_LEVEL, "-1");
+    assert.equal(env._PYI_PARENT_PROCESS_LEVEL, "0");
     assert.equal(env.LD_LIBRARY_PATH, `${path.join(root, "bin", "_internal")}:/existing/lib`);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -101,6 +101,24 @@ test("secondary ARM64 executables are wrapped without replacing the main driver"
     assert.equal(fs.readFileSync(`${helper}.ucvr-arm64`, "utf8"), "helper");
     assert.equal(fs.readFileSync(sharedLibrary, "utf8"), "shared");
     assert.equal(fs.readFileSync(nativeModule, "utf8"), "native");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+
+test("documented bin/driver.js packages launch through Node", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ucvr-node-driver-"));
+  try {
+    const bin = path.join(root, "bin");
+    const driver = path.join(bin, "driver.js");
+    fs.mkdirSync(bin, { recursive: true });
+    fs.writeFileSync(driver, "console.log('driver');\n", { mode: 0o644 });
+    assert.equal(packageExecutable(root), driver);
+    const launch = driverLaunchCommand({ driver_id: "node-driver", executable: driver, architecture: "script" }, { runtimeArch: "x64" });
+    assert.equal(launch.command, process.execPath);
+    assert.deepEqual(launch.args, [driver]);
+    assert.equal(launch.architecture, "script");
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

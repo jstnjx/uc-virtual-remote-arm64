@@ -193,9 +193,11 @@ function copyMissingTree(source, destination) {
   }
 }
 
-function packageExecutable(root) {
+export function packageExecutable(root) {
   const standard = path.join(root, "bin", "driver");
   if (fs.existsSync(standard) && fs.statSync(standard).isFile()) return standard;
+  const nodeStandard = path.join(root, "bin", "driver.js");
+  if (fs.existsSync(nodeStandard) && fs.statSync(nodeStandard).isFile()) return nodeStandard;
   const bin = path.join(root, "bin");
   if (fs.existsSync(bin)) {
     const candidates = fs.readdirSync(bin)
@@ -206,7 +208,7 @@ function packageExecutable(root) {
       });
     if (candidates.length === 1) return candidates[0];
   }
-  throw Object.assign(new Error("Integration archive is missing the standard bin/driver executable"), { status: 422 });
+  throw Object.assign(new Error("Integration archive is missing bin/driver or bin/driver.js"), { status: 422 });
 }
 
 export function executableArchitecture(filename) {
@@ -239,14 +241,14 @@ export function pyInstallerOnedirEnvironment(record, options = {}) {
   });
   if (!isDirectory(internalDir)) return {};
 
-  // PyInstaller 6.x onedir applications normally restart their bootloader once
+  // POSIX PyInstaller onedir applications normally restart their bootloader once
   // after modifying LD_LIBRARY_PATH. Under process-scoped QEMU that guest
-  // execve would escape the emulator. Seed the post-restart environment so the
-  // bootloader proceeds directly as its main process instead.
+  // execve would escape the emulator. Seed the post-restart environment.
+  // Older bootloaders only accept 0/1; 0 is the post-restart main process.
   const inheritedLd = String(options.ldLibraryPath ?? process.env.LD_LIBRARY_PATH ?? "").trim();
   return {
     _PYI_ARCHIVE_FILE: executable,
-    _PYI_PARENT_PROCESS_LEVEL: "-1",
+    _PYI_PARENT_PROCESS_LEVEL: "0",
     LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":")
   };
 }
@@ -301,6 +303,9 @@ export function driverLaunchCommand(record, options = {}) {
   const architecture = record?.architecture
     || (executable ? executableArchitecture(executable) : null);
   const runtimeArch = String(options.runtimeArch || process.arch);
+  if (path.extname(executable).toLowerCase() === ".js") {
+    return { command: process.execPath, args: [executable], emulated: false, architecture: "script" };
+  }
   if (architecture !== "arm64" || runtimeArch === "arm64") {
     return { command: executable, args: [], emulated: false, architecture: architecture || "script" };
   }
@@ -439,7 +444,7 @@ export class NativeIntegrationService {
         throw Object.assign(new Error("driver.json contains an invalid driver_id"), { status: 422 });
       }
       if (metadata.min_core_api && !versionAtLeast(this.platform.restCoreApiVersion, metadata.min_core_api)) {
-        throw Object.assign(new Error(`Integration requires Core API ${metadata.min_core_api}, this runtime provides ${this.platform.restCoreApiVersion}`), { status: 409 });
+        log.warn(`Integration ${driverId} declares Core API ${metadata.min_core_api}; runtime reports ${this.platform.restCoreApiVersion}. min_core_api is informational and is not enforced.`);
       }
       const executable = packageExecutable(sourceRoot);
       fs.chmodSync(executable, fs.statSync(executable).mode | 0o755);
@@ -636,7 +641,10 @@ export class NativeIntegrationService {
       if (!await waitForPort(this.host, record.port, timeout)) {
         const tail = readTail(logFile, 60).join("\n");
         await this.stopDriver(record.driver_id).catch(() => {});
-        throw new Error(`Native integration ${record.driver_id} did not open Integration API port ${record.port}.${tail ? ` Last output: ${tail.slice(-2000)}` : ""}`);
+        throw Object.assign(
+          new Error(`Native integration ${record.driver_id} did not open Integration API port ${record.port}.${tail ? ` Last output: ${tail.slice(-2000)}` : ""}`),
+          { status: 422, code: "INTEGRATION_START_FAILED" }
+        );
       }
     }
     return record;

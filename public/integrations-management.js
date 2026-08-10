@@ -1,5 +1,6 @@
 import { appUrl } from "./management-base.js";
 const integrationRefresh = document.querySelector("#installed-integrations-refresh");
+let integrationReconcile = document.querySelector("#installed-integrations-reconcile");
 const integrationSummary = document.querySelector("#installed-integrations-summary");
 const integrationList = document.querySelector("#installed-integrations-list");
 const integrationResult = document.querySelector("#installed-integrations-result");
@@ -197,7 +198,48 @@ function openLogs(container) {
   logs?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+if (!integrationReconcile && integrationRefresh?.parentElement) {
+  integrationReconcile = document.createElement("button");
+  integrationReconcile.id = "installed-integrations-reconcile";
+  integrationReconcile.type = "button";
+  integrationReconcile.className = "button button-secondary";
+  integrationReconcile.textContent = "Scan stale records";
+  integrationRefresh.parentElement.insertBefore(integrationReconcile, integrationRefresh);
+}
+
+async function reconcileInstalledIntegrations() {
+  if (!integrationReconcile) return;
+  integrationReconcile.disabled = true;
+  setResult("working", "Scanning integration records…");
+  try {
+    const report = await management("/reconcile");
+    if (report.healthy) {
+      setResult("success", "No stale, orphaned, or duplicate integration records were found.");
+      return;
+    }
+    const preview = report.issues.slice(0, 3).map((item) => item.message).join(" · ");
+    if (!report.repairable) {
+      setResult("error", `Found ${report.issues.length} issue(s), but none can be repaired automatically. ${preview}`);
+      return;
+    }
+    if (!window.confirm(`Found ${report.issues.length} integration record issue(s). Repair ${report.repairable} safe stale record(s) now?`)) {
+      setResult("working", `Found ${report.issues.length} issue(s). ${preview}`);
+      return;
+    }
+    const result = await management("/reconcile", { method: "POST", body: "{}" });
+    const remaining = result.after?.issues?.length || 0;
+    setResult(remaining ? "error" : "success", `Repaired ${result.repaired?.length || 0} stale record(s). ${remaining ? `${remaining} issue(s) still require review.` : "No reconciliation issues remain."}`);
+    await refreshInstalledIntegrations();
+    document.querySelector("#refresh-button")?.click();
+  } catch (error) {
+    setResult("error", error.message);
+  } finally {
+    integrationReconcile.disabled = false;
+  }
+}
+
 integrationRefresh?.addEventListener("click", refreshInstalledIntegrations);
+integrationReconcile?.addEventListener("click", reconcileInstalledIntegrations);
 integrationList?.addEventListener("click", async (event) => {
   const action = event.target.closest("[data-integration-action]");
   const remove = event.target.closest("[data-integration-remove]");
