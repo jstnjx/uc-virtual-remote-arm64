@@ -1,21 +1,21 @@
-# UC Virtual Remote ARM64
+# UC Virtual Remote
 
 [![Build](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/build.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/build.yml)
 [![Docker](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/docker.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/docker.yml)
 [![Release](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/release.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A compact ARM64 virtual Unfolded Circle Remote appliance. The Remote Core, Web Configurator, normal ARM64 custom integrations, and Docker-based external integrations all live inside one top-level container.
+A compact multi-architecture virtual Unfolded Circle Remote appliance. The Remote Core, Web Configurator, normal ARM64 custom integrations, and Docker-based external integrations all live inside one top-level container.
 
-> UC Virtual Remote ARM64 is an independent community project. It is not affiliated with, endorsed by, operated by, or supported by Unfolded Circle ApS.
+> UC Virtual Remote is an independent community project. It is not affiliated with, endorsed by, operated by, or supported by Unfolded Circle ApS.
 
 ## Features
 
-### One ARM64 appliance container
+### One multi-architecture appliance container
 
-- ARM64-only UC Virtual Remote image
-- Works natively on ARM64 Linux hosts
-- Can run on x86-64 Linux with ARM64 binfmt/QEMU emulation
+- Multi-architecture image for ARM64 and AMD64 Linux hosts
+- Core, Web Configurator and internal Docker run natively on the host architecture
+- ARM64 UC integration binaries run directly on ARM64 and through bundled, process-scoped QEMU on AMD64
 - Persistent Remote data and internal Docker state under one `/data` mount
 - Host networking for local discovery, Wake-on-LAN, mDNS, and Integration API connectivity
 
@@ -40,7 +40,7 @@ version.txt        optional
 
 Native integrations:
 
-- run directly inside the ARM64 appliance
+- run directly on ARM64; ARM64 ELF drivers use the bundled `qemu-aarch64-static` launcher on AMD64
 - get their own persistent config and data directories
 - are automatically supervised and restarted after unexpected exits
 - use isolated Integration API ports from the shared integration port range
@@ -62,7 +62,7 @@ Supported existing flows remain available:
 - start, stop, restart, reconnect, update, reset, and uninstall
 - per-integration `/config` and `/data` persistence
 
-Source builds happen in the internal ARM64 Docker daemon, so generated images are ARM64. Prebuilt external images must provide an ARM64 variant.
+Source builds happen in the internal Docker daemon for the host architecture. Prebuilt external images must provide a variant for that host architecture; on AMD64, an ARM64-only prebuilt image can fall back to a source build when the registry entry supports it.
 
 ### Virtual Remote Core
 
@@ -93,7 +93,7 @@ Required on the host:
 - Docker Compose v2
 - Git and curl for the one-command installer
 
-On x86-64 hosts the installer checks ARM64 container execution and installs the `arm64` binfmt handler when needed.
+No host-wide ARM64 `binfmt_misc` handler is required. The AMD64 image contains its own scoped ARM64 userspace emulator for normal Remote integration binaries.
 
 ## Quick start
 
@@ -132,7 +132,7 @@ Persistent data defaults to:
 
 ```text
 Linux host
-└─ uc-virtual-remote-arm64           ARM64, privileged, host network
+└─ uc-virtual-remote-arm64           host-native, privileged, host network
    ├─ Virtual Remote Core
    ├─ Web Configurator
    ├─ native integration process A   uploaded Remote tarball
@@ -159,7 +159,7 @@ docker compose build
 docker compose up -d --no-build
 ```
 
-The Compose service explicitly targets `linux/arm64`.
+The Compose service uses the multi-architecture image and automatically selects the host-native `linux/arm64` or `linux/amd64` variant.
 
 ## Main configuration options
 
@@ -227,10 +227,10 @@ Build the committed Web Configurator source with:
 npm run prepare:web-configurator
 ```
 
-Validate the ARM64 appliance image with Buildx:
+Validate both appliance image variants with Buildx:
 
 ```bash
-docker buildx build --platform linux/arm64 -t uc-virtual-remote-arm64:dev .
+docker buildx build --platform linux/amd64,linux/arm64 -t uc-virtual-remote-arm64:dev .
 ```
 
 ## Uninstall
