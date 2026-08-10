@@ -39,9 +39,14 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager rfkill tar usbutils \
     && if [ "$TARGETARCH" = "amd64" ]; then \
-         apt-get install -y --no-install-recommends qemu-user-static libc6-arm64-cross libgcc-s1-arm64-cross; \
+         dpkg --add-architecture arm64; \
+         apt-get update; \
+         apt-get install -y --no-install-recommends qemu-user-static libc6-arm64-cross libgcc-s1-arm64-cross libstdc++6-arm64-cross zlib1g:arm64; \
          cp /usr/bin/qemu-aarch64-static /usr/local/bin/qemu-aarch64-static; \
          chmod 0755 /usr/local/bin/qemu-aarch64-static; \
+         install -d /usr/aarch64-linux-gnu/lib; \
+         cp -a /lib/aarch64-linux-gnu/libz.so.1* /usr/aarch64-linux-gnu/lib/; \
+         test -e /usr/aarch64-linux-gnu/lib/libz.so.1; \
          apt-get purge -y qemu-user-static; \
        fi \
     && rm -rf /var/lib/apt/lists/* \

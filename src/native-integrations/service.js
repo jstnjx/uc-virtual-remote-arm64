@@ -94,28 +94,69 @@ export function validateTarListing(output) {
   return entries;
 }
 
-export function validateTarTypes(output) {
+function normalizedArchivePath(value) {
+  return String(value || "").replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+export function validateArchiveSymlink(linkName, target) {
+  const name = normalizedArchivePath(linkName);
+  const destination = String(target || "").replace(/\\/g, "/");
+  if (!name || !destination || destination.startsWith("/") || /^[A-Za-z]:\//.test(destination)) {
+    throw Object.assign(new Error(`Unsafe integration archive symbolic link: ${linkName} -> ${target}`), { status: 422 });
+  }
+  const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(name), destination));
+  if (!resolved || resolved === ".." || resolved.startsWith("../") || resolved.startsWith("/") || /^[A-Za-z]:\//.test(resolved)) {
+    throw Object.assign(new Error(`Unsafe integration archive symbolic link: ${linkName} -> ${target}`), { status: 422 });
+  }
+  return resolved;
+}
+
+export function validateTarTypes(output, entries = []) {
   const lines = String(output || "").split(/\r?\n/).map((item) => item.trimStart()).filter(Boolean);
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     const type = line[0];
-    if (type !== "-" && type !== "d") {
-      throw Object.assign(new Error(`Integration archive contains unsupported link or special file: ${line}`), { status: 422 });
+    if (type === "-" || type === "d") continue;
+    if (type === "l") {
+      const arrow = line.lastIndexOf(" -> ");
+      const linkName = entries[index];
+      if (arrow < 0 || !linkName) {
+        throw Object.assign(new Error(`Integration archive contains unsupported link or special file: ${line}`), { status: 422 });
+      }
+      validateArchiveSymlink(linkName, line.slice(arrow + 4));
+      continue;
     }
+    throw Object.assign(new Error(`Integration archive contains unsupported link or special file: ${line}`), { status: 422 });
   }
 }
 
 function inspectTree(root) {
   let files = 0;
-  const stack = [path.resolve(root)];
+  const resolvedRoot = path.resolve(root);
+  const rootPrefix = `${resolvedRoot}${path.sep}`;
+  const stack = [resolvedRoot];
   while (stack.length) {
     const current = stack.pop();
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const filename = path.join(current, entry.name);
       const stat = fs.lstatSync(filename);
-      if (stat.isSymbolicLink()) throw Object.assign(new Error(`Integration archive contains unsupported symbolic link: ${path.relative(root, filename)}`), { status: 422 });
-      if (stat.isDirectory()) stack.push(filename);
-      else if (stat.isFile()) files += 1;
-      else throw Object.assign(new Error(`Integration archive contains unsupported special file: ${path.relative(root, filename)}`), { status: 422 });
+      if (stat.isSymbolicLink()) {
+        const target = fs.readlinkSync(filename);
+        if (path.isAbsolute(target)) {
+          throw Object.assign(new Error(`Unsafe integration archive symbolic link: ${path.relative(root, filename)} -> ${target}`), { status: 422 });
+        }
+        const resolvedTarget = path.resolve(path.dirname(filename), target);
+        if (resolvedTarget !== resolvedRoot && !resolvedTarget.startsWith(rootPrefix)) {
+          throw Object.assign(new Error(`Unsafe integration archive symbolic link: ${path.relative(root, filename)} -> ${target}`), { status: 422 });
+        }
+        files += 1;
+      } else if (stat.isDirectory()) {
+        stack.push(filename);
+      } else if (stat.isFile()) {
+        files += 1;
+      } else {
+        throw Object.assign(new Error(`Integration archive contains unsupported special file: ${path.relative(root, filename)}`), { status: 422 });
+      }
       if (files > MAX_EXTRACTED_FILES) throw Object.assign(new Error("Integration archive contains too many files"), { status: 413 });
     }
   }
@@ -313,12 +354,13 @@ export class NativeIntegrationService {
 
     try {
       const listing = await this.runner("tar", ["-tzf", archiveFile], { timeoutMs: 30_000, env: { LC_ALL: "C" } });
-      validateTarListing(listing.stdout);
+      const archiveEntries = validateTarListing(listing.stdout);
       const verboseListing = await this.runner("tar", ["-tvzf", archiveFile], { timeoutMs: 30_000, env: { LC_ALL: "C" } });
-      validateTarTypes(verboseListing.stdout);
+      validateTarTypes(verboseListing.stdout, archiveEntries);
       await this.runner("tar", ["-xzf", archiveFile, "--no-same-owner", "--no-same-permissions", "-C", extracted], { timeoutMs: 90_000, env: { LC_ALL: "C" } });
       inspectTree(extracted);
       const sourceRoot = packageRoot(extracted);
+      inspectTree(sourceRoot);
       const metadata = JSON.parse(fs.readFileSync(path.join(sourceRoot, "driver.json"), "utf8"));
       const driverId = String(metadata.driver_id || "").trim();
       if (!/^[A-Za-z0-9_.-]{1,80}$/.test(driverId) || driverId === "." || driverId === "..") {

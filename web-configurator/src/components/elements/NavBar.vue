@@ -59,6 +59,10 @@ const notificationWrapper = useTemplateRef<HTMLDivElement>(
 );
 const mobileMenuOpen = ref(false);
 const notificationWidth = ref(0);
+const managementHref = computed(() => {
+  const base = String((window as Window & { __UCVR_BASE_PATH__?: string }).__UCVR_BASE_PATH__ || "").replace(/\/$/, "");
+  return base ? `${base}/` : "/";
+});
 
 const selectedSettingsMenuItem = ref("");
 const activeOptionSettingsItem = ref({ label: "", value: "" });
@@ -390,6 +394,7 @@ onMounted(async () => {
       </template>
     </div>
     <div class="navbar__col--right">
+      <a class="button button--secondary navbar__management-link" :href="managementHref" title="Open UC Virtual Remote Management" aria-label="Open Management interface"><i class="fa-light fa-sliders"></i><span>Management</span></a>
       <Transition name="opacity">
         <RemoteStatus
           v-show="!isSmallScreen || !mobileMenuOpen"
@@ -416,3 +421,7 @@ onMounted(async () => {
     <LogoutDialog ref="elLogout" />
   </header>
 </template>
+
+<style scoped>
+.navbar__management-link{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;text-decoration:none}@media(max-width:1180px){.navbar__management-link span{display:none}}
+</style>

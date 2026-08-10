@@ -97,18 +97,18 @@
 
     installStyles();
     const panel = element("div", { id: PANEL_ID });
-    panel.appendChild(element("h3", {}, "Pair a Satellite"));
+    panel.appendChild(element("h3", {}, "Pair a Remote"));
     panel.appendChild(
       element(
         "p",
         {},
-        "On the physical Remote, configure UC Remote Sync as a Satellite. Enter its agent address and the pairing token shown at the end of Satellite setup.",
+        "On the physical Remote, open UC Remote Sync and choose Satellite mode. Enter the address and pairing token shown there.",
       ),
     );
 
     const grid = element("div", { class: "ucvr-sync-pair-grid" });
     const addressLabel = element("label");
-    addressLabel.appendChild(element("span", {}, "Satellite agent address"));
+    addressLabel.appendChild(element("span", {}, "Remote address"));
     addressLabel.appendChild(
       element("input", {
         type: "text",
@@ -138,7 +138,7 @@
     panel.appendChild(grid);
 
     const actions = element("div", { class: "ucvr-sync-pair-actions" });
-    const button = element("button", { class: "button", type: "button" }, "Pair Satellite");
+    const button = element("button", { class: "button", type: "button" }, "Pair Remote");
     const status = element("span", { "data-field": "status", "aria-live": "polite" });
     button.addEventListener("click", () => pairSatellite(panel));
     actions.append(button, status);
