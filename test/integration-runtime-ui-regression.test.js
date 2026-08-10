@@ -5,6 +5,7 @@ import test from "node:test";
 import { validateArchiveSymlink, validateTarTypes } from "../src/native-integrations/service.js";
 
 const dockerfile = fs.readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
+const entrypoint = fs.readFileSync(new URL("../docker-entrypoint.sh", import.meta.url), "utf8");
 const syncMode = fs.readFileSync(new URL("../web-configurator/src/components/settings/SyncMode.vue", import.meta.url), "utf8");
 const navBar = fs.readFileSync(new URL("../web-configurator/src/components/elements/NavBar.vue", import.meta.url), "utf8");
 
@@ -55,4 +56,11 @@ test("Web Configurator exposes Management", () => {
   assert.match(navBar, /managementHref/);
   assert.match(navBar, />Management</);
   assert.match(navBar, /__UCVR_BASE_PATH__/);
+});
+
+
+test("nested Docker checks mount namespace privilege", () => {
+  assert.match(dockerfile, /util-linux/);
+  assert.match(entrypoint, /unshare --mount/);
+  assert.match(entrypoint, /disable Protection mode/);
 });

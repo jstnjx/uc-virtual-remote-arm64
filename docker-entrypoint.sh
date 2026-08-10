@@ -13,6 +13,18 @@ APP_PID=""
 
 mkdir -p "$DATA_DIR" "$DATA_DIR/logs"
 
+require_dind_namespace_access() {
+  if command -v unshare >/dev/null 2>&1 && unshare --mount /bin/true >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "UC Virtual Remote: internal Docker cannot create mount namespaces in this container." >&2
+  echo "UC Virtual Remote: registry/external integrations require the top-level container to run fully privileged." >&2
+  echo "UC Virtual Remote: Home Assistant users must disable Protection mode for this add-on before starting it; full_access is only effective for unprotected add-ons." >&2
+  echo "UC Virtual Remote: standalone Docker users must start the appliance with --privileged." >&2
+  exit 1
+}
+
 wait_for_docker() {
   timeout="${1:-45}"
   elapsed=0
@@ -54,6 +66,7 @@ start_dockerd() {
     exit 1
   fi
 
+  require_dind_namespace_access
   mkdir -p "$DIND_DATA_ROOT" /var/run/docker
   export DOCKER_HOST="unix://$DOCKER_SOCKET"
 
