@@ -86,39 +86,39 @@ const state = ref<SyncState | null>(null);
 const form = ref<SyncSettings | null>(null);
 const loading = ref(true);
 const busy = ref(false);
-const filter = ref("");
 const broadcasts = ref("");
 const dockTokens = ref("");
 let pollTimer: number | null = null;
 
 const stateLabel = computed(() => {
-  if (busy.value || state.value?.applying) return "Applying";
-  if (!state.value?.enabled) return "Disabled";
-  if (state.value.integration?.status === "CONNECTED") {
-    return "Primary connected";
-  }
-  return (
-    state.value.job?.message ||
-    state.value.integration?.status ||
-    "Enabled"
-  );
+  if (busy.value || state.value?.applying) return "Applying changes…";
+  if (!state.value?.enabled) return "Sync Mode is off";
+  if (state.value.integration?.status === "CONNECTED") return "Ready";
+  if (state.value.job?.message) return state.value.job.message;
+  return state.value.integration?.status ? "Starting…" : "Enabled";
 });
 
-const catalog = computed(() => {
-  const query = filter.value.trim().toLowerCase();
-  const groups = state.value?.catalog || [];
-  if (!query) return groups;
-  return groups
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) =>
-        `${item.key} ${item.value} ${item.source} ${item.availability}`
-          .toLowerCase()
-          .includes(query),
-      ),
-    }))
-    .filter((group) => group.items.length);
+const stateDescription = computed(() => {
+  if (!state.value?.enabled) return "Turn on Sync Mode to use this Virtual Remote as the Primary for your physical remotes.";
+  if (state.value.integration?.status === "CONNECTED") return "This Virtual Remote is ready to keep paired physical remotes synchronized.";
+  return state.value.integration?.error || "The synchronization service is starting. This page updates automatically.";
 });
+
+const intervalMinutes = computed({
+  get: () => Math.max(5, Math.round(Number(form.value?.sync.interval_seconds || 900) / 60)),
+  set: (value: number) => { if (form.value) form.value.sync.interval_seconds = Math.max(5, Number(value || 5)) * 60; },
+});
+
+const sectionLabels: Record<string, { label: string; description: string }> = {
+  resources: { label: "Icons & images", description: "Custom icons, backgrounds and other resources" },
+  entities: { label: "Devices & entities", description: "Configured devices and their entities" },
+  activities: { label: "Activities", description: "Activities and their sequences" },
+  activity_groups: { label: "Activity groups", description: "Activity groups and organization" },
+  macros: { label: "Macros", description: "Reusable command sequences" },
+  remotes: { label: "Remote layouts", description: "Remote button and screen configuration" },
+  profiles: { label: "Profiles", description: "Profiles, pages and groups" },
+  docks: { label: "Docks", description: "Dock configuration and assignments" },
+};
 
 async function api(options: RequestInit = {}) {
   const response = await fetch(API, {
@@ -246,530 +246,29 @@ onBeforeUnmount(() => {
   <div class="page-settings-section sync-mode">
     <h1 class="page-settings-section__title">Sync Mode</h1>
     <div v-if="loading" class="sync-loading">Loading Sync Mode…</div>
-    <div
-      v-else-if="form && state"
-      class="page-settings-section__main sync-content"
-    >
+    <div v-else-if="form && state" class="page-settings-section__main sync-content">
       <section class="sync-card sync-hero">
-        <div>
-          <div class="sync-eyebrow">UC Remote Sync Primary</div>
-          <h2>{{ stateLabel }}</h2>
-          <p>
-            Runs <strong>uc-remote-sync</strong> on this virtual Core and makes
-            it the authoritative Primary for physical Satellite remotes.
-          </p>
-        </div>
+        <div><div class="sync-eyebrow">Remote synchronization</div><h2>{{ stateLabel }}</h2><p>{{ stateDescription }}</p></div>
         <div class="sync-actions">
-          <button
-            class="button button--primary"
-            :disabled="busy"
-            @click="command('apply', true)"
-          >
-            Save &amp; Apply
-          </button>
-          <button
-            v-if="state.enabled"
-            class="button"
-            :disabled="busy"
-            @click="command('disable')"
-          >
-            Disable
-          </button>
-          <button class="button" :disabled="busy" @click="command('refresh')">
-            Refresh
-          </button>
+<button v-if="!state.enabled" class="button button--primary" :disabled="busy" @click="command('apply', true)">Enable Sync Mode</button>
+<template v-else><button class="button button--primary" :disabled="busy" @click="command('apply', true)">Save changes</button><button class="button" :disabled="busy" @click="command('sync')">Sync now</button><button class="button" :disabled="busy" @click="command('disable')">Turn off</button></template>
         </div>
       </section>
-
-      <div v-if="state.warnings.length" class="sync-warning">
-        <div v-for="warning in state.warnings" :key="warning">
-          {{ warning }}
-        </div>
-      </div>
-
-      <section class="sync-card">
-        <h2>Primary service</h2>
-        <div class="sync-grid">
-          <label>
-            <span>Primary name</span>
-            <input v-model="form.primary.node_name" type="text" />
-          </label>
-          <label>
-            <span>Container image</span>
-            <input v-model="form.integration.image" type="text" />
-          </label>
-          <label>
-            <span>Image tag</span>
-            <input v-model="form.integration.version" type="text" />
-          </label>
-          <label>
-            <span>Agent port</span>
-            <input
-              v-model.number="form.primary.agent_port"
-              type="number"
-              min="1"
-              max="65535"
-            />
-          </label>
-          <label>
-            <span>Virtual Dock port</span>
-            <input
-              v-model.number="form.primary.virtual_dock_port"
-              type="number"
-              min="1"
-              max="65535"
-            />
-          </label>
-          <label>
-            <span>Public agent URL override</span>
-            <input
-              v-model="form.primary.agent_public_url"
-              type="text"
-              placeholder="Automatic"
-            />
-          </label>
-          <label>
-            <span>Network interface override</span>
-            <input
-              v-model="form.primary.network_interface"
-              type="text"
-              placeholder="Automatic"
-            />
-          </label>
-          <label>
-            <span>MAC override</span>
-            <input
-              v-model="form.primary.network_mac"
-              type="text"
-              placeholder="Automatic"
-            />
-          </label>
-          <label class="wide">
-            <span>WoWLAN broadcast overrides</span>
-            <input
-              v-model="broadcasts"
-              type="text"
-              placeholder="192.168.1.255, 10.0.0.255"
-            />
-          </label>
-          <label>
-            <span>Default physical Dock token</span>
-            <input
-              v-model="form.primary.physical_dock_default_token"
-              type="password"
-            />
-          </label>
-          <label class="wide">
-            <span>Per-Dock tokens</span>
-            <input
-              v-model="dockTokens"
-              type="text"
-              placeholder="DOCK_ID=token, OTHER_DOCK=token"
-            />
-          </label>
-        </div>
-        <div class="sync-meta">
-          <span>
-            Core API key:
-            <strong>
-              {{
-                state.credentials.api_key_provisioned
-                  ? "Provisioned"
-                  : "Not provisioned"
-              }}
-            </strong>
-          </span>
-          <span>
-            Integration:
-            <strong>{{ state.integration?.status || "Not installed" }}</strong>
-          </span>
-          <span>
-            Container:
-            <strong>{{ state.managed?.container || "Not installed" }}</strong>
-          </span>
-          <span>
-            Agent:
-            <strong>
-              {{
-                state.agent.status?.state ||
-                (state.agent.health ? "Healthy" : "Unavailable")
-              }}
-            </strong>
-          </span>
-        </div>
-        <div class="sync-actions left">
-          <button class="button" :disabled="busy" @click="command('rotate-key')">
-            Rotate managed credentials
-          </button>
-          <button
-            class="button"
-            :disabled="busy || !state.enabled"
-            @click="command('preview')"
-          >
-            Preview synchronization
-          </button>
-          <button
-            class="button"
-            :disabled="busy || !state.enabled"
-            @click="command('sync')"
-          >
-            Synchronize now
-          </button>
-        </div>
-      </section>
-
-      <section class="sync-card">
-        <h2>Synchronization policy</h2>
-        <div class="sync-sections">
-          <label v-for="section in sectionOptions" :key="section">
-            <input
-              type="checkbox"
-              :checked="sectionEnabled(section)"
-              @change="setSection(section, $event)"
-            />
-            <span>{{ section.replace(/_/g, " ") }}</span>
-          </label>
-        </div>
-        <div class="sync-grid">
-          <label>
-            <span>Automatic interval (seconds)</span>
-            <input
-              v-model.number="form.sync.interval_seconds"
-              type="number"
-              min="300"
-              max="86400"
-            />
-          </label>
-          <label class="check">
-            <input v-model="form.sync.auto_sync" type="checkbox" />
-            <span>Automatic synchronization</span>
-          </label>
-          <label class="check">
-            <input v-model="form.sync.prune" type="checkbox" />
-            <span>Remove deleted objects</span>
-          </label>
-          <label class="check">
-            <input
-              v-model="form.sync.use_standby_inhibitor"
-              type="checkbox"
-            />
-            <span>Use Satellite standby inhibitor</span>
-          </label>
-          <label class="check">
-            <input
-              v-model="form.sync.verify_existing_resource_hashes"
-              type="checkbox"
-            />
-            <span>Verify existing resource hashes</span>
-          </label>
-        </div>
-      </section>
-
-      <section class="sync-card">
-        <h2>Primary Remote requirements</h2>
-        <div class="sync-grid">
-          <label class="check">
-            <input
-              v-model="form.hardware.enforce_wifi_enabled"
-              type="checkbox"
-            />
-            <span>Keep Wi-Fi enabled</span>
-          </label>
-          <label class="check">
-            <input
-              v-model="form.hardware.keep_wifi_connected_during_standby"
-              type="checkbox"
-            />
-            <span>Keep Wi-Fi connected during standby</span>
-          </label>
-          <label class="check">
-            <input
-              v-model="form.hardware.disable_standby"
-              type="checkbox"
-            />
-            <span>Disable Primary standby</span>
-          </label>
-          <label>
-            <span>Virtual battery level</span>
-            <input
-              v-model.number="form.hardware.simulator_battery_level"
-              type="number"
-              min="0"
-              max="100"
-            />
-          </label>
-          <label class="check">
-            <input
-              v-model="form.hardware.simulator_charging"
-              type="checkbox"
-            />
-            <span>Virtual Remote charging</span>
-          </label>
-          <label>
-            <span>Virtual Wi-Fi state</span>
-            <select v-model="form.hardware.simulator_wifi_state">
-              <option>CONNECTED</option>
-              <option>CONNECTING</option>
-              <option>DISCONNECTED</option>
-            </select>
-          </label>
-        </div>
-      </section>
-
-      <section class="sync-card">
-        <h2>Satellite remotes</h2>
-        <p v-if="!state.agent.satellites.length">
-          No paired Satellites are currently reported by the Primary agent.
-        </p>
-        <div v-else class="satellites">
-          <div
-            v-for="satellite in state.agent.satellites"
-            :key="satellite.peer_id || satellite.id"
-            class="satellite"
-          >
-            <strong>
-              {{ satellite.name || satellite.peer_id || satellite.id }}
-            </strong>
-            <span>{{ satellite.online === false ? "Offline" : "Online" }}</span>
-            <span>
-              {{ satellite.last_error || satellite.last_seen_at || "Ready" }}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      <section class="sync-card">
-        <div class="catalog-title">
-          <div>
-            <h2>Remote configuration catalog</h2>
-            <p>
-              All Core configuration and native host hardware values. Settings
-              missing from the stock Web Configurator are marked as API or
-              physical-Remote only.
-            </p>
-          </div>
-          <input
-            v-model="filter"
-            class="search"
-            type="search"
-            placeholder="Filter settings"
-          />
-        </div>
-        <div v-for="group in catalog" :key="group.id" class="catalog">
-          <h3>{{ group.title }}</h3>
-          <div class="catalog-header">
-            <span>Setting</span><span>Value</span><span>Availability</span>
-          </div>
-          <div v-for="item in group.items" :key="item.key" class="catalog-row">
-            <code>{{ item.key }}</code>
-            <span class="catalog-value">{{ item.value }}</span>
-            <span
-              :class="[
-                'badge',
-                { 'badge--api': !item.default_web_configurator },
-              ]"
-            >
-              {{ item.availability }}
-            </span>
-          </div>
-        </div>
-      </section>
+      <div v-if="state.warnings.length" class="sync-warning"><strong>Needs attention</strong><div v-for="warning in state.warnings" :key="warning">{{ warning }}</div></div>
+      <div class="sync-status-grid"><div class="sync-status"><span>Primary</span><strong>{{ form.primary.node_name || "Virtual Remote" }}</strong></div><div class="sync-status"><span>Paired remotes</span><strong>{{ state.agent.satellites.length }}</strong></div><div class="sync-status"><span>Automatic sync</span><strong>{{ form.sync.auto_sync ? `Every ${intervalMinutes} min` : "Off" }}</strong></div></div>
+      <section class="sync-card"><h2>Primary Remote</h2><p>This is the name physical remotes will see for this Primary.</p><label class="sync-field compact-field"><span>Name</span><input v-model="form.primary.node_name" type="text" /></label></section>
+      <section class="sync-card"><div class="sync-section-heading"><div><h2>Automatic synchronization</h2><p>Keep paired remotes updated without having to press Sync now.</p></div><label class="sync-toggle"><input v-model="form.sync.auto_sync" type="checkbox" /><span>{{ form.sync.auto_sync ? "On" : "Off" }}</span></label></div><label v-if="form.sync.auto_sync" class="sync-field compact-field"><span>Sync every</span><div class="input-with-unit"><input v-model.number="intervalMinutes" type="number" min="5" max="1440" /><span>minutes</span></div></label><label class="sync-option-row"><input v-model="form.sync.prune" type="checkbox" /><span><strong>Mirror deletions</strong><small>Remove items from paired remotes when you delete them on the Primary.</small></span></label></section>
+      <section class="sync-card"><h2>What gets synchronized</h2><p>Choose which parts of your Remote configuration are copied to paired remotes.</p><div class="sync-sections"><label v-for="section in sectionOptions" :key="section" class="sync-section-option"><input type="checkbox" :checked="sectionEnabled(section)" @change="setSection(section, $event)" /><span><strong>{{ sectionLabels[section]?.label || section }}</strong><small>{{ sectionLabels[section]?.description }}</small></span></label></div></section>
+      <section class="sync-card"><h2>Satellite remotes</h2><p>Physical remotes paired with this Primary appear here.</p><div v-if="!state.agent.satellites.length" class="sync-empty">No remotes paired yet. Pair a Remote below to get started.</div><div v-else class="satellites"><div v-for="satellite in state.agent.satellites" :key="satellite.peer_id || satellite.id" class="satellite"><div><strong>{{ satellite.name || satellite.peer_id || satellite.id }}</strong><small>{{ satellite.peer_id || satellite.id }}</small></div><span>{{ satellite.online === false ? "Offline" : "Online" }}</span><span>{{ satellite.last_error || satellite.last_seen_at || "Ready" }}</span></div></div></section>
+      <details class="sync-card sync-advanced"><summary><span><strong>Advanced settings</strong><small>Network, integration runtime, credentials and compatibility options</small></span><span>⌄</span></summary><div class="advanced-content">
+        <section class="advanced-group"><h3>Integration runtime</h3><p>Normally you should leave these values unchanged.</p><div class="sync-grid"><label class="sync-field"><span>Container image</span><input v-model="form.integration.image" type="text" /></label><label class="sync-field"><span>Image version</span><input v-model="form.integration.version" type="text" /></label></div></section>
+        <section class="advanced-group"><h3>Network & Dock access</h3><div class="sync-grid"><label class="sync-field"><span>Agent port</span><input v-model.number="form.primary.agent_port" type="number" min="1" max="65535" /></label><label class="sync-field"><span>Virtual Dock port</span><input v-model.number="form.primary.virtual_dock_port" type="number" min="1" max="65535" /></label><label class="sync-field"><span>Public agent URL override</span><input v-model="form.primary.agent_public_url" type="text" placeholder="Automatic" /></label><label class="sync-field"><span>Network interface override</span><input v-model="form.primary.network_interface" type="text" placeholder="Automatic" /></label><label class="sync-field"><span>MAC address override</span><input v-model="form.primary.network_mac" type="text" placeholder="Automatic" /></label><label class="sync-field"><span>Wake broadcast addresses</span><input v-model="broadcasts" type="text" placeholder="Automatic" /></label><label class="sync-field"><span>Default physical Dock token</span><input v-model="form.primary.physical_dock_default_token" type="password" /></label><label class="sync-field"><span>Per-Dock tokens</span><input v-model="dockTokens" type="text" placeholder="DOCK_ID=token" /></label></div></section>
+        <section class="advanced-group"><h3>Compatibility</h3><div class="advanced-options"><label class="sync-option-row"><input v-model="form.sync.use_standby_inhibitor" type="checkbox" /><span><strong>Keep Satellites awake while syncing</strong><small>Prevents standby from interrupting a synchronization.</small></span></label><label class="sync-option-row"><input v-model="form.sync.verify_existing_resource_hashes" type="checkbox" /><span><strong>Verify existing resources</strong><small>Re-check existing icons and resources before reusing them.</small></span></label><label class="sync-option-row"><input v-model="form.hardware.enforce_wifi_enabled" type="checkbox" /><span><strong>Keep virtual Wi-Fi enabled</strong></span></label><label class="sync-option-row"><input v-model="form.hardware.keep_wifi_connected_during_standby" type="checkbox" /><span><strong>Keep Wi-Fi connected in standby</strong></span></label><label class="sync-option-row"><input v-model="form.hardware.disable_standby" type="checkbox" /><span><strong>Disable Primary standby</strong></span></label><label class="sync-option-row"><input v-model="form.hardware.simulator_charging" type="checkbox" /><span><strong>Virtual Remote is charging</strong></span></label></div><div class="sync-grid"><label class="sync-field"><span>Virtual battery level</span><input v-model.number="form.hardware.simulator_battery_level" type="number" min="0" max="100" /></label><label class="sync-field"><span>Virtual Wi-Fi state</span><select v-model="form.hardware.simulator_wifi_state"><option>CONNECTED</option><option>CONNECTING</option><option>DISCONNECTED</option></select></label></div></section>
+        <section class="advanced-group"><h3>Service status</h3><div class="sync-meta"><span>Core access <strong>{{ state.credentials.api_key_provisioned ? "Ready" : "Not ready" }}</strong></span><span>Integration <strong>{{ state.integration?.status || "Not installed" }}</strong></span><span>Container <strong>{{ state.managed?.container || "Not installed" }}</strong></span><span>Agent <strong>{{ state.agent.status?.state || (state.agent.health ? "Healthy" : "Unavailable") }}</strong></span></div><div class="sync-actions left"><button class="button" :disabled="busy" @click="command('refresh')">Refresh status</button><button class="button" :disabled="busy" @click="command('rotate-key')">Reset managed credentials</button><button class="button" :disabled="busy || !state.enabled" @click="command('preview')">Preview next sync</button></div></section>
+      </div></details>
     </div>
   </div>
 </template>
-
 <style scoped>
-.sync-content {
-  display: grid;
-  gap: 20px;
-}
-.sync-loading {
-  padding: 32px;
-}
-.sync-card {
-  padding: 22px;
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  border-radius: 16px;
-  background: var(--color-background-elevated, rgba(255, 255, 255, 0.025));
-}
-.sync-card h2,
-.sync-card h3 {
-  margin: 0 0 10px;
-}
-.sync-card p {
-  margin: 4px 0 0;
-  line-height: 1.5;
-  opacity: 0.78;
-}
-.sync-hero,
-.catalog-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.sync-eyebrow {
-  margin-bottom: 6px;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.65;
-}
-.sync-actions,
-.sync-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.sync-actions {
-  justify-content: flex-end;
-}
-.sync-actions.left {
-  justify-content: flex-start;
-  margin-top: 18px;
-}
-.sync-meta {
-  gap: 10px 22px;
-  margin-top: 18px;
-  font-size: 13px;
-}
-.sync-warning {
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 190, 50, 0.35);
-  border-radius: 12px;
-  background: rgba(255, 190, 50, 0.08);
-}
-.sync-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 18px;
-  margin-top: 16px;
-}
-.sync-grid label {
-  display: grid;
-  gap: 7px;
-  font-size: 13px;
-}
-.sync-grid input[type="text"],
-.sync-grid input[type="password"],
-.sync-grid input[type="number"],
-.sync-grid select,
-.search {
-  width: 100%;
-  min-height: 42px;
-  padding: 8px 11px;
-  color: inherit;
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.15));
-  border-radius: 9px;
-  background: var(--color-background, rgba(0, 0, 0, 0.18));
-}
-.wide {
-  grid-column: 1 / -1;
-}
-.check {
-  display: flex !important;
-  align-items: center;
-  gap: 10px !important;
-  min-height: 42px;
-}
-.check input,
-.sync-sections input {
-  width: 18px;
-  height: 18px;
-}
-.sync-sections {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 16px;
-}
-.sync-sections label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px;
-  text-transform: capitalize;
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
-  border-radius: 9px;
-}
-.satellites {
-  display: grid;
-  gap: 10px;
-  margin-top: 14px;
-}
-.satellite {
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) auto minmax(180px, 1fr);
-  gap: 14px;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-}
-.search {
-  max-width: 260px;
-}
-.catalog {
-  margin-top: 22px;
-}
-.catalog-header,
-.catalog-row {
-  display: grid;
-  grid-template-columns: minmax(220px, 1.3fr) minmax(160px, 1fr) minmax(180px, 0.8fr);
-  gap: 14px;
-  align-items: center;
-}
-.catalog-header {
-  padding: 8px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.65;
-}
-.catalog-row {
-  padding: 10px;
-  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
-}
-.catalog-row code,
-.catalog-value {
-  overflow-wrap: anywhere;
-}
-.catalog-value {
-  opacity: 0.8;
-}
-.badge {
-  justify-self: start;
-  padding: 4px 8px;
-  font-size: 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-}
-.badge--api {
-  color: #ffc76b;
-  background: rgba(255, 185, 55, 0.14);
-}
-@media (max-width: 800px) {
-  .sync-hero,
-  .catalog-title {
-    display: grid;
-  }
-  .sync-actions {
-    justify-content: flex-start;
-  }
-  .sync-grid,
-  .sync-sections {
-    grid-template-columns: 1fr;
-  }
-  .wide {
-    grid-column: auto;
-  }
-  .catalog-header {
-    display: none;
-  }
-  .catalog-row,
-  .satellite {
-    grid-template-columns: 1fr;
-  }
-  .search {
-    max-width: none;
-  }
-}
+.sync-content{display:grid;gap:18px}.sync-loading{padding:32px}.sync-card{padding:22px;border:1px solid var(--color-border,rgba(255,255,255,.12));border-radius:14px;background:var(--color-background-elevated,rgba(255,255,255,.025))}.sync-card h2,.sync-card h3{margin:0 0 8px}.sync-card p{margin:3px 0 0;line-height:1.5;opacity:.72}.sync-hero,.sync-section-heading{display:flex;align-items:center;justify-content:space-between;gap:24px}.sync-eyebrow{margin-bottom:5px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.6}.sync-actions,.sync-meta{display:flex;flex-wrap:wrap;gap:10px}.sync-actions{justify-content:flex-end}.sync-actions.left{justify-content:flex-start;margin-top:16px}.sync-warning{display:grid;gap:5px;padding:14px 16px;border:1px solid rgba(255,190,50,.35);border-radius:12px;background:rgba(255,190,50,.08)}.sync-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.sync-status{display:grid;gap:4px;padding:15px 17px;border:1px solid var(--color-border,rgba(255,255,255,.1));border-radius:12px;background:rgba(255,255,255,.025)}.sync-status span{font-size:12px;opacity:.62}.sync-field{display:grid;gap:7px;font-size:13px}.compact-field{max-width:420px;margin-top:16px}.sync-field input[type=text],.sync-field input[type=password],.sync-field input[type=number],.sync-field select{width:100%;min-height:42px;padding:8px 11px;color:inherit;border:1px solid var(--color-border,rgba(255,255,255,.15));border-radius:9px;background:var(--color-background,rgba(0,0,0,.18))}.sync-toggle,.sync-option-row,.sync-section-option{display:flex;align-items:flex-start;gap:11px}.sync-toggle{align-items:center;font-weight:600}.sync-toggle input,.sync-option-row input,.sync-section-option input{width:18px;height:18px;flex:0 0 auto}.input-with-unit{display:flex;align-items:center;gap:9px}.input-with-unit input{max-width:120px}.sync-option-row{margin-top:16px}.sync-option-row>span,.sync-section-option>span{display:grid;gap:2px}.sync-option-row small,.sync-section-option small,.sync-advanced summary small,.satellite small{display:block;font-size:12px;line-height:1.4;opacity:.62}.sync-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.sync-section-option{padding:13px;border:1px solid var(--color-border,rgba(255,255,255,.1));border-radius:10px}.sync-empty{margin-top:16px;padding:16px;border-radius:10px;background:rgba(255,255,255,.035);opacity:.72}.satellites{display:grid;gap:10px;margin-top:16px}.satellite{display:grid;grid-template-columns:minmax(180px,1fr) auto minmax(160px,.8fr);gap:14px;align-items:center;padding:13px;border-radius:10px;background:rgba(255,255,255,.04)}.satellite>div{display:grid;gap:2px}.sync-advanced{padding:0;overflow:hidden}.sync-advanced>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:19px 22px;cursor:pointer;list-style:none}.sync-advanced>summary::-webkit-details-marker{display:none}.sync-advanced>summary>span:first-child{display:grid;gap:3px}.advanced-content{padding:0 22px 22px}.advanced-group{padding-top:20px;border-top:1px solid var(--color-border,rgba(255,255,255,.09))}.advanced-group+.advanced-group{margin-top:22px}.sync-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin-top:16px}.advanced-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}.sync-meta{gap:9px 20px;margin-top:14px;font-size:13px}.sync-meta span{display:grid;gap:2px}@media(max-width:800px){.sync-hero,.sync-section-heading{display:grid}.sync-actions{justify-content:flex-start}.sync-status-grid,.sync-sections,.sync-grid,.advanced-options{grid-template-columns:1fr}.satellite{grid-template-columns:1fr}}
 </style>
