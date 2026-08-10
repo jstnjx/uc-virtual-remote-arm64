@@ -1,0 +1,38 @@
+name: Run v0.14.5 refinement
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'fix/dind-pyinstaller-runtime' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/dind-pyinstaller-runtime
+          fetch-depth: 0
+      - name: Apply refinement
+        run: python3 tools/refine-v0145-helper-scan.py
+      - name: Validate source and tests
+        run: |
+          npm ci
+          npm run ci
+      - name: Commit refinement
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f tools/refine-v0145-helper-scan.py
+          git add -A
+          git commit -m "Avoid wrapping packaged ARM64 shared libraries"
+          git push origin HEAD:fix/dind-pyinstaller-runtime
