@@ -1,3 +1,4 @@
+// Regression coverage for integration failures observed on the Home Assistant AMD64 runtime.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
