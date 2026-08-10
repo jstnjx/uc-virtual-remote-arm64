@@ -5,7 +5,14 @@
   See MODIFICATIONS.md for details.
 -->
 <script setup lang="ts">
-import { computed, onMounted, ref, useTemplateRef, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTranslation } from "i18next-vue";
 
@@ -19,7 +26,9 @@ import { useWindowDimension } from "@/composables/windowDimension";
 import AddDock from "@/components/dock/AddDock.vue";
 import DockList from "@/components/dock/DockList.vue";
 import AddDevice from "@/components/elements/entity/AddDevice.vue";
+import AppModal from "@/components/elements/AppModal.vue";
 import AddIntegration from "@/components/integration/AddIntegration.vue";
+import ImportCustomIntegration from "@/components/integration/ImportCustomIntegration.vue";
 import IntegrationList from "@/components/integration/IntegrationList.vue";
 import TabMenu from "@/components/ui/TabMenu.vue";
 import UCSearch from "@/components/ui/UCSearch.vue";
@@ -48,6 +57,7 @@ const tabItems = computed(() => [integrationTab.value, dockTab.value]);
 const activeTab = ref<TabItem>({ value: "integration" });
 const searchText = ref("");
 const modeAdvanced = ref(false);
+const showIntegrationAddMenu = ref(false);
 const storedFilters = ref<Record<string, any>>({});
 const init = ref(true);
 
@@ -59,6 +69,10 @@ const elAddDevice =
 const elAddDock = useTemplateRef<InstanceType<typeof AddDock>>("elAddDock");
 const elAddIntegration =
   useTemplateRef<InstanceType<typeof AddIntegration>>("elAddIntegration");
+const elImportCustomIntegration =
+  useTemplateRef<InstanceType<typeof ImportCustomIntegration>>(
+    "elImportCustomIntegration",
+  );
 const elIntegrationList =
   useTemplateRef<InstanceType<typeof IntegrationList>>("elIntegrationList");
 
@@ -91,8 +105,20 @@ function startDirectAdd() {
   if (isDockTab.value) {
     elAddDock.value?.open();
   } else {
-    elAddDevice.value?.open();
+    showIntegrationAddMenu.value = true;
   }
+}
+
+async function startNewIntegration() {
+  showIntegrationAddMenu.value = false;
+  await nextTick();
+  elAddDevice.value?.open();
+}
+
+async function startCustomIntegrationInstall() {
+  showIntegrationAddMenu.value = false;
+  await nextTick();
+  elImportCustomIntegration.value?.open();
 }
 
 function startDriverSetup(driver: IntegrationDriver) {
@@ -166,11 +192,7 @@ onMounted(() => {
         >
           <i class="fa-light fa-plus"></i>
           <span v-if="!isSmallScreen">
-            {{
-              isDockTab
-                ? $t("dock.add.title")
-                : $t("integration.add.title")
-            }}
+            {{ isDockTab ? $t("dock.add.title") : $t("ui.add_new") }}
           </span>
         </button>
       </div>
@@ -189,6 +211,46 @@ onMounted(() => {
     </div>
   </div>
 
+  <AppModal
+    :show="showIntegrationAddMenu"
+    :width="'24.25rem'"
+    name="add-integration-menu"
+    class="add-device"
+    @close="showIntegrationAddMenu = false"
+  >
+    <template #header>
+      {{ $t("ui.add_new") }}
+    </template>
+    <div class="add-device__list">
+      <div class="add-device__item" @click="startNewIntegration">
+        <div class="add-device__item__icon">
+          <i class="fa-thin fa-puzzle-piece"></i>
+        </div>
+        <div class="add-device__item__text">
+          <h4 class="add-device__item__title">
+            {{ $t("integration.add.title") }}
+          </h4>
+        </div>
+        <div class="add-device__item__button">
+          <i class="fa-regular fa-chevron-right"></i>
+        </div>
+      </div>
+      <div class="add-device__item" @click="startCustomIntegrationInstall">
+        <div class="add-device__item__icon">
+          <i class="fa-thin fa-file-arrow-up"></i>
+        </div>
+        <div class="add-device__item__text">
+          <h4 class="add-device__item__title">
+            {{ $t("integration.install_custom.trigger") }}
+          </h4>
+        </div>
+        <div class="add-device__item__button">
+          <i class="fa-regular fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+  </AppModal>
+
   <AddDevice
     ref="elAddDevice"
     :only-integrations="true"
@@ -199,6 +261,10 @@ onMounted(() => {
         modeAdvanced = mode;
       }
     "
+  />
+  <ImportCustomIntegration
+    ref="elImportCustomIntegration"
+    @imported="elIntegrationList?.loadData()"
   />
   <AddDock ref="elAddDock" />
   <AddIntegration
