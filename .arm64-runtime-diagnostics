@@ -1,5 +1,5 @@
 combined expected: 735bc786d5255f8dd3682eab531cf24c6bf4be844aa74111b29e70bfb3ff07f6
-combined actual:   623d07e160b002bb4598f9e86f1eedc3ca35d857583be5ac306474f112ebc074
+combined actual after metadata normalization: 1ba5dbe73b3db452c92a9f16d3ca538a18f689a514c036b0b0f29bbb23ef1b57
 actual chunk hashes:
 4dfbb222ce9b1c953ecd0158a3240d178f6f9f013f19500ffe8885b5de94e189  .arm64-runtime.patch.part-00
 b8449eb22b29ed60e67068208351d596a3ff00f4036d41790a557549a1c147e9  .arm64-runtime.patch.part-01
