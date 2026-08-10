@@ -276,6 +276,11 @@ function findFile(root, candidates) {
   return null;
 }
 
+export function dockerfileBuildPath(root, dockerfile) {
+  if (dockerfile === "-") return "-";
+  return path.isAbsolute(dockerfile) ? dockerfile : path.resolve(root, dockerfile);
+}
+
 function walk(root, maximum = 5000) {
   const result = [];
   const stack = [root];
@@ -1110,7 +1115,8 @@ export class ExternalIntegrationService {
       job.progress = 30;
       job.message = "Building integration container";
       job.updatedAt = new Date().toISOString();
-      await this.#jobCommand(job, process.env.UCVR_DOCKER_BIN || "docker", ["build", "--pull", "-t", image, "-f", dockerfile, appDir], {
+      const dockerfilePath = dockerfileBuildPath(appDir, dockerfile);
+      await this.#jobCommand(job, process.env.UCVR_DOCKER_BIN || "docker", ["build", "--pull", "-t", image, "-f", dockerfilePath, appDir], {
         timeoutMs: 30 * 60_000,
         ...(generated ? { input: generated } : {})
       });

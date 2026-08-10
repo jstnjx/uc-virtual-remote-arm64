@@ -1,1 +1,0 @@
-{"version":3,"file":"UserInterface-DTAXYJKD.js","sources":["../../../src/components/settings/UserInterface.vue"],"sourcesContent":["<script setup lang=\"ts\"></script>\n<template>\n  <div>user-interface</div>\n</template>\n"],"names":["_openBlock","_createElementBlock"],"mappings":"sIAEE,OAAAA,EAAA,EAAAC,EAAyB,WAApB,gBAAc"}

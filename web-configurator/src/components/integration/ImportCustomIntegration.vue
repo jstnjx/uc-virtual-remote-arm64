@@ -92,9 +92,6 @@ function closedModal() {
           <span class="form-item--file__label__main">
             {{ $t("integration.install_custom.popup.upload.label") }}
           </span>
-          <span class="form-item--file__label__description">
-            {{ $t("integration.install_custom.popup.upload.description") }}
-          </span>
         </label>
         <span v-if="file" class="form-item--file__name">
           <span>{{ file.name }}</span>

@@ -1098,7 +1098,7 @@ export class PlatformHttpServer {
 
     // Integration drivers, instances, discovery and setup
     if (pathname === "/intg/install" && method === "POST") {
-      const upload = await multipartFile(request, 512 * 1024 * 1024);
+      const upload = await multipartFile(request, Number.POSITIVE_INFINITY);
       const update = ["true", "1", "yes"].includes(String(url.searchParams.get("update") || "").toLowerCase());
       const record = await this.platform.nativeIntegrations.install(upload.buffer, {
         filename: upload.filename,
