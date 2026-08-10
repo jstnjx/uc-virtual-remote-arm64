@@ -19,9 +19,10 @@ require_dind_namespace_access() {
   fi
 
   echo "UC Virtual Remote: internal Docker cannot create mount namespaces in this container." >&2
-  echo "UC Virtual Remote: registry/external integrations require the top-level container to run fully privileged." >&2
-  echo "UC Virtual Remote: Home Assistant users must disable Protection mode for this add-on before starting it; full_access is only effective for unprotected add-ons." >&2
-  echo "UC Virtual Remote: standalone Docker users must start the appliance with --privileged." >&2
+  echo "UC Virtual Remote: registry/external integrations require CAP_SYS_ADMIN and an unconfined seccomp/AppArmor policy in the top-level container." >&2
+  echo "UC Virtual Remote: Home Assistant add-on packages must declare privileged: [SYS_ADMIN]; full_access does not grant Linux capabilities." >&2
+  echo "UC Virtual Remote: disabling Home Assistant Protection mode only enables full_access device permissions and does not replace SYS_ADMIN." >&2
+  echo "UC Virtual Remote: standalone Docker users should start the appliance with --privileged." >&2
   exit 1
 }
 
