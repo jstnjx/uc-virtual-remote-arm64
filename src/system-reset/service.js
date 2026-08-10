@@ -39,6 +39,7 @@ export class FactoryResetService {
     if (this.running) return;
     this.running = true;
     log.warn(`Factory reset started: erasing ${this.platform.dataDir}`);
+    await this.platform.nativeIntegrations?.factoryReset().catch((error) => log.warn("Unable to remove every native integration:", error.message));
     await this.platform.externalIntegrations?.factoryReset().catch((error) => log.warn("Unable to remove every managed integration container:", error.message));
     await this.platform.integrations?.stop().catch((error) => log.warn("Unable to stop every integration connection:", error.message));
     await this.platform.demo?.stop().catch((error) => log.warn("Unable to stop demo mode:", error.message));

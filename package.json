@@ -1,7 +1,7 @@
 {
-  "name": "uc-virtual-remote",
-  "version": "0.12.7",
-  "description": "Self-hosted virtual Unfolded Circle Remote Core with a bundled GPL Web Configurator community build, health monitoring, media services, and virtual Dock support.",
+  "name": "uc-virtual-remote-arm64",
+  "version": "0.13.0",
+  "description": "ARM64 UC Virtual Remote appliance with native custom-integration tarballs and an internal Docker runtime for external integrations.",
   "type": "module",
   "private": true,
   "engines": {

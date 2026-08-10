@@ -7,7 +7,7 @@ import { logger } from "../shared/logger.js";
 import { nowIso, slug } from "../shared/util.js";
 
 const log = logger("system-update");
-const DEFAULT_REPOSITORY = "jstnjx/uc-virtual-remote";
+const DEFAULT_REPOSITORY = "jstnjx/uc-virtual-remote-arm64";
 const CACHE_MS = 5 * 60 * 1000;
 
 function normalizedVersion(value) {
@@ -84,8 +84,8 @@ async function fetchJson(url, headers, timeoutMs = 15000) {
 
 function chooseReleaseArchive(release) {
   const assets = Array.isArray(release.assets) ? release.assets : [];
-  const preferred = assets.find((asset) => /^uc-virtual-remote(?:[-_.].*)?\.zip$/i.test(String(asset.name || "")))
-    || assets.find((asset) => /uc-virtual-remote.*\.zip$/i.test(String(asset.name || "")));
+  const preferred = assets.find((asset) => /^uc-virtual-remote-arm64(?:[-_.].*)?\.zip$/i.test(String(asset.name || "")))
+    || assets.find((asset) => /uc-virtual-remote-arm64.*\.zip$/i.test(String(asset.name || "")));
   if (preferred?.url) {
     return {
       url: preferred.url,
@@ -355,7 +355,7 @@ export class SystemUpdateService {
         throw new Error("Downloaded archive is not a UC Virtual Remote release");
       }
       const packageJson = readJson(path.join(root, "package.json"), {});
-      if (packageJson.name !== "uc-virtual-remote") throw new Error("Downloaded archive has an unexpected package name");
+      if (packageJson.name !== "uc-virtual-remote-arm64") throw new Error("Downloaded archive has an unexpected package name");
       const packageVersion = normalizedVersion(packageJson.version);
       if (!packageVersion) throw new Error("Downloaded archive has no valid application version");
       if (update.channel === "DEFAULT" && packageVersion !== normalizedVersion(update.version)) {
