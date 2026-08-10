@@ -1,0 +1,157 @@
++      if (!used.has(port) && await portAvailable(this.host, port)) return port;
++    }
++    throw new Error(`No free integration port found from ${this.portStart}`);
++  }
++
++  #databaseRecord(driverId) {
++    return this.platform.db.listIntegrations().find((item) => String(item.driver_id || item.metadata?.driver_id || item.id) === String(driverId) && !item.metadata?.instance_alias) || null;
++  }
++
++  #ensureDatabaseRecord(record) {
++    const existing = this.#databaseRecord(record.driver_id);
++    const values = {
++      id: existing?.id || record.driver_id,
++      driver_id: record.driver_id,
++      name: record.name,
++      url: `ws://${this.host}:${record.port}`,
++      enabled: existing?.enabled !== false,
++      configured: existing?.configured ?? false,
++      driver_type: "CUSTOM",
++      driver_version: record.version,
++      metadata: { ...(record.metadata || {}), driver_id: record.driver_id, native_runtime: true }
++    };
++    if (existing) return this.platform.db.updateIntegration(existing.id, values);
++    return this.platform.db.saveIntegration(values);
++  }
++
++  async #upsertDatabaseRecord(record, existing) {
++    const values = {
++      driver_id: record.driver_id,
++      name: record.name,
++      url: `ws://${this.host}:${record.port}`,
++      driver_type: "CUSTOM",
++      driver_version: record.version,
++      metadata: { ...(existing?.metadata || {}), ...(record.metadata || {}), driver_id: record.driver_id, native_runtime: true }
++    };
++    if (existing) return this.platform.db.updateIntegration(existing.id, values);
++    return await this.platform.integrations.register({
++      id: record.driver_id,
++      ...values,
++      enabled: true,
++      configured: false
++    });
++  }
++
++  #versionFile(root) {
++    try { return fs.readFileSync(path.join(root, "version.txt"), "utf8").trim(); }
++    catch { return null; }
++  }
++}
+ diff --git a/src/platform.js b/src/platform.js
+ index 8ae171c..f9f95b9 100644
+--- a/src/platform.js
++++ b/src/platform.js
+@@ -6,6 +6,7 @@ import { EventBus } from "./core/event-bus.js";
+ import { PlatformDatabase } from "./storage/database.js";
+ import { IntegrationManager } from "./integrations/manager.js";
+ import { ExternalIntegrationService } from "./external-integrations/service.js";
++import { NativeIntegrationService } from "./native-integrations/service.js";
+ import { HardwareService } from "./hardware/service.js";
+ import { FactoryResetService } from "./system-reset/service.js";
+ import { SequenceEngine } from "./engine/sequence-engine.js";
+@@ -152,6 +153,10 @@ export class VirtualRemotePlatform {
+       this,
+       options.externalIntegrations || {},
+     );
++    this.nativeIntegrations = new NativeIntegrationService(
++      this,
++      options.nativeIntegrations || {},
++    );
+     this.hardware = new HardwareService(this, options.hardware || {});
+     this.factoryReset = new FactoryResetService(
+       this,
+@@ -198,6 +203,7 @@ export class VirtualRemotePlatform {
+         );
+     }
+     await this.externalIntegrations.start();
++    await this.nativeIntegrations.start();
+     await this.demo.start();
+     await this.integrations.start();
+     await this.syncMode.start();
+@@ -211,6 +217,7 @@ export class VirtualRemotePlatform {
+     this.stopped = true;
+     log.info("Stopping Virtual Remote Core services");
+     await this.syncMode.stop();
++    await this.nativeIntegrations.stop();
+     await this.externalIntegrations.stop();
+     await this.demo.stop();
+     await this.integrations.stop();
+@@ -315,6 +322,7 @@ export class VirtualRemotePlatform {
+       web_configurator: this.webConfigurator.status(),
+       software_update: this.systemUpdate.status(),
+       external_integrations: this.externalIntegrations.status(),
++      native_integrations: this.nativeIntegrations.status(),
+       sync_mode: this.syncMode.summary(),
+       native_hardware: this.hardware.cached,
+     };
+ diff --git a/src/system-reset/service.js b/src/system-reset/service.js
+ index 9948986..bd9b44a 100644
+--- a/src/system-reset/service.js
++++ b/src/system-reset/service.js
+@@ -39,6 +39,7 @@ export class FactoryResetService {
+     if (this.running) return;
+     this.running = true;
+     log.warn(`Factory reset started: erasing ${this.platform.dataDir}`);
++    await this.platform.nativeIntegrations?.factoryReset().catch((error) => log.warn("Unable to remove every native integration:", error.message));
+     await this.platform.externalIntegrations?.factoryReset().catch((error) => log.warn("Unable to remove every managed integration container:", error.message));
+     await this.platform.integrations?.stop().catch((error) => log.warn("Unable to stop every integration connection:", error.message));
+     await this.platform.demo?.stop().catch((error) => log.warn("Unable to stop demo mode:", error.message));
+ diff --git a/src/system-update/service.js b/src/system-update/service.js
+ index 435c84f..782edcf 100644
+--- a/src/system-update/service.js
++++ b/src/system-update/service.js
+@@ -7,7 +7,7 @@ import { logger } from "../shared/logger.js";
+ import { nowIso, slug } from "../shared/util.js";
+ 
+ const log = logger("system-update");
+-const DEFAULT_REPOSITORY = "jstnjx/uc-virtual-remote";
++const DEFAULT_REPOSITORY = "jstnjx/uc-virtual-remote-arm64";
+ const CACHE_MS = 5 * 60 * 1000;
+ 
+ function normalizedVersion(value) {
+@@ -84,8 +84,8 @@ async function fetchJson(url, headers, timeoutMs = 15000) {
+ 
+ function chooseReleaseArchive(release) {
+   const assets = Array.isArray(release.assets) ? release.assets : [];
+-  const preferred = assets.find((asset) => /^uc-virtual-remote(?:[-_.].*)?\.zip$/i.test(String(asset.name || "")))
+-    || assets.find((asset) => /uc-virtual-remote.*\.zip$/i.test(String(asset.name || "")));
++  const preferred = assets.find((asset) => /^uc-virtual-remote-arm64(?:[-_.].*)?\.zip$/i.test(String(asset.name || "")))
++    || assets.find((asset) => /uc-virtual-remote-arm64.*\.zip$/i.test(String(asset.name || "")));
+   if (preferred?.url) {
+     return {
+       url: preferred.url,
+@@ -355,7 +355,7 @@ export class SystemUpdateService {
+         throw new Error("Downloaded archive is not a UC Virtual Remote release");
+       }
+       const packageJson = readJson(path.join(root, "package.json"), {});
+-      if (packageJson.name !== "uc-virtual-remote") throw new Error("Downloaded archive has an unexpected package name");
++      if (packageJson.name !== "uc-virtual-remote-arm64") throw new Error("Downloaded archive has an unexpected package name");
+       const packageVersion = normalizedVersion(packageJson.version);
+       if (!packageVersion) throw new Error("Downloaded archive has no valid application version");
+       if (update.channel === "DEFAULT" && packageVersion !== normalizedVersion(update.version)) {
+ diff --git a/test/native-integration-service.test.js b/test/native-integration-service.test.js
+ new file mode 100644
+ index 0000000..e956018
+--- /dev/null
++++ b/test/native-integration-service.test.js
+@@ -0,0 +1,104 @@
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import os from "node:os";
++import path from "node:path";
++import { execFileSync } from "node:child_process";
++import test from "node:test";
++import { NativeIntegrationService, validateTarListing, validateTarTypes } from "../src/native-integrations/service.js";
++
++function platform(root) {
++  const records = [];
