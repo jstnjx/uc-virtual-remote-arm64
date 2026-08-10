@@ -4,12 +4,16 @@ on:
   push:
     branches:
       - fix/registry-build-and-upload
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   inspect:
+    if: github.head_ref == 'fix/registry-build-and-upload' || github.ref_name == 'fix/registry-build-and-upload'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
