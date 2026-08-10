@@ -1,3 +1,4 @@
+import { appUrl } from "./management-base.js";
 const integrationRefresh = document.querySelector("#installed-integrations-refresh");
 const integrationSummary = document.querySelector("#installed-integrations-summary");
 const integrationList = document.querySelector("#installed-integrations-list");
@@ -17,7 +18,7 @@ function setResult(state, message) {
 }
 
 async function management(path, options = {}) {
-  const response = await fetch(`/management/installed-integrations${path}`, {
+  const response = await fetch(appUrl(`management/installed-integrations${path}`), {
     cache: "no-store",
     ...options,
     headers: { "Content-Type": "application/json", ...(options.headers || {}) }
