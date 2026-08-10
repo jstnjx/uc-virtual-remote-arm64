@@ -65,8 +65,8 @@ jobs:
             type=raw,value=${{ github.event.client_payload.major }},enable=${{ github.event_name == 'repository_dispatch' }}
             type=raw,value=latest,enable=${{ github.event_name == 'repository_dispatch' && github.event.client_payload.stable == 'true' }}
           labels: |
-            org.opencontainers.image.title=UC Virtual Remote ARM64
-            org.opencontainers.image.description=ARM64 virtual Unfolded Circle Remote appliance with native custom integrations and internal Docker
+            org.opencontainers.image.title=UC Virtual Remote
+            org.opencontainers.image.description=Multi-architecture virtual Unfolded Circle Remote appliance with native ARM64 custom integrations and internal Docker
             org.opencontainers.image.version=${{ github.event_name == 'repository_dispatch' && github.event.client_payload.version || github.ref_name }}
             org.opencontainers.image.licenses=MIT
 
@@ -76,7 +76,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -88,7 +88,9 @@ jobs:
       - name: Publish job summary
         run: |
           {
-            echo "## Published container image"
+            echo "## Published multi-architecture container image"
+            echo
+            echo "Platforms: \`linux/amd64\`, \`linux/arm64\`"
             echo
             echo '```text'
             echo "${{ steps.meta.outputs.tags }}"
