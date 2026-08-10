@@ -1,0 +1,27 @@
+name: Inspect install paths
+
+on:
+  push:
+    branches:
+      - fix/registry-build-and-upload
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Show relevant source
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== external build ==='
+          grep -n -C 30 'Building integration container' src/external-integrations/service.js || true
+          echo '=== docker build calls ==='
+          grep -n -C 20 'build.*--pull\|--pull.*build\|Dockerfile' src/external-integrations/service.js || true
+          echo '=== native archive limits ==='
+          grep -n -C 12 'MAX_ARCHIVE_BYTES\|intg/install\|multipartFile(request' src/native-integrations/service.js src/api/server.js || true
+          echo '=== UI upload text ==='
+          grep -n -C 6 'Maximum file size\|install_custom' web-configurator/src/i18next/en_US.json web-configurator/src/components/integration/ImportCustomIntegration.vue || true
