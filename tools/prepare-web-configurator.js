@@ -98,8 +98,7 @@ function validateSource() {
     "public/images/remote-3-dark-front-backlight-min.webp",
     "public/images/remote-3-dark-backlight-mask.png",
     "public/assets/ucvr-route-refresh.js",
-    "public/assets/ucvr-sync-mode-pairing.js",
-    "public/assets/ucvr-sync-mode-runtime.js"
+    "public/assets/ucvr-sync-mode-pairing.js"
   ]) {
     if (!fs.existsSync(path.join(sourceDir, relative))) fail(`committed source is missing ${relative}`);
   }
@@ -144,7 +143,6 @@ function injectSimulatorAssets(distDir) {
       '<script type="module" src="./assets/ucvr-simulator.js"></script>',
       '<script src="./assets/ucvr-route-refresh.js"></script>',
       '<script src="./assets/ucvr-sync-mode-pairing.js"></script>',
-      '<script src="./assets/ucvr-sync-mode-runtime.js"></script>',
       "</body>"
     ].join("")
   );
@@ -171,8 +169,7 @@ function validateBuild(distDir) {
     "assets/unfolded-simulator-source-integration.css",
     "assets/ucvr-simulator.js",
     "assets/ucvr-route-refresh.js",
-    "assets/ucvr-sync-mode-pairing.js",
-    "assets/ucvr-sync-mode-runtime.js"
+    "assets/ucvr-sync-mode-pairing.js"
   ]) {
     if (!fs.existsSync(path.join(distDir, relative))) fail(`source build is missing ${relative}`);
   }
@@ -185,8 +182,7 @@ function validateBuild(distDir) {
     "unfolded-simulator-source-integration.css",
     "ucvr-simulator.js",
     "ucvr-route-refresh.js",
-    "ucvr-sync-mode-pairing.js",
-    "ucvr-sync-mode-runtime.js"
+    "ucvr-sync-mode-pairing.js"
   ]) {
     if (!index.includes(`./assets/${asset}`)) fail(`simulator asset is missing from index.html: ${asset}`);
   }

@@ -10,12 +10,18 @@
     configuredBasePath
       && !/__UCVR_[A-Z0-9_]+__/.test(configuredBasePath),
   );
+  const ingressMatch = String(window.location?.pathname || "").match(
+    /^(\/api\/hassio_ingress\/[^/]+)/,
+  );
+  const ingressBasePath = ingressMatch?.[1] || "";
   const basePath = hostedSession
     ? `/${configuredBasePath.split("/").filter(Boolean).join("/")}`
-    : "";
+    : ingressBasePath;
   const sessionKey = hostedSession
     ? basePath.split("/").filter(Boolean).pop() || "default"
-    : "self-hosted";
+    : ingressBasePath
+      ? "home-assistant-ingress"
+      : "self-hosted";
   const blockedRoutes = hostedSession
     ? Object.freeze([
         "wifi-bluetooth",
