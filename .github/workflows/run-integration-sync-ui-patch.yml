@@ -1,0 +1,69 @@
+name: Run integration and Sync Mode feature patch
+
+on:
+  push:
+    branches:
+      - fix/integration-runtime-sync-ui
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/integration-runtime-sync-ui
+          fetch-depth: 0
+
+      - name: Extract and apply feature patch
+        shell: python
+        run: |
+          from pathlib import Path
+          workflow = Path('.github/workflows/apply-integration-sync-ui-fixes.yml').read_text(encoding='utf-8')
+          marker = '      - name: Apply source changes\n        shell: python\n        run: |\n'
+          start = workflow.index(marker) + len(marker)
+          end = workflow.index('\n      - name: Run project tests', start)
+          block = workflow[start:end]
+          lines = []
+          for line in block.splitlines():
+              lines.append(line[10:] if line.startswith('          ') else line)
+          script = '\n'.join(lines) + '\n'
+          Path('.feature-patch.py').write_text(script, encoding='utf-8')
+          compile(script, '.feature-patch.py', 'exec')
+          exec(compile(script, '.feature-patch.py', 'exec'), {'__name__': '__main__'})
+
+      - name: Run project tests
+        run: |
+          npm ci
+          npm run ci
+
+      - name: Build Web Configurator
+        working-directory: web-configurator
+        run: |
+          npm ci
+          npm run build
+
+      - name: Restore checked-in bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout origin/main -- web-configurator/dist || true
+          mapfile -t added < <(git diff --name-only --diff-filter=A origin/main HEAD -- web-configurator/dist)
+          if [ "${#added[@]}" -gt 0 ]; then git rm -f -- "${added[@]}" || true; fi
+          git clean -fd web-configurator/dist
+
+      - name: Commit feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .feature-patch.py .patch-trigger
+          git rm -f .github/workflows/apply-integration-sync-ui-fixes.yml
+          git add -A
+          git commit -m "Fix native integrations and simplify Sync Mode"
+          git push origin HEAD:fix/integration-runtime-sync-ui
