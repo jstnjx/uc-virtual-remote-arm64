@@ -81,16 +81,26 @@ test("secondary ARM64 executables are wrapped without replacing the main driver"
     fs.mkdirSync(bin, { recursive: true });
     const main = path.join(bin, "driver");
     const helper = path.join(bin, "node");
+    const internal = path.join(bin, "_internal");
+    const modules = path.join(bin, "bridge", "node_modules", "native");
+    const sharedLibrary = path.join(internal, "libpython3.11.so.1.0");
+    const nativeModule = path.join(modules, "binding.node");
+    fs.mkdirSync(internal, { recursive: true });
+    fs.mkdirSync(modules, { recursive: true });
     fs.writeFileSync(main, "main", { mode: 0o755 });
     fs.writeFileSync(helper, "helper", { mode: 0o755 });
+    fs.writeFileSync(sharedLibrary, "shared", { mode: 0o755 });
+    fs.writeFileSync(nativeModule, "native", { mode: 0o755 });
     const wrapped = wrapArm64HelperExecutables(root, main, {
       runtimeArch: "x64",
-      architectureOf: (filename) => filename === helper ? "arm64" : null
+      architectureOf: (filename) => [helper, sharedLibrary, nativeModule].includes(filename) ? "arm64" : null
     });
     assert.deepEqual(wrapped, [path.join("bin", "node")]);
     assert.equal(fs.readFileSync(main, "utf8"), "main");
     assert.match(fs.readFileSync(helper, "utf8"), /qemu-aarch64-static/);
     assert.equal(fs.readFileSync(`${helper}.ucvr-arm64`, "utf8"), "helper");
+    assert.equal(fs.readFileSync(sharedLibrary, "utf8"), "shared");
+    assert.equal(fs.readFileSync(nativeModule, "utf8"), "native");
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

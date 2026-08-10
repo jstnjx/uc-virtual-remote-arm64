@@ -269,10 +269,15 @@ export function wrapArm64HelperExecutables(root, mainExecutable, options = {}) {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const filename = path.join(current, entry.name);
       if (entry.isDirectory()) {
+        // PyInstaller internals and Node native modules are libraries loaded by
+        // the emulated process, not child executables. Replacing any of those
+        // files with shell wrappers would corrupt the package.
+        if (["_internal", "node_modules"].includes(entry.name)) continue;
         stack.push(filename);
         continue;
       }
       if (!entry.isFile() || path.resolve(filename) === resolvedMain || filename.endsWith(suffix)) continue;
+      if (/\.(?:so(?:\..*)?|node|a|o)$/i.test(entry.name)) continue;
       const stat = fs.statSync(filename);
       if (!(stat.mode & 0o111)) continue;
       let architecture = null;
