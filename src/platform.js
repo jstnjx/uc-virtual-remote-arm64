@@ -6,6 +6,7 @@ import { EventBus } from "./core/event-bus.js";
 import { PlatformDatabase } from "./storage/database.js";
 import { IntegrationManager } from "./integrations/manager.js";
 import { ExternalIntegrationService } from "./external-integrations/service.js";
+import { NativeIntegrationService } from "./native-integrations/service.js";
 import { HardwareService } from "./hardware/service.js";
 import { FactoryResetService } from "./system-reset/service.js";
 import { SequenceEngine } from "./engine/sequence-engine.js";
@@ -152,6 +153,10 @@ export class VirtualRemotePlatform {
       this,
       options.externalIntegrations || {},
     );
+    this.nativeIntegrations = new NativeIntegrationService(
+      this,
+      options.nativeIntegrations || {},
+    );
     this.hardware = new HardwareService(this, options.hardware || {});
     this.factoryReset = new FactoryResetService(
       this,
@@ -198,6 +203,7 @@ export class VirtualRemotePlatform {
         );
     }
     await this.externalIntegrations.start();
+    await this.nativeIntegrations.start();
     await this.demo.start();
     await this.integrations.start();
     await this.syncMode.start();
@@ -211,6 +217,7 @@ export class VirtualRemotePlatform {
     this.stopped = true;
     log.info("Stopping Virtual Remote Core services");
     await this.syncMode.stop();
+    await this.nativeIntegrations.stop();
     await this.externalIntegrations.stop();
     await this.demo.stop();
     await this.integrations.stop();
@@ -315,6 +322,7 @@ export class VirtualRemotePlatform {
       web_configurator: this.webConfigurator.status(),
       software_update: this.systemUpdate.status(),
       external_integrations: this.externalIntegrations.status(),
+      native_integrations: this.nativeIntegrations.status(),
       sync_mode: this.syncMode.summary(),
       native_hardware: this.hardware.cached,
     };

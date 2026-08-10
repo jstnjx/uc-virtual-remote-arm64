@@ -1,15 +1,68 @@
-# UC Virtual Remote
+# UC Virtual Remote ARM64
 
-[![Build](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/build.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/build.yml)
-[![Docker](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/docker.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/docker.yml)
-[![Release](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/release.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote/actions/workflows/release.yml)
+[![Build](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/build.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/build.yml)
+[![Docker](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/docker.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/docker.yml)
+[![Release](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/release.yml/badge.svg)](https://github.com/jstnjx/uc-virtual-remote-arm64/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A self-hosted virtual Unfolded Circle Remote Core for running integrations, configuring a Remote, building automations, testing integrations, and using the Web Configurator without requiring a physical Remote to stay online.
+A compact ARM64 virtual Unfolded Circle Remote appliance. The Remote Core, Web Configurator, normal ARM64 custom integrations, and Docker-based external integrations all live inside one top-level container.
 
-> UC Virtual Remote is an independent community project. It is not affiliated with, endorsed by, operated by, or supported by Unfolded Circle ApS.
+> UC Virtual Remote ARM64 is an independent community project. It is not affiliated with, endorsed by, operated by, or supported by Unfolded Circle ApS.
 
 ## Features
+
+### One ARM64 appliance container
+
+- ARM64-only UC Virtual Remote image
+- Works natively on ARM64 Linux hosts
+- Can run on x86-64 Linux with ARM64 binfmt/QEMU emulation
+- Persistent Remote data and internal Docker state under one `/data` mount
+- Host networking for local discovery, Wake-on-LAN, mDNS, and Integration API connectivity
+
+### Normal Remote custom integrations
+
+Use the same ARM64 `.tar.gz` packages intended for a physical Remote:
+
+1. Open **Integrations**.
+2. Select **Add new**.
+3. Select **Install custom**.
+4. Upload the normal `aarch64` integration archive.
+5. Start setup from the integration card.
+
+The runtime supports the standard package layout with:
+
+```text
+driver.json
+bin/driver
+config/            optional
+version.txt        optional
+```
+
+Native integrations:
+
+- run directly inside the ARM64 appliance
+- get their own persistent config and data directories
+- are automatically supervised and restarted after unexpected exits
+- use isolated Integration API ports from the shared integration port range
+- preserve config/data when a newer tarball is uploaded with **Update** enabled
+- participate in the normal reset-first, uninstall-second integration lifecycle
+- expose their process output through the normal integration logs
+
+### External integrations
+
+The existing external-integration installer is retained, but Docker is now internal to the appliance.
+
+The top-level container starts its own Docker daemon and external integrations are created inside it. No host `/var/run/docker.sock` mount is used.
+
+Supported existing flows remain available:
+
+- community integration registry
+- GHCR images
+- source repository builds
+- start, stop, restart, reconnect, update, reset, and uninstall
+- per-integration `/config` and `/data` persistence
+
+Source builds happen in the internal ARM64 Docker daemon, so generated images are ARM64. Prebuilt external images must provide an ARM64 variant.
 
 ### Virtual Remote Core
 
@@ -18,56 +71,35 @@ A self-hosted virtual Unfolded Circle Remote Core for running integrations, conf
 - Remote 3-style configuration and state handling
 - Media browsing, search, queue, and playback services
 - Application credentials, logs, backups, software updates, and factory reset
+- Virtual Dock, Bluetooth, Wi-Fi, and Remote Simulator support
 
 ### Web Configurator
 
 - Bundled unofficial Web Configurator based on the published 2.3.3 source
 - Full modified source included in the repository
+- Material Symbols instead of Font Awesome
 - Remote simulation directly inside the configurator
-- Activities, macros, profiles, UI pages, button mappings, entities, Docks, and settings
-- Managed integration updates from the integration screen
-- Two-stage integration removal: reset first, uninstall second
-- Dismissible unofficial-build notice on the login screen
+- Two-stage integration deletion: reset first, uninstall second
+- Dismissible unofficial-build notice on login
 
-### External integrations
+## Requirements
 
-- Run Unfolded Circle external integrations as Docker containers
-- Install integrations from registry entries, GHCR images, or source repositories
-- Automatic source builds for supported projects when no ready-made image is available
-- Native integration setup and reconfiguration flows
-- Start, stop, restart, reconnect, update, reset, and uninstall managed integrations
-- Persistent per-integration configuration and data
+The top-level container must run with `privileged: true` because it starts an internal Docker daemon and exposes the same hardware-management capabilities as UC Virtual Remote.
 
-### Backup and restore
+Required on the host:
 
-- Import standard Remote `.backup` archives
-- Restore entities, activities, macros, profiles, pages, resources, and configuration
-- Keep UC Virtual Remote data persistent across upgrades
+- Linux
+- Docker Engine
+- Docker Compose v2
+- Git and curl for the one-command installer
 
-### Virtual Dock and hardware services
-
-- Virtual Dock API and configuration
-- Bluetooth controller management through BlueZ
-- Wi-Fi scanning and connection through NetworkManager
-- Hardware and service logging for development and diagnostics
-
-### Development and testing
-
-- Built-in demo integration and demo profile
-- REST and WebSocket APIs for integration development
-- Remote simulator for testing UI and entity behavior
-- Node.js test suite and Docker validation in CI
-- Docker images for `linux/amd64` and `linux/arm64`
+On x86-64 hosts the installer checks ARM64 container execution and installs the `arm64` binfmt handler when needed.
 
 ## Quick start
 
-A Linux host with Docker Engine, Docker Compose v2, Git, and curl is required.
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh | sudo bash
 ```
-
-The installer asks for a four-digit Web Configurator PIN and starts UC Virtual Remote with persistent storage.
 
 Open:
 
@@ -80,44 +112,54 @@ Core WS:      ws://HOST_IP:946/ws
 For unattended installation:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh \
   | sudo UCVR_PIN=1234 TZ=Europe/Berlin bash
 ```
 
 Configuration is stored in:
 
 ```text
-/opt/uc-virtual-remote/.env
+/opt/uc-virtual-remote-arm64/.env
 ```
 
-## Updating
+Persistent data defaults to:
 
-Run the installer again:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/install.sh | sudo bash
+```text
+/var/lib/uc-virtual-remote-arm64
 ```
 
-Existing configuration and persistent data are retained.
+## Docker layout
 
-Updates are also available from **Settings → Software Update** in the Web Configurator.
+```text
+Linux host
+└─ uc-virtual-remote-arm64           ARM64, privileged, host network
+   ├─ Virtual Remote Core
+   ├─ Web Configurator
+   ├─ native integration process A   uploaded Remote tarball
+   ├─ native integration process B   uploaded Remote tarball
+   └─ dockerd                         internal Docker daemon
+      ├─ external integration A
+      ├─ external integration B
+      └─ source-built integration C
+```
 
-## Docker
+The only host persistence mount required by the application is `/data`. The internal Docker image/container store lives at `/data/docker`.
 
-Use the published image through the included Compose configuration:
+## Compose
 
 ```bash
 docker compose pull
 docker compose up -d --no-build
 ```
 
-Or build locally:
+Build locally:
 
 ```bash
-docker compose up -d --build
+docker compose build
+docker compose up -d --no-build
 ```
 
-The default deployment uses host networking for reliable local integration discovery and managed-container connectivity.
+The Compose service explicitly targets `linux/arm64`.
 
 ## Main configuration options
 
@@ -126,14 +168,38 @@ The default deployment uses host networking for reliable local integration disco
 | `UCVR_REST_PORT` | `11090` | Management, configurator, and REST port |
 | `UCVR_PIN` | `1234` with manual Compose | Four-digit Web Configurator PIN |
 | `UCVR_NAME` | `Virtual Remote 3` | Remote display name |
-| `UCVR_DATA_DIR` | `/data` | Persistent data directory |
-| `UCVR_ADMIN_TOKEN` | empty | Optional management bearer token |
-| `UCVR_CORE_TOKEN` | empty | Optional fixed Core WebSocket token |
-| `UCVR_INTEGRATION_PORT_START` | `11091` | First managed integration port |
+| `UCVR_DATA_DIR` | `/data` | Persistent appliance data |
+| `UCVR_INTEGRATION_PORT_START` | `11091` | First native/external integration port |
+| `UCVR_DIND` | `true` | Start the internal Docker daemon |
+| `UCVR_DIND_DATA_ROOT` | `/data/docker` | Internal Docker state |
+| `UCVR_DIND_STORAGE_DRIVER` | `overlay2` | Internal Docker storage driver; automatically falls back to `vfs` if startup fails |
 | `UCVR_GITHUB_TOKEN` | empty | Optional GitHub token for private repositories and updates |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, or `error` |
 
-The Core WebSocket listener uses port `946`.
+## Native integration storage
+
+```text
+/data/native-integrations/
+├─ packages/        installed tarball contents
+├─ config/          UC_CONFIG_HOME per driver
+├─ data/            UC_DATA_HOME / STATE_DIRECTORY per driver
+├─ logs/            native driver logs
+└─ state.json       installed package/runtime metadata
+```
+
+Native integration archives are validated before activation. Unsafe paths, symbolic links, special files, incompatible Core API requirements, and non-ARM64 ELF executables are rejected. Package replacement is atomic and a failed update rolls back to the previous installed package.
+
+## Updating
+
+Run the installer again:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh | sudo bash
+```
+
+Application updates are also available from **Settings → Software Update**.
+
+Updating the appliance does not remove native integration packages, native integration configuration, or the internal Docker store.
 
 ## Web Configurator source and licensing
 
@@ -148,12 +214,11 @@ The modified Web Configurator is GPL-3.0-only. Retained Unfolded Circle artwork 
 
 ## Development
 
-Node.js 22.5 or newer is required.
+Node.js 22.5 or newer is required for backend development.
 
 ```bash
 npm ci
 npm run ci
-npm run dev
 ```
 
 Build the committed Web Configurator source with:
@@ -162,18 +227,25 @@ Build the committed Web Configurator source with:
 npm run prepare:web-configurator
 ```
 
-## Uninstall
-
-Remove the application and persistent data:
+Validate the ARM64 appliance image with Buildx:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/uninstall.sh | sudo CONFIRM=1 bash
+docker buildx build --platform linux/arm64 -t uc-virtual-remote-arm64:dev .
 ```
 
-Keep persistent data:
+## Uninstall
+
+Remove the application and persistent data, including installed native integrations and the internal Docker store:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/uninstall.sh \
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/uninstall.sh \
+  | sudo CONFIRM=1 bash
+```
+
+Keep all persistent appliance data:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/uninstall.sh \
   | sudo CONFIRM=1 KEEP_DATA=1 bash
 ```
 

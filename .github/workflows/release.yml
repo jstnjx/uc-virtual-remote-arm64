@@ -66,7 +66,7 @@ jobs:
 
           echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
-          echo "archive_root=uc-virtual-remote-$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "archive_root=uc-virtual-remote-arm64-$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build release archives
         shell: bash
@@ -122,10 +122,10 @@ jobs:
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: uc-virtual-remote-${{ steps.version.outputs.version }}
+          name: uc-virtual-remote-arm64-${{ steps.version.outputs.version }}
           path: |
-            dist/uc-virtual-remote-${{ steps.version.outputs.version }}.zip
-            dist/uc-virtual-remote-${{ steps.version.outputs.version }}.tar.gz
+            dist/uc-virtual-remote-arm64-${{ steps.version.outputs.version }}.zip
+            dist/uc-virtual-remote-arm64-${{ steps.version.outputs.version }}.tar.gz
             dist/SHA256SUMS
             dist/RELEASE_NOTES.md
           if-no-files-found: error
@@ -135,10 +135,10 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: UC Virtual Remote ${{ steps.version.outputs.tag }}
+          name: UC Virtual Remote ARM64 ${{ steps.version.outputs.tag }}
           files: |
-            dist/uc-virtual-remote-${{ steps.version.outputs.version }}.zip
-            dist/uc-virtual-remote-${{ steps.version.outputs.version }}.tar.gz
+            dist/uc-virtual-remote-arm64-${{ steps.version.outputs.version }}.zip
+            dist/uc-virtual-remote-arm64-${{ steps.version.outputs.version }}.tar.gz
             dist/SHA256SUMS
           body_path: dist/RELEASE_NOTES.md
           prerelease: ${{ contains(steps.version.outputs.tag, '-') }}

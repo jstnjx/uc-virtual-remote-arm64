@@ -639,7 +639,10 @@ export class PlatformHttpServer {
         this.platform.hardware.status(false),
         this.platform.hardware.hciLogStatus()
       ]);
-      const services = this.platform.externalIntegrations.services();
+      const services = [
+        ...this.platform.nativeIntegrations.services(),
+        ...this.platform.externalIntegrations.services()
+      ];
       return json(response, 200, {
         sources: [
           { id: "core", type: "core", name: "Virtual Remote Core" },
@@ -679,9 +682,12 @@ export class PlatformHttpServer {
         label = "bluetooth-hci";
       } else if (source.startsWith("integration:")) {
         const service = source.slice("integration:".length);
-        const available = this.platform.externalIntegrations.services().find((item) => item.service === service);
+        const native = this.platform.nativeIntegrations.services().find((item) => item.service === service);
+        const available = native || this.platform.externalIntegrations.services().find((item) => item.service === service);
         if (!available) return json(response, 404, { error: "Integration log source not found" });
-        const records = await this.platform.externalIntegrations.logRecords({ s: service, limit });
+        const records = native
+          ? await this.platform.nativeIntegrations.logRecords({ s: service, limit })
+          : await this.platform.externalIntegrations.logRecords({ s: service, limit });
         output = formatLogRecords(records.slice(-limit));
         label = service;
       } else {
@@ -1091,6 +1097,15 @@ export class PlatformHttpServer {
     if (params && method === "DELETE") return db.deleteApiKey(params.id) ? ok(response) : json(response, 404, { code: "NOT_FOUND", message: "API key not found" });
 
     // Integration drivers, instances, discovery and setup
+    if (pathname === "/intg/install" && method === "POST") {
+      const upload = await multipartFile(request, 512 * 1024 * 1024);
+      const update = ["true", "1", "yes"].includes(String(url.searchParams.get("update") || "").toLowerCase());
+      const record = await this.platform.nativeIntegrations.install(upload.buffer, {
+        filename: upload.filename,
+        update
+      });
+      return json(response, update ? 200 : 201, integrationDriver(record));
+    }
     if (pathname === "/intg" && method === "HEAD") return paginatedHead(response, integrations().filter((item) => item.configured !== false), url);
     if (pathname === "/intg" && method === "GET") {
       const updates = await this.platform.externalIntegrations.updates(url.searchParams.get("refresh_updates") === "true").catch(() => []);
@@ -1146,6 +1161,9 @@ export class PlatformHttpServer {
     }
     params = match(pathname, "/intg/drivers/:id/update");
     if (params && method === "POST") {
+      if (this.platform.nativeIntegrations.managedRecord(params.id)) {
+        return json(response, 409, { error: "Native custom integrations are updated by uploading a newer tar.gz with Update enabled" });
+      }
       const result = await this.platform.externalIntegrations.update(params.id);
       return result ? json(response, 200, result) : json(response, 404, { error: "Managed integration not found" });
     }
@@ -1172,7 +1190,11 @@ export class PlatformHttpServer {
       const input = await body(request);
       const records = integrations().filter((item) => (item.driver_id || item.id) === params.id);
       const start = String(input.cmd_id || input.command || "").toUpperCase() === "START";
-      await this.platform.externalIntegrations.setRunning(params.id, start).catch((error) => log.warn(`Managed integration ${params.id} container command failed:`, error.message));
+      if (this.platform.nativeIntegrations.managedRecord(params.id)) {
+        await this.platform.nativeIntegrations.setRunning(params.id, start).catch((error) => log.warn(`Native integration ${params.id} process command failed:`, error.message));
+      } else {
+        await this.platform.externalIntegrations.setRunning(params.id, start).catch((error) => log.warn(`Managed integration ${params.id} container command failed:`, error.message));
+      }
       for (const record of records) start ? await this.platform.integrations.connect(record.id) : await this.platform.integrations.disconnect(record.id);
       return noContent(response);
     }
@@ -1186,7 +1208,8 @@ export class PlatformHttpServer {
     if (params && method === "DELETE") {
       const records = integrations().filter((item) => (item.driver_id || item.id) === params.id);
       for (const record of records) await this.platform.integrations.remove(record.id);
-      await this.platform.externalIntegrations.remove(params.id);
+      await this.platform.nativeIntegrations.remove(params.id).catch(() => false);
+      await this.platform.externalIntegrations.remove(params.id).catch(() => false);
       return noContent(response);
     }
 
@@ -1252,11 +1275,15 @@ export class PlatformHttpServer {
       const input = await body(request);
       const command = String(input.cmd_id || input.command || "").toUpperCase();
       if (command === "CONNECT") {
-        await this.platform.externalIntegrations.setRunning(params.id, true).catch(() => false);
+        if (!await this.platform.nativeIntegrations.setRunning(params.id, true).catch(() => false)) {
+          await this.platform.externalIntegrations.setRunning(params.id, true).catch(() => false);
+        }
         await this.platform.integrations.connect(params.id);
       } else if (command === "DISCONNECT") {
         await this.platform.integrations.disconnect(params.id);
-        await this.platform.externalIntegrations.setRunning(params.id, false).catch(() => false);
+        if (!await this.platform.nativeIntegrations.setRunning(params.id, false).catch(() => false)) {
+          await this.platform.externalIntegrations.setRunning(params.id, false).catch(() => false);
+        }
       } else return json(response, 400, { error: `Unsupported integration command ${command}` });
       return noContent(response);
     }
@@ -1264,7 +1291,9 @@ export class PlatformHttpServer {
       const record = db.getIntegration(params.id);
       if (!record || isInternalIntegration(record)) return noContent(response, 404);
       await this.platform.integrations.remove(params.id);
-      await this.platform.externalIntegrations.remove(record.driver_id || record.metadata?.driver_id || record.id);
+      const runtimeId = record.driver_id || record.metadata?.driver_id || record.id;
+      await this.platform.nativeIntegrations.remove(runtimeId).catch(() => false);
+      await this.platform.externalIntegrations.remove(runtimeId).catch(() => false);
       return noContent(response);
     }
 
@@ -2430,12 +2459,15 @@ export class PlatformHttpServer {
       return noContent(response);
     }
     if (pathname === "/system/logs/boots" && method === "GET") return json(response, 200, logBoots());
-    if (pathname === "/system/logs/services" && method === "GET") return json(response, 200, logServices(this.platform.externalIntegrations.services()));
+    if (pathname === "/system/logs/services" && method === "GET") return json(response, 200, logServices([ ...this.platform.nativeIntegrations.services(), ...this.platform.externalIntegrations.services() ]));
     if (pathname === "/system/logs" && method === "GET") {
       const query = Object.fromEntries(url.searchParams.entries());
-      const externalRecords = await this.platform.externalIntegrations.logRecords(query);
+      const [nativeRecords, externalRecords] = await Promise.all([
+        this.platform.nativeIntegrations.logRecords(query),
+        this.platform.externalIntegrations.logRecords(query)
+      ]);
       const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      return text(response, 200, queryLogs(query, externalRecords), "text/plain; charset=utf-8", {
+      return text(response, 200, queryLogs(query, [...nativeRecords, ...externalRecords]), "text/plain; charset=utf-8", {
         "Content-Disposition": `attachment; filename="virtual-remote-core-logs-${stamp}.txt"`
       });
     }

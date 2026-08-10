@@ -185,7 +185,12 @@ export async function installedIntegrationItems(platform) {
   return await Promise.all(records.map(async (record) => {
     const id = driverId(record);
     const managed = service.managedRecord(id);
-    const runtime = await containerRuntime(service, managed);
+    const native = platform.nativeIntegrations?.managedRecord?.(id) || null;
+    const runtime = managed ? await containerRuntime(service, managed) : native ? {
+      state: platform.nativeIntegrations?.processes?.has?.(native.driver_id) ? "running" : "stopped",
+      running: Boolean(platform.nativeIntegrations?.processes?.has?.(native.driver_id)),
+      pid: platform.nativeIntegrations?.processes?.get?.(native.driver_id)?.pid || null
+    } : null;
     const update = updates.get(id) || null;
     const configuredEntities = platform.db.listConfiguredEntities(record.id)?.length || 0;
     const availableEntities = platform.db.listAvailableEntities(record.id)?.length || 0;
@@ -203,6 +208,7 @@ export async function installedIntegrationItems(platform) {
       entities: configuredEntities,
       available_entities: availableEntities,
       registry_managed: Boolean(managed || record.registry_managed || record.metadata?.registry_managed),
+      native_managed: Boolean(native || record.metadata?.native_runtime),
       update: update ? {
         supported: Boolean(update.update_supported),
         available: Boolean(update.update_available),
@@ -217,6 +223,15 @@ export async function installedIntegrationItems(platform) {
         port: managed.port,
         installed_at: managed.installed_at,
         updated_at: managed.updated_at,
+        runtime
+      } : native ? {
+        native: true,
+        executable: native.executable,
+        source: "tarball",
+        port: native.port,
+        architecture: native.architecture,
+        installed_at: native.installed_at,
+        updated_at: native.updated_at,
         runtime
       } : null
     };
@@ -337,17 +352,22 @@ export async function resetIntegrationInstance(platform, id) {
 export async function performInstalledIntegrationAction(platform, id, action, input = {}) {
   const record = integrationRecord(platform, id);
   if (!record) throw Object.assign(new Error("Installed integration not found"), { status: 404 });
-  const managed = platform.externalIntegrations.managedRecord(driverId(record));
+  const runtimeId = driverId(record);
+  const managed = platform.externalIntegrations.managedRecord(runtimeId);
+  const native = platform.nativeIntegrations?.managedRecord?.(runtimeId) || null;
 
   if (action === "start") {
-    if (managed) await startManaged(platform, record, managed);
+    if (native) await platform.nativeIntegrations.setRunning(runtimeId, true);
+    else if (managed) await startManaged(platform, record, managed);
     await platform.integrations.connect(record.id);
   } else if (action === "stop") {
     await platform.integrations.disconnect(record.id).catch(() => {});
-    if (managed) await platform.externalIntegrations.setRunning(driverId(record), false);
+    if (native) await platform.nativeIntegrations.setRunning(runtimeId, false);
+    else if (managed) await platform.externalIntegrations.setRunning(runtimeId, false);
   } else if (action === "restart") {
     await platform.integrations.disconnect(record.id).catch(() => {});
-    if (managed) await restartManaged(platform, managed);
+    if (native) await platform.nativeIntegrations.restart(runtimeId);
+    else if (managed) await restartManaged(platform, managed);
     await platform.integrations.connect(record.id);
   } else if (action === "reconnect") {
     await platform.integrations.disconnect(record.id).catch(() => {});
@@ -361,7 +381,8 @@ export async function performInstalledIntegrationAction(platform, id, action, in
       throw Object.assign(new Error("Installed integration not found"), { status: 404 });
     }
   } else if (action === "update") {
-    const result = await platform.externalIntegrations.update(driverId(record));
+    if (native) throw Object.assign(new Error("Native custom integrations are updated by uploading a newer tar.gz with Update enabled"), { status: 409 });
+    const result = await platform.externalIntegrations.update(runtimeId);
     if (!result) throw Object.assign(new Error("Managed integration update is unavailable"), { status: 404 });
   } else {
     throw Object.assign(new Error(`Unsupported integration action ${action}`), { status: 400 });
@@ -375,7 +396,8 @@ export async function removeInstalledIntegration(platform, id) {
   if (!record) return false;
   const managedDriverId = driverId(record);
   await platform.integrations.remove(record.id);
-  await platform.externalIntegrations.remove(managedDriverId);
+  await platform.nativeIntegrations?.remove?.(managedDriverId).catch(() => false);
+  await platform.externalIntegrations.remove(managedDriverId).catch(() => false);
   return true;
 }
 

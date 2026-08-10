@@ -1143,7 +1143,8 @@ export class ExternalIntegrationService {
   }
 
   async #nextPort() {
-    const used = new Set(Object.values(this.state.integrations || {}).map((item) => Number(item.port)).filter(Boolean));
+    const used = this.reservedPorts();
+    for (const port of this.platform.nativeIntegrations?.reservedPorts?.() || []) used.add(Number(port));
     for (let port = this.portStart; port <= 65535; port += 1) {
       if (!used.has(port) && await portAvailable(this.integrationHost, port)) return port;
     }
@@ -1223,6 +1224,10 @@ export class ExternalIntegrationService {
       this.platform.db.updateIntegration(dbRecord.id, { url: expected, last_error: null });
       log.info(`Corrected managed integration WebSocket URL for ${record.driver_id}: ${expected}`);
     }
+  }
+
+  reservedPorts() {
+    return new Set(Object.values(this.state.integrations || {}).map((item) => Number(item.port)).filter(Boolean));
   }
 
   managedRecord(idOrDriver) {

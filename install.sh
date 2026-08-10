@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # One-command installer for UC Virtual Remote.
 #
-#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/install.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh | sudo bash
 #
 # Re-run the command at any time to update the checkout and container image.
 # Set LOCAL_INSTALL=1 to install from the current local checkout instead.
 set -Eeuo pipefail
 
-PREFIX="${PREFIX:-/opt/uc-virtual-remote}"
-DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote}"
-REPO_URL="${REPO_URL:-https://github.com/jstnjx/uc-virtual-remote.git}"
+PREFIX="${PREFIX:-/opt/uc-virtual-remote-arm64}"
+DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote-arm64}"
+REPO_URL="${REPO_URL:-https://github.com/jstnjx/uc-virtual-remote-arm64.git}"
 BRANCH="${BRANCH:-main}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
-CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote}"
+CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote-arm64}"
 REST_PORT="${UCVR_REST_PORT:-11090}"
 REMOTE_NAME="${UCVR_NAME:-Virtual Remote 3}"
 TIMEZONE="${TZ:-Europe/Berlin}"
@@ -161,6 +161,17 @@ fi
 $SUDO docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is required (the 'docker compose' command)."
 $SUDO docker info >/dev/null 2>&1 || fail "Docker is installed but the daemon is unavailable. Start Docker and rerun the installer."
 
+HOST_ARCH="$(uname -m)"
+if [ "$HOST_ARCH" != "aarch64" ] && [ "$HOST_ARCH" != "arm64" ]; then
+  echo "==> Host architecture is $HOST_ARCH; checking ARM64 container emulation"
+  if ! $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1; then
+    echo "==> Enabling Linux ARM64 binfmt support"
+    $SUDO docker run --privileged --rm tonistiigi/binfmt --install arm64 >/dev/null
+    $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1 \
+      || fail "ARM64 container emulation could not be enabled on this host."
+  fi
+fi
+
 if [ "${LOCAL_INSTALL:-0}" = "1" ]; then
   install_local_checkout
 else
@@ -183,7 +194,7 @@ UCVR_PIN=$PIN_VALUE
 UCVR_HOST_DATA_DIR=$DATA_DIR
 UCVR_CORE_TOKEN=${UCVR_CORE_TOKEN:-}
 UCVR_ADMIN_TOKEN=${UCVR_ADMIN_TOKEN:-}
-UCVR_UPDATE_REPOSITORY=${UCVR_UPDATE_REPOSITORY:-jstnjx/uc-virtual-remote}
+UCVR_UPDATE_REPOSITORY=${UCVR_UPDATE_REPOSITORY:-jstnjx/uc-virtual-remote-arm64}
 UCVR_UPDATE_BRANCH=${UCVR_UPDATE_BRANCH:-main}
 UCVR_GITHUB_TOKEN=${UCVR_GITHUB_TOKEN:-}
 UCVR_INTEGRATION_REGISTRY_URLS=${UCVR_INTEGRATION_REGISTRY_URLS:-}

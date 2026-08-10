@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 # Completely remove UC Virtual Remote and the Docker containers it manages.
 #
-#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/uninstall.sh | sudo CONFIRM=1 bash
+#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/uninstall.sh | sudo CONFIRM=1 bash
 #
 # Options (environment variables):
-#   KEEP_DATA=1          preserve /var/lib/uc-virtual-remote
+#   KEEP_DATA=1          preserve /var/lib/uc-virtual-remote-arm64
 #   KEEP_IMAGES=1        preserve UC Virtual Remote and locally built integration images
-#   KEEP_INTEGRATIONS=1  preserve managed external integration containers
 #   CONFIRM=1            skip the confirmation prompt (required for piped execution)
 set -Eeuo pipefail
 
-PREFIX="${PREFIX:-/opt/uc-virtual-remote}"
-DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote}"
+PREFIX="${PREFIX:-/opt/uc-virtual-remote-arm64}"
+DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote-arm64}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
-CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote}"
+CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote-arm64}"
 KEEP_DATA="${KEEP_DATA:-0}"
 KEEP_IMAGES="${KEEP_IMAGES:-0}"
-KEEP_INTEGRATIONS="${KEEP_INTEGRATIONS:-0}"
 
 SUDO=""
 if [ "$(id -u)" -ne 0 ]; then
@@ -37,7 +35,7 @@ echo "This will PERMANENTLY remove:"
 echo "  • main container:     $CONTAINER_NAME"
 echo "  • install directory:  $PREFIX"
 [ "$KEEP_DATA" = "1" ] || echo "  • data directory:     $DATA_DIR"
-[ "$KEEP_INTEGRATIONS" = "1" ] || echo "  • managed external integration containers"
+[ "$KEEP_DATA" = "1" ] || echo "  • native integrations and the internal Docker runtime"
 [ "$KEEP_IMAGES" = "1" ] || echo "  • UC Virtual Remote and locally built ucvr/* images"
 echo
 
@@ -63,20 +61,10 @@ if command -v docker >/dev/null 2>&1; then
   fi
   $SUDO docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
-  if [ "$KEEP_INTEGRATIONS" != "1" ]; then
-    echo "==> Removing managed external integration containers"
-    mapfile -t containers < <($SUDO docker ps -aq --filter 'label=ucvr.external-integration=true' 2>/dev/null || true)
-    if [ "${#containers[@]}" -gt 0 ]; then
-      $SUDO docker rm -f "${containers[@]}" >/dev/null 2>&1 || true
-    else
-      echo "    none found"
-    fi
-  fi
-
   if [ "$KEEP_IMAGES" != "1" ]; then
     echo "==> Removing UC Virtual Remote images"
     mapfile -t images < <($SUDO docker images --format '{{.Repository}}:{{.Tag}}' 2>/dev/null \
-      | grep -E '^(ghcr\.io/jstnjx/uc-virtual-remote|uc-virtual-remote|ucvr/)' \
+      | grep -E '^(ghcr\.io/jstnjx/uc-virtual-remote-arm64|uc-virtual-remote-arm64)' \
       | sort -u || true)
     if [ "${#images[@]}" -gt 0 ]; then
       $SUDO docker rmi -f "${images[@]}" >/dev/null 2>&1 || true
