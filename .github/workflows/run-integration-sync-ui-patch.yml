@@ -39,6 +39,17 @@ jobs:
           compile(script, '.feature-patch.py', 'exec')
           exec(compile(script, '.feature-patch.py', 'exec'), {'__name__': '__main__'})
 
+          # Preserve the legacy validateTarTypes() error contract when callers do
+          # not provide the parallel archive listing. Safe symlinks are accepted
+          # only by the install path, which supplies that listing.
+          native_path = Path('src/native-integrations/service.js')
+          native = native_path.read_text(encoding='utf-8')
+          native = native.replace(
+              'throw Object.assign(new Error(`Unable to validate integration archive symbolic link: ${line}`), { status: 422 });',
+              'throw Object.assign(new Error(`Integration archive contains unsupported link or special file: ${line}`), { status: 422 });',
+          )
+          native_path.write_text(native, encoding='utf-8')
+
       - name: Run project tests
         run: |
           npm ci
