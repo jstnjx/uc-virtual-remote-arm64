@@ -13,6 +13,15 @@ APP_PID=""
 
 mkdir -p "$DATA_DIR" "$DATA_DIR/logs"
 
+mark_dind_unavailable() {
+  reason="$1"
+  export UCVR_DIND_RUNTIME_AVAILABLE=false
+  export UCVR_DIND_UNAVAILABLE_REASON="$reason"
+  DIND_ENABLED=false
+  echo "UC Virtual Remote: $reason" >&2
+  echo "UC Virtual Remote: continuing without registry/external integration containers; the Core, Web Configurator and native custom integrations remain available." >&2
+}
+
 require_dind_namespace_access() {
   if command -v unshare >/dev/null 2>&1 && unshare --mount /bin/true >/dev/null 2>&1; then
     return 0
@@ -20,10 +29,9 @@ require_dind_namespace_access() {
 
   echo "UC Virtual Remote: internal Docker cannot create mount namespaces in this container." >&2
   echo "UC Virtual Remote: registry/external integrations require CAP_SYS_ADMIN and an unconfined seccomp/AppArmor policy in the top-level container." >&2
-  echo "UC Virtual Remote: Home Assistant add-on packages must declare privileged: [SYS_ADMIN]; full_access does not grant Linux capabilities." >&2
-  echo "UC Virtual Remote: disabling Home Assistant Protection mode only enables full_access device permissions and does not replace SYS_ADMIN." >&2
+  echo "UC Virtual Remote: Home Assistant add-on packages may request SYS_ADMIN, but Supervisor can still restrict namespaces independently." >&2
   echo "UC Virtual Remote: standalone Docker users should start the appliance with --privileged." >&2
-  exit 1
+  return 1
 }
 
 prepare_dind_cgroups() {
@@ -40,7 +48,7 @@ prepare_dind_cgroups() {
     if ! mkdir "$probe" >/dev/null 2>&1; then
       echo "UC Virtual Remote: internal Docker cannot create child cgroups under /sys/fs/cgroup." >&2
       echo "UC Virtual Remote: the cgroup v2 hierarchy is read-only or not delegated to this container." >&2
-      exit 1
+      return 1
     fi
     rmdir "$probe" >/dev/null 2>&1 || true
 
@@ -59,11 +67,12 @@ prepare_dind_cgroups() {
     done
     if [ "$enabled" != "1" ]; then
       echo "UC Virtual Remote: unable to delegate cgroup v2 controllers to internal Docker." >&2
-      exit 1
+      return 1
     fi
   fi
 
   mount --make-rshared / >/dev/null 2>&1 || true
+  return 0
 }
 
 wait_for_docker() {
@@ -103,12 +112,21 @@ launch_dockerd() {
 start_dockerd() {
   [ "$DIND_ENABLED" = "true" ] || [ "$DIND_ENABLED" = "1" ] || return 0
   if [ "$(id -u)" != "0" ]; then
-    echo "UC Virtual Remote ARM64: internal Docker requires the top-level container to run as root." >&2
-    exit 1
+    mark_dind_unavailable "internal Docker requires the top-level container to run as root."
+    return 0
   fi
 
-  require_dind_namespace_access
-  prepare_dind_cgroups
+  if ! require_dind_namespace_access; then
+    mark_dind_unavailable "internal Docker cannot use the required mount namespace permissions on this host."
+    return 0
+  fi
+  if ! prepare_dind_cgroups; then
+    mark_dind_unavailable "Home Assistant/Supervisor did not delegate a writable cgroup v2 subtree to this add-on."
+    return 0
+  fi
+
+  export UCVR_DIND_RUNTIME_AVAILABLE=true
+  unset UCVR_DIND_UNAVAILABLE_REASON || true
   mkdir -p "$DIND_DATA_ROOT" /var/run/docker
   export DOCKER_HOST="unix://$DOCKER_SOCKET"
 
@@ -132,7 +150,9 @@ start_dockerd() {
 
   echo "UC Virtual Remote ARM64: internal Docker daemon failed to start. Last log lines:" >&2
   tail -n 80 "$DOCKER_LOG" >&2 2>/dev/null || true
-  exit 1
+  DOCKERD_PID=""
+  mark_dind_unavailable "internal Docker failed to start; see $DOCKER_LOG for details."
+  return 0
 }
 
 stop_dockerd() {
