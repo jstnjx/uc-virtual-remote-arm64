@@ -186,9 +186,8 @@ export function executableArchitecture(filename) {
 
 export function driverLaunchCommand(record, options = {}) {
   const executable = String(record?.executable || "");
-  const architecture = record?.architecture && record.architecture !== "script"
-    ? record.architecture
-    : (executable ? executableArchitecture(executable) : null);
+  const architecture = record?.architecture
+    || (executable ? executableArchitecture(executable) : null);
   const runtimeArch = String(options.runtimeArch || process.arch);
   if (architecture !== "arm64" || runtimeArch === "arm64") {
     return { command: executable, args: [], emulated: false, architecture: architecture || "script" };
