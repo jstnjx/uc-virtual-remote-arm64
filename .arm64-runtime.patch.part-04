@@ -1,0 +1,161 @@
++    exit 1
++  fi
+   exec gosu node "$@"
+ fi
+ 
+ if [ ! -w "$DATA_DIR" ]; then
+-  echo "UC Virtual Remote: data directory is not writable: $DATA_DIR" >&2
++  echo "UC Virtual Remote ARM64: data directory is not writable: $DATA_DIR" >&2
+   exit 1
+ fi
+ exec "$@"
+diff --git a/install.sh b/install.sh
+index 7aede41..acef136 100644
+--- a/install.sh
++++ b/install.sh
+@@ -1,18 +1,18 @@
+ #!/usr/bin/env bash
+ # One-command installer for UC Virtual Remote.
+ #
+-#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote/main/install.sh | sudo bash
++#   curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh | sudo bash
+ #
+ # Re-run the command at any time to update the checkout and container image.
+ # Set LOCAL_INSTALL=1 to install from the current local checkout instead.
+ set -Eeuo pipefail
+ 
+-PREFIX="${PREFIX:-/opt/uc-virtual-remote}"
+-DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote}"
+-REPO_URL="${REPO_URL:-https://github.com/jstnjx/uc-virtual-remote.git}"
++PREFIX="${PREFIX:-/opt/uc-virtual-remote-arm64}"
++DATA_DIR="${UCVR_HOST_DATA_DIR:-/var/lib/uc-virtual-remote-arm64}"
++REPO_URL="${REPO_URL:-https://github.com/jstnjx/uc-virtual-remote-arm64.git}"
+ BRANCH="${BRANCH:-main}"
+ COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
+-CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote}"
++CONTAINER_NAME="${UCVR_CONTAINER_NAME:-uc-virtual-remote-arm64}"
+ REST_PORT="${UCVR_REST_PORT:-11090}"
+ REMOTE_NAME="${UCVR_NAME:-Virtual Remote 3}"
+ TIMEZONE="${TZ:-Europe/Berlin}"
+@@ -161,6 +161,17 @@ fi
+ $SUDO docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is required (the 'docker compose' command)."
+ $SUDO docker info >/dev/null 2>&1 || fail "Docker is installed but the daemon is unavailable. Start Docker and rerun the installer."
+ 
++HOST_ARCH="$(uname -m)"
++if [ "$HOST_ARCH" != "aarch64" ] && [ "$HOST_ARCH" != "arm64" ]; then
++  echo "==> Host architecture is $HOST_ARCH; checking ARM64 container emulation"
++  if ! $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1; then
++    echo "==> Enabling Linux ARM64 binfmt support"
++    $SUDO docker run --privileged --rm tonistiigi/binfmt --install arm64 >/dev/null
++    $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1 \
++      || fail "ARM64 container emulation could not be enabled on this host."
++  fi
++fi
++
+ if [ "${LOCAL_INSTALL:-0}" = "1" ]; then
+   install_local_checkout
+ else
+@@ -183,7 +194,7 @@ UCVR_PIN=$PIN_VALUE
+ UCVR_HOST_DATA_DIR=$DATA_DIR
+ UCVR_CORE_TOKEN=${UCVR_CORE_TOKEN:-}
+ UCVR_ADMIN_TOKEN=${UCVR_ADMIN_TOKEN:-}
+-UCVR_UPDATE_REPOSITORY=${UCVR_UPDATE_REPOSITORY:-jstnjx/uc-virtual-remote}
++UCVR_UPDATE_REPOSITORY=${UCVR_UPDATE_REPOSITORY:-jstnjx/uc-virtual-remote-arm64}
+ UCVR_UPDATE_BRANCH=${UCVR_UPDATE_BRANCH:-main}
+ UCVR_GITHUB_TOKEN=${UCVR_GITHUB_TOKEN:-}
+ UCVR_INTEGRATION_REGISTRY_URLS=${UCVR_INTEGRATION_REGISTRY_URLS:-}
+diff --git a/package-lock.json b/package-lock.json
+index d86faf5..7d9576b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,12 +1,12 @@
+ {
+-  "name": "uc-virtual-remote",
+-  "version": "0.12.7",
++  "name": "uc-virtual-remote-arm64",
++  "version": "0.13.0",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+-      "name": "uc-virtual-remote",
+-      "version": "0.12.7",
++      "name": "uc-virtual-remote-arm64",
++      "version": "0.13.0",
+       "license": "MIT",
+       "engines": {
+         "node": ">=22.5.0"
+diff --git a/package.json b/package.json
+index 875c072..9b76d0c 100644
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,7 @@
+ {
+-  "name": "uc-virtual-remote",
+-  "version": "0.12.7",
+-  "description": "Self-hosted virtual Unfolded Circle Remote Core with a bundled GPL Web Configurator community build, health monitoring, media services, and virtual Dock support.",
++  "name": "uc-virtual-remote-arm64",
++  "version": "0.13.0",
++  "description": "ARM64 UC Virtual Remote appliance with native custom-integration tarballs and an internal Docker runtime for external integrations.",
+   "type": "module",
+   "private": true,
+   "engines": {
+diff --git a/src/api/installed-integration-management.js b/src/api/installed-integration-management.js
+index 14f5a68..d302603 100644
+--- a/src/api/installed-integration-management.js
++++ b/src/api/installed-integration-management.js
+@@ -185,7 +185,12 @@ export async function installedIntegrationItems(platform) {
+   return await Promise.all(records.map(async (record) => {
+     const id = driverId(record);
+     const managed = service.managedRecord(id);
+-    const runtime = await containerRuntime(service, managed);
++    const native = platform.nativeIntegrations?.managedRecord?.(id) || null;
++    const runtime = managed ? await containerRuntime(service, managed) : native ? {
++      state: platform.nativeIntegrations?.processes?.has?.(native.driver_id) ? "running" : "stopped",
++      running: Boolean(platform.nativeIntegrations?.processes?.has?.(native.driver_id)),
++      pid: platform.nativeIntegrations?.processes?.get?.(native.driver_id)?.pid || null
++    } : null;
+     const update = updates.get(id) || null;
+     const configuredEntities = platform.db.listConfiguredEntities(record.id)?.length || 0;
+     const availableEntities = platform.db.listAvailableEntities(record.id)?.length || 0;
+@@ -203,6 +208,7 @@ export async function installedIntegrationItems(platform) {
+       entities: configuredEntities,
+       available_entities: availableEntities,
+       registry_managed: Boolean(managed || record.registry_managed || record.metadata?.registry_managed),
++      native_managed: Boolean(native || record.metadata?.native_runtime),
+       update: update ? {
+         supported: Boolean(update.update_supported),
+         available: Boolean(update.update_available),
+@@ -218,6 +224,15 @@ export async function installedIntegrationItems(platform) {
+         installed_at: managed.installed_at,
+         updated_at: managed.updated_at,
+         runtime
++      } : native ? {
++        native: true,
++        executable: native.executable,
++        source: "tarball",
++        port: native.port,
++        architecture: native.architecture,
++        installed_at: native.installed_at,
++        updated_at: native.updated_at,
++        runtime
+       } : null
+     };
+   }));
+@@ -337,17 +352,22 @@ export async function resetIntegrationInstance(platform, id) {
+ export async function performInstalledIntegrationAction(platform, id, action, input = {}) {
+   const record = integrationRecord(platform, id);
+   if (!record) throw Object.assign(new Error("Installed integration not found"), { status: 404 });
+-  const managed = platform.externalIntegrations.managedRecord(driverId(record));
++  const runtimeId = driverId(record);
++  const managed = platform.externalIntegrations.managedRecord(runtimeId);
++  const native = platform.nativeIntegrations?.managedRecord?.(runtimeId) || null;
+ 
+   if (action === "start") {
+-    if (managed) await startManaged(platform, record, managed);
++    if (native) await platform.nativeIntegrations.setRunning(runtimeId, true);
++    else if (managed) await startManaged(platform, record, managed);
+     await platform.integrations.connect(record.id);
+   } else if (action === "stop") {
+     await platform.integrations.disconnect(record.id).catch(() => {});
+-    if (managed) await platform.externalIntegrations.setRunning(driverId(record), false);
