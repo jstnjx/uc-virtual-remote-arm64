@@ -1,0 +1,162 @@
++  for (const raw of entries) {
++    if (raw === "." || raw === "./") continue;
++    const name = raw.replace(/\\/g, "/").replace(/^\.\//, "");
++    if (!name || name.startsWith("/") || /^[A-Za-z]:\//.test(name)) {
++      throw Object.assign(new Error(`Unsafe integration archive path: ${raw}`), { status: 422 });
++    }
++    const parts = name.split("/").filter(Boolean);
++    if (parts.includes("..")) throw Object.assign(new Error(`Unsafe integration archive path: ${raw}`), { status: 422 });
++  }
++  return entries;
++}
++
++export function validateTarTypes(output) {
++  const lines = String(output || "").split(/\r?\n/).map((item) => item.trimStart()).filter(Boolean);
++  for (const line of lines) {
++    const type = line[0];
++    if (type !== "-" && type !== "d") {
++      throw Object.assign(new Error(`Integration archive contains unsupported link or special file: ${line}`), { status: 422 });
++    }
++  }
++}
++
++function inspectTree(root) {
++  let files = 0;
++  const stack = [path.resolve(root)];
++  while (stack.length) {
++    const current = stack.pop();
++    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
++      const filename = path.join(current, entry.name);
++      const stat = fs.lstatSync(filename);
++      if (stat.isSymbolicLink()) throw Object.assign(new Error(`Integration archive contains unsupported symbolic link: ${path.relative(root, filename)}`), { status: 422 });
++      if (stat.isDirectory()) stack.push(filename);
++      else if (stat.isFile()) files += 1;
++      else throw Object.assign(new Error(`Integration archive contains unsupported special file: ${path.relative(root, filename)}`), { status: 422 });
++      if (files > MAX_EXTRACTED_FILES) throw Object.assign(new Error("Integration archive contains too many files"), { status: 413 });
++    }
++  }
++}
++
++function packageRoot(extracted) {
++  const direct = path.join(extracted, "driver.json");
++  if (fs.existsSync(direct)) return extracted;
++  const matches = [];
++  for (const entry of fs.readdirSync(extracted, { withFileTypes: true })) {
++    if (!entry.isDirectory()) continue;
++    const candidate = path.join(extracted, entry.name);
++    if (fs.existsSync(path.join(candidate, "driver.json"))) matches.push(candidate);
++  }
++  if (matches.length === 1) return matches[0];
++  if (!matches.length) throw Object.assign(new Error("Integration archive does not contain driver.json at the package root"), { status: 422 });
++  throw Object.assign(new Error("Integration archive contains multiple package roots"), { status: 422 });
++}
++
++function copyMissingTree(source, destination) {
++  if (!fs.existsSync(source) || !fs.statSync(source).isDirectory()) return;
++  fs.mkdirSync(destination, { recursive: true });
++  for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
++    const from = path.join(source, entry.name);
++    const to = path.join(destination, entry.name);
++    if (entry.isDirectory()) {
++      copyMissingTree(from, to);
++    } else if (entry.isFile() && !fs.existsSync(to)) {
++      fs.copyFileSync(from, to);
++      fs.chmodSync(to, fs.statSync(from).mode & 0o777);
++    }
++  }
++}
++
++function packageExecutable(root) {
++  const standard = path.join(root, "bin", "driver");
++  if (fs.existsSync(standard) && fs.statSync(standard).isFile()) return standard;
++  const bin = path.join(root, "bin");
++  if (fs.existsSync(bin)) {
++    const candidates = fs.readdirSync(bin)
++      .map((name) => path.join(bin, name))
++      .filter((filename) => {
++        try { return fs.statSync(filename).isFile() && (fs.statSync(filename).mode & 0o111); }
++        catch { return false; }
++      });
++    if (candidates.length === 1) return candidates[0];
++  }
++  throw Object.assign(new Error("Integration archive is missing the standard bin/driver executable"), { status: 422 });
++}
++
++export function executableArchitecture(filename) {
++  const handle = fs.openSync(filename, "r");
++  try {
++    const header = Buffer.alloc(20);
++    const read = fs.readSync(handle, header, 0, header.length, 0);
++    if (read < 20 || header[0] !== 0x7f || header[1] !== 0x45 || header[2] !== 0x4c || header[3] !== 0x46) return null;
++    const littleEndian = header[5] !== 2;
++    const machine = littleEndian ? header.readUInt16LE(18) : header.readUInt16BE(18);
++    if (machine === 183) return "arm64";
++    if (machine === 62) return "amd64";
++    if (machine === 40) return "arm";
++    return `elf-${machine}`;
++  } finally {
++    fs.closeSync(handle);
++  }
++}
++
++async function portAvailable(host, port) {
++  return await new Promise((resolve) => {
++    const socket = net.createConnection({ host, port });
++    const done = (available) => { socket.destroy(); resolve(available); };
++    socket.setTimeout(350, () => done(true));
++    socket.once("connect", () => done(false));
++    socket.once("error", () => done(true));
++  });
++}
++
++async function waitForPort(host, port, timeoutMs) {
++  const deadline = Date.now() + timeoutMs;
++  while (Date.now() < deadline) {
++    if (!await portAvailable(host, port)) return true;
++    await new Promise((resolve) => setTimeout(resolve, 300));
++  }
++  return false;
++}
++
++function readTail(filename, limit) {
++  try {
++    const lines = fs.readFileSync(filename, "utf8").split(/\r?\n/).filter(Boolean);
++    return lines.slice(-limit);
++  } catch { return []; }
++}
++
++export class NativeIntegrationService {
++  constructor(platform, options = {}) {
++    this.platform = platform;
++    this.runner = options.runner || runProcess;
++    this.host = options.host || process.env.UCVR_NATIVE_INTEGRATION_HOST || "127.0.0.1";
++    this.portStart = Math.max(1024, Number(options.portStart || process.env.UCVR_INTEGRATION_PORT_START || 11091));
++    const applianceRuntime = String(process.env.UCVR_REQUIRE_ARM64 || "").toLowerCase() === "true";
++    this.runUid = numericId(options.runUid ?? process.env.UCVR_NATIVE_UID, applianceRuntime ? 1000 : null);
++    this.runGid = numericId(options.runGid ?? process.env.UCVR_NATIVE_GID, applianceRuntime ? 1000 : null);
++    this.root = path.join(platform.dataDir, "native-integrations");
++    this.packagesDir = path.join(this.root, "packages");
++    this.configDir = path.join(this.root, "config");
++    this.runtimeDataDir = path.join(this.root, "data");
++    this.logsDir = path.join(this.root, "logs");
++    this.stagingDir = path.join(this.root, "staging");
++    this.statePath = path.join(this.root, "state.json");
++    this.state = safeJson(this.statePath, { version: 1, integrations: {} });
++    this.processes = new Map();
++    this.restartTimers = new Map();
++    this.stopping = false;
++    for (const directory of [this.root, this.packagesDir, this.configDir, this.runtimeDataDir, this.logsDir, this.stagingDir]) {
++      fs.mkdirSync(directory, { recursive: true });
++    }
++  }
++
++  async start() {
++    this.stopping = false;
++    if (String(process.env.UCVR_REQUIRE_ARM64 || "").toLowerCase() === "true" && process.arch !== "arm64") {
++      throw new Error(`UC Virtual Remote ARM64 requires an arm64 runtime, detected ${process.arch}`);
++    }
++    const records = Object.values(this.state.integrations || {});
++    for (const record of records) {
++      if (!fs.existsSync(record.package_dir || "")) continue;
++      this.#ensureDatabaseRecord(record);
++      await this.startDriver(record.driver_id, { wait: true }).catch((error) => {
