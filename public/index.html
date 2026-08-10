@@ -4,16 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <meta name="ucvr-build" content="0.12.5">
+  <meta name="ucvr-build" content="0.14.1">
   <title>UC Virtual Remote</title>
-  <link rel="stylesheet" href="/styles.css?v=0.12.5">
-  <link rel="stylesheet" href="/integrations-management.css?v=0.12.5">
-  <link rel="stylesheet" href="/management-navigation.css?v=0.12.5">
+  <base id="ucvr-base" href="/">
+  <script>
+    (() => {
+      const match = window.location.pathname.match(/^(\/api\/hassio_ingress\/[^/]+)/);
+      if (match) document.getElementById("ucvr-base").href = `${match[1]}/`;
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=0.14.1">
+  <link rel="stylesheet" href="integrations-management.css?v=0.14.1">
+  <link rel="stylesheet" href="management-navigation.css?v=0.14.1">
 </head>
 <body>
   <div class="app-frame">
     <header class="navbar">
-      <a class="navbar-brand" href="/" aria-label="UC Virtual Remote management">
+      <a class="navbar-brand" href="./" aria-label="UC Virtual Remote management">
         <span class="brand-symbol" aria-hidden="true"><i></i><i></i></span>
         <span class="brand-copy">
           <strong>UC Virtual Remote</strong>
@@ -47,7 +54,7 @@
           <h1 id="platform-name">Virtual Remote 3</h1>
           <p class="page-description">Monitor the platform and open the bundled unofficial community Web Configurator. Runtime bundle uploads are not supported.</p>
         </div>
-        <a class="button button-primary disabled" id="open-configurator" href="/configurator/" aria-disabled="true">
+        <a class="button button-primary disabled" id="open-configurator" href="configurator/" aria-disabled="true">
           Open configurator
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M10 14 19 5M19 14v5H5V5h5"/></svg>
         </a>
@@ -332,8 +339,8 @@
     </main>
   </div>
 
-  <script type="module" src="/management-navigation.js?v=0.12.5"></script>
-  <script type="module" src="/app.js?v=0.12.5"></script>
-  <script type="module" src="/integrations-management.js?v=0.12.5"></script>
+  <script type="module" src="management-navigation.js?v=0.14.1"></script>
+  <script type="module" src="app.js?v=0.14.1"></script>
+  <script type="module" src="integrations-management.js?v=0.14.1"></script>
 </body>
 </html>

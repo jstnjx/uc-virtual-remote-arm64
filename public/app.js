@@ -1,4 +1,5 @@
 /* UC Virtual Remote management landing page — SPDX-License-Identifier: MIT */
+import { appUrl } from "./management-base.js";
 const $ = (selector) => document.querySelector(selector);
 const statusElement = $("#connection-status");
 const configuratorStatus = $("#configurator-status");
@@ -80,11 +81,11 @@ function formatDuration(value) { let seconds = Math.max(0, Math.floor(Number(val
 function setPill(element, state, label) { element.className = `status-pill ${state}`; element.innerHTML = `<i></i><b>${escapeHtml(label)}</b>`; }
 function metric(label, value, detail = "") { return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</article>`; }
 function detail(label, value, options = {}) { const content = options.code ? `<code>${escapeHtml(value)}</code>` : escapeHtml(value); return `<div><dt>${escapeHtml(label)}</dt><dd>${content}</dd></div>`; }
-async function management(path, options = {}) { const response = await fetch(`/management/${path}`, { cache: "no-store", ...options, headers: { "Content-Type": "application/json", ...(options.headers || {}) } }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || payload.message || `Request returned HTTP ${response.status}`); return payload; }
+async function management(path, options = {}) { const response = await fetch(appUrl(`management/${path}`), { cache: "no-store", ...options, headers: { "Content-Type": "application/json", ...(options.headers || {}) } }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || payload.message || `Request returned HTTP ${response.status}`); return payload; }
 function result(element, state, message) { element.className = `upload-result ${state}`; element.textContent = message; }
 
 async function managementText(path, options = {}) {
-  const response = await fetch(`/management/${path}`, { cache: "no-store", ...options, headers: { ...(options.headers || {}) } });
+  const response = await fetch(appUrl(`management/${path}`), { cache: "no-store", ...options, headers: { ...(options.headers || {}) } });
   const payload = await response.text();
   if (!response.ok) {
     let message = payload;
@@ -147,7 +148,7 @@ async function refreshLogs({ forceSources = false } = {}) {
 }
 
 async function downloadLog(path, fallbackName) {
-  const response = await fetch(`/management/${path}`, { cache: "no-store" });
+  const response = await fetch(appUrl(`management/${path}`), { cache: "no-store" });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
     throw new Error(payload.error || `Download returned HTTP ${response.status}`);
@@ -346,7 +347,7 @@ async function refreshIntegrationSources(force = false) {
   }
 }
 
-async function refreshStatus() { refreshButton.disabled = true; try { const response = await fetch("/pub/status", { cache: "no-store" }); if (!response.ok) throw new Error(`Status request returned HTTP ${response.status}`); renderStatus(await response.json()); } catch (error) { setPill(statusElement, "error", "Offline"); lastUpdated.textContent = error.message; healthMetrics.innerHTML = `<div class="error-message">Unable to retrieve platform status: ${escapeHtml(error.message)}</div>`; } finally { refreshButton.disabled = false; } }
+async function refreshStatus() { refreshButton.disabled = true; try { const response = await fetch(appUrl("pub/status"), { cache: "no-store" }); if (!response.ok) throw new Error(`Status request returned HTTP ${response.status}`); renderStatus(await response.json()); } catch (error) { setPill(statusElement, "error", "Offline"); lastUpdated.textContent = error.message; healthMetrics.innerHTML = `<div class="error-message">Unable to retrieve platform status: ${escapeHtml(error.message)}</div>`; } finally { refreshButton.disabled = false; } }
 
 openConfigurator.addEventListener("click", (event) => { if (openConfigurator.getAttribute("aria-disabled") === "true") event.preventDefault(); });
 refreshButton.addEventListener("click", refreshStatus);
