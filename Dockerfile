@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS configurator-builder
+FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS configurator-builder
 
 ARG TARGETARCH
 RUN test "$TARGETARCH" = "arm64"
