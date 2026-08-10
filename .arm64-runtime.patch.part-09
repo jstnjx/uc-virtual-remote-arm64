@@ -1,0 +1,162 @@
++    await this.startDriver(record.driver_id, { wait: true });
++    return true;
++  }
++
++  async remove(idOrDriver) {
++    const record = this.managedRecord(idOrDriver);
++    if (!record) return false;
++    await this.stopDriver(record.driver_id).catch(() => {});
++    delete this.state.integrations[record.driver_id];
++    atomicJson(this.statePath, this.state);
++    fs.rmSync(record.package_dir, { recursive: true, force: true });
++    fs.rmSync(path.join(this.configDir, record.driver_id), { recursive: true, force: true });
++    fs.rmSync(path.join(this.runtimeDataDir, record.driver_id), { recursive: true, force: true });
++    fs.rmSync(path.join(this.logsDir, `${record.driver_id}.log`), { force: true });
++    log.info(`Removed native integration ${record.driver_id}`);
++    return true;
++  }
++
++  async factoryReset() {
++    this.stopping = true;
++    await Promise.allSettled([...this.processes.keys()].map((driverId) => this.stopDriver(driverId)));
++    this.state = { version: 1, integrations: {} };
++    fs.rmSync(this.root, { recursive: true, force: true });
++  }
++
++  services() {
++    return Object.values(this.state.integrations || {}).map((item) => ({
++      service: `native:${item.driver_id}`,
++      name: item.name || item.driver_id,
++      driver_id: item.driver_id,
++      native: true
++    }));
++  }
++
++  async logRecords(query = {}) {
++    const requested = new Set(String(query.s || "").split(",").map(decodeURIComponent).filter(Boolean));
++    const limit = Math.max(1, Math.min(10_000, Number(query.limit || 1000)));
++    const records = [];
++    for (const service of this.services().filter((item) => !requested.size || requested.has(item.service))) {
++      const filename = path.join(this.logsDir, `${service.driver_id}.log`);
++      for (const raw of readTail(filename, limit)) {
++        const match = raw.match(/^\[(\d{4}-\d\d-\d\dT[^\]]+)\]\s+(INFO|WARN|ERROR)\s+(.*)$/);
++        const timestamp = match && !Number.isNaN(Date.parse(match[1])) ? new Date(match[1]).toISOString() : new Date().toISOString();
++        const level = match ? match[2].toLowerCase() : "info";
++        const message = match ? match[3] : raw;
++        records.push({
++          timestamp,
++          level,
++          priority: level === "error" ? 3 : level === "warn" ? 4 : 6,
++          scope: service.service,
++          service: service.service,
++          message,
++          line: `[${timestamp}] ${level.toUpperCase().padEnd(5)} ${service.service} ${message}`
++        });
++      }
++    }
++    return records;
++  }
++
++  async startDriver(idOrDriver, options = {}) {
++    const record = this.managedRecord(idOrDriver);
++    if (!record) throw Object.assign(new Error("Native integration not found"), { status: 404 });
++    const current = this.processes.get(record.driver_id);
++    if (current && current.exitCode === null && !current.killed) return record;
++    if (!fs.existsSync(record.executable)) throw new Error(`Native integration executable is missing: ${record.executable}`);
++
++    const configDir = path.join(this.configDir, record.driver_id);
++    const dataDir = path.join(this.runtimeDataDir, record.driver_id);
++    fs.mkdirSync(configDir, { recursive: true });
++    fs.mkdirSync(dataDir, { recursive: true });
++    fs.mkdirSync(this.logsDir, { recursive: true });
++    chownTree(configDir, this.runUid, this.runGid);
++    chownTree(dataDir, this.runUid, this.runGid);
++    const logFile = path.join(this.logsDir, `${record.driver_id}.log`);
++    const child = spawn(record.executable, [], {
++      cwd: record.package_dir,
++      env: nativeEnvironment(record, this.host, configDir, dataDir),
++      ...(this.runUid !== null && this.runGid !== null && typeof process.getuid === "function" && process.getuid() === 0
++        ? { uid: this.runUid, gid: this.runGid }
++        : {}),
++      stdio: ["ignore", "pipe", "pipe"]
++    });
++    this.processes.set(record.driver_id, child);
++    this.#pipeLogs(record.driver_id, child.stdout, "INFO", logFile);
++    this.#pipeLogs(record.driver_id, child.stderr, "ERROR", logFile);
++    child.once("error", (error) => log.warn(`Native integration ${record.driver_id} process error:`, error.message));
++    child.once("exit", (code, signal) => {
++      if (this.processes.get(record.driver_id) === child) this.processes.delete(record.driver_id);
++      if (child.__ucvrExpectedStop || this.stopping) {
++        log.info(`Native integration ${record.driver_id} stopped: code=${code ?? "null"} signal=${signal || "none"}`);
++      } else {
++        log.warn(`Native integration ${record.driver_id} exited unexpectedly: code=${code ?? "null"} signal=${signal || "none"}`);
++        this.#scheduleRestart(record.driver_id);
++      }
++    });
++
++    if (options.wait !== false) {
++      const timeout = Number(process.env.UCVR_INTEGRATION_START_TIMEOUT_MS || 45_000);
++      if (!await waitForPort(this.host, record.port, timeout)) {
++        const tail = readTail(logFile, 60).join("\n");
++        await this.stopDriver(record.driver_id).catch(() => {});
++        throw new Error(`Native integration ${record.driver_id} did not open Integration API port ${record.port}.${tail ? ` Last output: ${tail.slice(-2000)}` : ""}`);
++      }
++    }
++    return record;
++  }
++
++  async stopDriver(idOrDriver) {
++    const record = this.managedRecord(idOrDriver);
++    const driverId = record?.driver_id || String(idOrDriver || "");
++    clearTimeout(this.restartTimers.get(driverId));
++    this.restartTimers.delete(driverId);
++    const child = this.processes.get(driverId);
++    if (!child) return false;
++    child.__ucvrExpectedStop = true;
++    this.processes.delete(driverId);
++    if (child.exitCode !== null || child.killed) return true;
++    await new Promise((resolve) => {
++      const timer = setTimeout(() => {
++        try { child.kill("SIGKILL"); } catch {}
++        resolve();
++      }, 5_000);
++      child.once("exit", () => { clearTimeout(timer); resolve(); });
++      try { child.kill("SIGTERM"); } catch { clearTimeout(timer); resolve(); }
++    });
++    return true;
++  }
++
++  #scheduleRestart(driverId) {
++    if (this.restartTimers.has(driverId)) return;
++    const timer = setTimeout(() => {
++      this.restartTimers.delete(driverId);
++      this.startDriver(driverId, { wait: false }).catch((error) => log.warn(`Native integration ${driverId} restart failed:`, error.message));
++    }, RESTART_DELAY_MS);
++    timer.unref?.();
++    this.restartTimers.set(driverId, timer);
++  }
++
++  #pipeLogs(driverId, stream, level, filename) {
++    let pending = "";
++    stream?.on("data", (chunk) => {
++      pending += chunk.toString("utf8");
++      const lines = pending.split(/\r?\n/);
++      pending = lines.pop() || "";
++      for (const line of lines) {
++        if (!line) continue;
++        const output = `[${new Date().toISOString()}] ${level} ${line}\n`;
++        try { fs.appendFileSync(filename, output); } catch {}
++        if (level === "ERROR") log.warn(`${driverId}: ${line}`);
++        else log.info(`${driverId}: ${line}`);
++      }
++    });
++    stream?.once("end", () => {
++      if (!pending) return;
++      try { fs.appendFileSync(filename, `[${new Date().toISOString()}] ${level} ${pending}\n`); } catch {}
++    });
++  }
++
++  async #nextPort() {
++    const used = this.reservedPorts();
++    for (const port of this.platform.externalIntegrations?.reservedPorts?.() || []) used.add(Number(port));
++    for (let port = this.portStart; port <= 65535; port += 1) {
