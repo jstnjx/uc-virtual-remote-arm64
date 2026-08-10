@@ -62,5 +62,6 @@ test("Web Configurator exposes Management", () => {
 test("nested Docker checks mount namespace privilege", () => {
   assert.match(dockerfile, /util-linux/);
   assert.match(entrypoint, /unshare --mount/);
-  assert.match(entrypoint, /disable Protection mode/);
+  assert.match(entrypoint, /CAP_SYS_ADMIN/);
+  assert.match(entrypoint, /full_access does not grant Linux capabilities/);
 });
