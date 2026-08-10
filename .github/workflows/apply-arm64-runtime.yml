@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   apply:
-    if: github.event.head_commit.message == 'Stage ARM64 runtime patch 12'
+    if: github.event.head_commit.message == 'Run ARM64 patch diagnostics'
     runs-on: ubuntu-latest
     steps:
       - name: Check out feature branch
@@ -19,14 +19,54 @@ jobs:
           ref: feature/arm64-appliance-runtime
           fetch-depth: 0
 
-      - name: Apply complete implementation
+      - name: Verify and apply complete implementation
         shell: bash
         run: |
-          set -euo pipefail
-          cat .arm64-runtime.patch.part-* > /tmp/arm64-runtime.patch
-          git apply --index /tmp/arm64-runtime.patch
-          git rm .github/workflows/apply-arm64-runtime.yml .arm64-runtime.patch.part-*
+          set -u
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Complete ARM64 appliance runtime"
+          cat > /tmp/expected.sha256 <<'EOF'
+          4dfbb222ce9b1c953ecd0158a3240d178f6f9f013f19500ffe8885b5de94e189  .arm64-runtime.patch.part-00
+          b8449eb22b29ed60e67068208351d596a3ff00f4036d41790a557549a1c147e9  .arm64-runtime.patch.part-01
+          e974ab2443a5924f29dc98f493e5e4f3eb8e48eb05b68fe2a28d424371290c14  .arm64-runtime.patch.part-02
+          6905f74e1a7d5f6fe2b2e90cd51cc93baa41705dc27fe0df980b1aaa6d20b050  .arm64-runtime.patch.part-03
+          2cc1104ae80895481c8497654e031f9858b73c7cc392bda145bc7d7c23184437  .arm64-runtime.patch.part-04
+          f0041d5ec268f1225b03307cff93f517fcf0c5ac88fcaa5a3efb24bb2b35745b  .arm64-runtime.patch.part-05
+          b04aa60b0c8435c8ea299b8bc5673eff988cdfe96b3a864019b89f73da40fc5e  .arm64-runtime.patch.part-06
+          19da3a3361877a927232a962cb592250d7461db4d5a85218e877a1a56b117bcb  .arm64-runtime.patch.part-07
+          7ebd338e1ac868e08a7a717c8b16d51c380e1fe11b4e9a56c1921cdfaeba0e0d  .arm64-runtime.patch.part-08
+          6b98ac49246d3deea9281e63dbd8d7842d10b8c955e8028c6591506c189cb6b5  .arm64-runtime.patch.part-09
+          b2a7d1e498b6e99c2cc50fa00f25eb25651680daaacd10760de76d465718d89a  .arm64-runtime.patch.part-10
+          cb42a588571483a86e307950ee6c98eed5ae4425cc7312e3053500aea71b81a1  .arm64-runtime.patch.part-11
+          EOF
+          sha256sum -c /tmp/expected.sha256 > /tmp/checks.log 2>&1
+          checks=$?
+          cat .arm64-runtime.patch.part-* > /tmp/arm64-runtime.patch
+          actual="$(sha256sum /tmp/arm64-runtime.patch | awk '{print $1}')"
+          git apply --check /tmp/arm64-runtime.patch > /tmp/apply.log 2>&1
+          apply_check=$?
+
+          if [ "$checks" -eq 0 ] && [ "$actual" = "735bc786d5255f8dd3682eab531cf24c6bf4be844aa74111b29e70bfb3ff07f6" ] && [ "$apply_check" -eq 0 ]; then
+            set -e
+            git apply --index /tmp/arm64-runtime.patch
+            git rm .github/workflows/apply-arm64-runtime.yml .arm64-runtime.patch.part-*
+            git commit -m "Complete ARM64 appliance runtime"
+            git push origin HEAD:feature/arm64-appliance-runtime
+            exit 0
+          fi
+
+          {
+            echo "chunk verification status: $checks"
+            cat /tmp/checks.log
+            echo "combined expected: 735bc786d5255f8dd3682eab531cf24c6bf4be844aa74111b29e70bfb3ff07f6"
+            echo "combined actual:   $actual"
+            echo "git apply --check status: $apply_check"
+            cat /tmp/apply.log
+            echo
+            echo "actual chunk hashes:"
+            sha256sum .arm64-runtime.patch.part-*
+          } > .arm64-runtime-diagnostics
+          git add .arm64-runtime-diagnostics
+          git commit -m "Record ARM64 patch diagnostics"
           git push origin HEAD:feature/arm64-appliance-runtime
+          exit 1
