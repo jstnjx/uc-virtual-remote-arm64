@@ -1,6 +1,6 @@
 {
   "name": "uc-virtual-remote-arm64",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "UC Virtual Remote appliance for ARM64 and AMD64 with native ARM64 custom-integration tarballs and an internal Docker runtime for external integrations.",
   "type": "module",
   "private": true,

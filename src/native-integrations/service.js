@@ -7,7 +7,6 @@ import { logger } from "../shared/logger.js";
 import { runProcess } from "../shared/process.js";
 
 const log = logger("native-integrations");
-const MAX_ARCHIVE_BYTES = 512 * 1024 * 1024;
 const MAX_EXTRACTED_FILES = 20_000;
 const RESTART_DELAY_MS = 2_000;
 
@@ -305,7 +304,6 @@ export class NativeIntegrationService {
 
   async install(archive, options = {}) {
     if (!Buffer.isBuffer(archive)) throw Object.assign(new Error("Integration archive is required"), { status: 400 });
-    if (archive.length > MAX_ARCHIVE_BYTES) throw Object.assign(new Error("Integration archive is too large"), { status: 413 });
 
     const staging = fs.mkdtempSync(path.join(this.stagingDir, "upload-"));
     const archiveFile = path.join(staging, "integration.tar.gz");
