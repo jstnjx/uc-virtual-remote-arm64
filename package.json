@@ -1,7 +1,7 @@
 {
   "name": "uc-virtual-remote-arm64",
-  "version": "0.13.1",
-  "description": "ARM64 UC Virtual Remote appliance with native custom-integration tarballs and an internal Docker runtime for external integrations.",
+  "version": "0.14.0",
+  "description": "UC Virtual Remote appliance for ARM64 and AMD64 with native ARM64 custom-integration tarballs and an internal Docker runtime for external integrations.",
   "type": "module",
   "private": true,
   "engines": {
@@ -15,7 +15,7 @@
     "ci": "npm run check && npm test",
     "prepare:web-configurator": "node tools/prepare-web-configurator.js",
     "prestart": "npm run prepare:web-configurator",
-    "predev": "npm run prepare:web-configurator"
+    "predev": "npm run prepare-web-configurator"
   },
   "license": "MIT"
 }
