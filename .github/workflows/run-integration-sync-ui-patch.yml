@@ -1,16 +1,20 @@
 name: Run integration and Sync Mode feature patch
 
 on:
-  push:
+  pull_request:
     branches:
-      - fix/integration-runtime-sync-ui
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.actor != 'github-actions[bot]'
+    if: github.head_ref == 'fix/integration-runtime-sync-ui' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
