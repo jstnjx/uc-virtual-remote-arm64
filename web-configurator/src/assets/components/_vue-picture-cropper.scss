@@ -1,0 +1,73 @@
+@use "../vars/variables";
+
+.vue--picture-cropper__wrap {
+  border-radius: 0.5rem;
+
+  .cropper-container {
+    border-radius: 0.5rem;
+  }
+
+  .cropper-bg {
+    background: transparent;
+  }
+
+  .cropper-wrap-box,
+  .cropper-crop-box,
+  .cropper-drag-box {
+    border-radius: 0.5rem;
+  }
+
+  .cropper-view-box {
+    position: relative;
+    border: 1px solid var(--uc-white);
+    border-radius: 0.5rem;
+    outline: 0;
+  }
+
+  .cropper-drag-box {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .cropper-face {
+    background: transparent;
+    opacity: 0.5;
+  }
+
+  .cropper-dashed,
+  .cropper-center,
+  .cropper-line {
+    opacity: 0;
+  }
+
+  .cropper-point {
+    background: transparent;
+
+    &::before {
+      opacity: 0;
+    }
+  }
+
+  .cropper-point.point-se {
+    display: block;
+    opacity: 1;
+
+    &::after {
+      position: absolute;
+      background-image: url("/images/cropper-corner.svg");
+      background-size: 100%;
+      background-repeat: no-repeat;
+      content: "";
+      bottom: -1rem;
+      right: -1rem;
+      width: 2rem;
+      height: 2rem;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        bottom: -0.5rem;
+        right: -0.5rem;
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+}

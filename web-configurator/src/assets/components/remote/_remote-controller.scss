@@ -1,0 +1,637 @@
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.remote-controller {
+  position: relative;
+  transform-origin: top center;
+  transition: all 0.6s;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    transition: none;
+  }
+
+  &__device {
+    width: 22.25rem;
+    height: 97.047rem;
+    top: 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    padding: 1.125rem 1.125rem 0;
+    transition: top 0.65s cubic-bezier(0.45, 1.25, 0.55, 1);
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      transition: none;
+    }
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 17.8rem;
+      height: 33.5rem;
+      padding: 0.9rem 0.9rem 0;
+    }
+
+    &--button-mapping {
+      top: -34rem;
+      // transition: top 0.65s cubic-bezier(0.45, 1.25, 0.55, 1);
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        transition: none;
+      }
+    }
+  }
+
+  &__options {
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      position: fixed;
+      z-index: 1000;
+
+      &.dropdown-menu--open {
+        z-index: 1205;
+      }
+
+      .dropdown-menu__trigger {
+        .button {
+          width: 2rem;
+          height: 2rem;
+          min-height: 2rem;
+        }
+
+        i {
+          margin-top: -2px;
+          font-size: 0.9375rem;
+        }
+      }
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      .dropdown-menu__trigger {
+        .button {
+          position: relative;
+          top: 0.5rem;
+          left: 0.5rem;
+          width: 1.625rem;
+          height: 1.625rem;
+          min-height: 1.625rem;
+          z-index: 3;
+        }
+
+        i {
+          margin-top: 2px;
+          font-size: 0.725rem;
+        }
+      }
+    }
+  }
+
+  &__display {
+    position: relative;
+    width: 100%;
+    height: 33.33rem;
+    background: var(--uc-black);
+    border-radius: 0.15rem;
+
+    &::after {
+      position: absolute;
+      content: "";
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    @media screen and (max-width: variables.$bp-phone) {
+      height: 27rem;
+    }
+
+    &__no-items {
+      @include mixins.body-small;
+      text-align: center;
+      padding: 2.5rem 1.5rem 0.5rem;
+      color: var(--uc-text-text-secondary);
+    }
+
+    &__no-pages {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.875rem;
+
+      img {
+        cursor: pointer;
+      }
+
+      h2 {
+        @include mixins.heading-4;
+
+        & {
+          color: var(--uc-text-text-primary);
+          text-align: center;
+        }
+      }
+    }
+
+    &__header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 14rem;
+      overflow: hidden;
+      transition: all 0.02s;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        height: 12rem;
+      }
+
+      &__body {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        transition: all 0.02s;
+
+        &:before,
+        &:after {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          content: "";
+          opacity: 1;
+          background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0) 25.59%,
+            #000 100%
+          );
+          z-index: 2;
+        }
+
+        &:before {
+          opacity: 0.1;
+          background: lightgray;
+        }
+
+        img,
+        .vue-load-image {
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+
+        img {
+          object-fit: cover;
+        }
+
+        .vue-load-image {
+          text-align: center;
+        }
+      }
+
+      &__title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        max-width: 90%;
+        color: var(--uc-white);
+        text-align: center;
+        font-size: 2rem;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 2.5rem;
+        z-index: 5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &__list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: calc(100% + 10.25rem);
+      margin-left: -10rem;
+      gap: 0.62rem;
+      padding: 13rem 0.42rem 0 10.42rem;
+      // z-index: 5;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      scrollbar-width: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        width: 100%;
+        margin-left: 0;
+        padding: 11.33rem 0.42rem 0 0.42rem;
+      }
+    }
+
+    &__saving {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
+
+      .img-loading {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+    }
+
+    &--single-page {
+      .carousel__pagination-button {
+        opacity: 0;
+      }
+    }
+
+    &--disabled {
+      &::after {
+        display: block;
+      }
+    }
+  }
+
+  &--v3,
+  &--v3--d {
+    .remote-controller {
+      &__device {
+        background-image: url("/images/remote-3-dark-front.webp");
+
+        &--min {
+          background-image: url("/images/remote-3-dark-front-min.webp");
+        }
+      }
+    }
+  }
+
+  &--v3--s {
+    .remote-controller {
+      &__device {
+        background-image: url("/images/remote-3-silver-front.webp");
+
+        &--min {
+          background-image: url("/images/remote-3-silver-front-min.webp");
+        }
+      }
+    }
+  }
+
+  &--v2 {
+    .remote-controller {
+      &__display {
+        height: 34.92rem;
+
+        @media screen and (max-width: variables.$bp-phone) {
+          height: 28.288rem;
+        }
+      }
+
+      &__device {
+        background-image: url("/images/remote-2-front.webp");
+        background-size: 100%;
+        padding: 1.4rem 1.525rem 0;
+
+        &--min {
+          background-image: url("/images/remote-2-front-min.webp");
+        }
+
+        @media screen and (max-width: variables.$bp-phone) {
+          padding: 1.12rem 1.22rem 0;
+        }
+      }
+    }
+  }
+
+  &--activity,
+  &--device {
+    margin-top: 1.5rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      margin-top: 1.875rem;
+    }
+  }
+
+  .tab-menu {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.75rem;
+
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, 0);
+      -webkit-transform: translate(-50%, 0);
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      margin-top: 1.875rem;
+    }
+  }
+
+  &__modal-rename-page {
+    .modal-minimal {
+      &__container {
+        max-width: 25rem;
+      }
+
+      &__body {
+        margin-bottom: 0.5rem;
+      }
+
+      &__footer {
+        button {
+          flex-grow: 1;
+        }
+      }
+    }
+  }
+
+  &__page-triggers {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.875rem;
+
+    .v-select {
+      flex: 1;
+    }
+
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      display: none;
+    }
+
+    &--no-pages {
+      justify-content: center;
+    }
+  }
+
+  &__tools {
+    display: flex;
+    gap: 1.1875rem;
+    flex-direction: column;
+    position: absolute;
+    top: 10rem;
+    left: calc(100% + 2.5rem);
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      position: relative;
+      top: 0;
+      left: auto;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .button {
+      @media screen and (min-width: variables.$bp-tablet-plus) {
+        min-height: 2.25rem;
+        min-width: 4.875rem;
+        & > span {
+          flex: 1;
+        }
+      }
+
+      @media screen and (min-width: variables.$bp-tablet-plus) and (max-width: 1300px) {
+        min-width: fit-content;
+        padding-left: 0.375rem;
+        padding-right: 0.375rem;
+
+        & > span {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        & > span {
+          display: none;
+        }
+      }
+    }
+
+    .button-reset {
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: none;
+      }
+    }
+
+    // @media screen and (max-width: $bp-tablet) {
+    //   position: relative;
+    //   justify-content: center;
+    //   margin-bottom: 1.875rem;
+    //   flex-wrap: wrap;
+    // }
+  }
+
+  &__carousel {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    position: relative;
+    text-align: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: stretch;
+    outline: none;
+
+    // vue3-carousel 0.4+ sets `.carousel { z-index: 1 }`; this element is also
+    // the `.carousel` root, so reset to the pre-upgrade `auto` to keep the
+    // device preview in normal stacking order (same fix as the quick-tips
+    // carousel — see _quick-tips.scss).
+    &.carousel {
+      z-index: auto;
+    }
+
+    .carousel {
+      &__viewport {
+        overflow: hidden;
+        flex-grow: 1;
+        flex-shrink: 0;
+        width: 100%;
+        // vue3-carousel 0.4+ ships `.carousel__viewport { height: 100% }`, which
+        // makes the viewport claim the display's full height and push the
+        // (in-flow) pagination out below it. It must take what is left instead.
+        height: auto;
+      }
+
+      &__track {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-content: flex-start;
+        justify-content: flex-start;
+        align-items: flex-start;
+      }
+
+      &__slide {
+        scroll-snap-stop: auto;
+        flex-shrink: 0;
+        margin: 0;
+        position: relative;
+        height: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+        flex-wrap: nowrap;
+      }
+
+      &__pagination {
+        // vue3-carousel 0.4+ takes the pagination out of flow
+        // (`position: absolute; left: 50%; transform: translateX(-50%)`). Here
+        // it must stay in flow: the page grid gets whatever height is left below
+        // it, and the editor's pixel math (gridDimensions) is calibrated to that
+        // height. Out of flow, the dots overlap the last widget row and the grid
+        // grows by their 2.06669rem, drifting the empty-cell overlay a row-share
+        // further down per row.
+        position: static;
+        transform: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        height: 2.06669rem;
+        gap: 0.075rem;
+      }
+
+      &__pagination-button {
+        display: flex;
+        margin: 0.25rem;
+        max-width: 0.41669rem;
+        width: 10vw;
+        height: 0.41669rem;
+        border-radius: 5rem;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        background-color: var(--uc-white);
+        transition: max-width 0.25s;
+
+        &--active {
+          max-width: 1rem;
+          transition: max-width 0.25s;
+        }
+      }
+
+      &__sr-only {
+        display: none;
+      }
+    }
+  }
+}
+
+.remote-nav {
+  position: absolute;
+  top: 0.425rem;
+  right: 0.425rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  max-width: 4.75rem;
+  height: 1.8rem;
+  padding: 0.17rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.875rem;
+  z-index: 10;
+  transition: all 0.2s;
+  overflow: hidden;
+
+  &__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 1.8rem;
+    width: max-content;
+    padding: 0.15rem 0 0.15rem 0rem;
+    gap: 0.5rem;
+    overflow: hidden;
+    border-radius: 0.875rem;
+  }
+
+  &__battery {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-top-left-radius: 0.875rem;
+    border-bottom-left-radius: 0.875rem;
+  }
+
+  &__clock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.1rem;
+  }
+
+  &__profile {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.917rem;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+  }
+
+  &__page-name {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translate(0, -50%);
+    color: var(--uc-theme-color-70);
+    font-size: 0.75rem;
+  }
+
+  &--full-width {
+    background-color: var(--uc-black);
+    max-width: calc(100% - 0.84rem);
+    transition: all 0.2s;
+  }
+
+  @include mixins.transition-opacity-fast;
+}

@@ -1,0 +1,17 @@
+.table {
+  width: 100%;
+
+  td,
+  th {
+    font-size: 0.8125rem;
+    border: 1px solid transparent;
+    text-align: left;
+    padding: 0.35rem 0.25rem;
+    color: var(--uc-theme-color-80);
+  }
+
+  th {
+    background-color: var(--uc-theme-color-30);
+    font-weight: 400;
+  }
+}

@@ -1,0 +1,17 @@
+/*
+ * Injected into every visual-regression screenshot via
+ * playwright.visual.config.ts (expect.toHaveScreenshot.stylePath), so it applies
+ * identically when baselines are captured and when they are compared.
+ *
+ * It neutralises content that varies by *build environment* rather than by a real
+ * UI change, keeping the baselines reproducible on any machine.
+ *
+ * .version-info — the git-describe version string (VersionInfo.vue). It renders as
+ * a "…-dirty" describe on a developer checkout but is empty on CI's shallow clone
+ * (actions/checkout depth 1, no history for `git describe`). Beyond the text, its
+ * differing height shifts the login page's vertically-centred column, which is not
+ * what this suite exists to test. Hiding it removes the variable entirely.
+ */
+.version-info {
+  display: none !important;
+}

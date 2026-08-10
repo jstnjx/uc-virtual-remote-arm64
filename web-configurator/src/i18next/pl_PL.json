@@ -1,0 +1,1451 @@
+{
+  "translation": {
+    "device": {
+      "add_device": {
+        "discover": {
+          "discovered_integration_few": "{{count}} dostępne integracje",
+          "discovered_integration_many": "{{count}} dostępnych integracji",
+          "discovering": "Odkrywanie integracji",
+          "discovered_integration_one": "{{count}} dostępna integracja",
+          "discovered_integration_other": "{{count}} dostępnych integracji",
+          "no_integration_discovered": "Nie znaleziono integracji"
+        },
+        "title": "Dodaj nowe urządzenie",
+        "menu_list": {
+          "infrared": {
+            "title": "Podczerwień",
+            "description": "Dodaj zestaw danych IR do urządzenia na podczerwień lub naucz się komend starego pilota."
+          },
+          "bluetooth": {
+            "description": "Połącz z urządzeniem Bluetooth jako klawiatura/mysz."
+          },
+          "dock": {
+            "title": "Dok",
+            "description": "Dodaj inteligentną stację dokującą Unfolded Circle lub kompatybilne urządzenie."
+          }
+        }
+      }
+    },
+    "dock": {
+      "add": {
+        "discover": {
+          "discovered_dock_few": "{{count}} doki stacji dokującej odkryte",
+          "discovered_dock_many": "{{count}} doków stacji dokującej odkrytych",
+          "discovering": "Odkrywanie docków",
+          "discovered_dock_one": "{{count}} dok stacji dokującej odkryty",
+          "discovered_dock_other": "{{count}} doków stacji dokującej odkrytych",
+          "last_seen": "Ostatnio widziano {{sec}} sekund temu",
+          "bt_pre_warn": "Upewnij się, że dock jest blisko pilota, a wskaźnik LED świeci na bursztynowo."
+        },
+        "title": "Dodaj nowy dock",
+        "start": {
+          "instruction1": "Kliknij odkrywaj, aby wyszukać doki w sieci lub przez Bluetooth.",
+          "instruction2": "Jeśli chcesz bezprzewodowo skonfigurować nową stację dokującą, upewnij się, że jest w bliskiej odległości od pilota.",
+          "bluetooth": {
+            "warning": "Bluetooth jest wyłączony. Wykrywanie ograniczone tylko do sieci."
+          },
+          "manual_setup": "Ręczna konfiguracja",
+          "discover": "Odkryj"
+        },
+        "add_discovered": {
+          "instruction": "Upewnij się, że dock jest dostępny i osiągalny w sieci."
+        },
+        "add_manually": {
+          "title": "Ręczna konfiguracja",
+          "instruction": "Upewnij się, że dock jest dostępny i osiągalny w sieci. Podczas ręcznego ustawienia docków nie można ustawiać przez Bluetooth."
+        },
+        "form": {
+          "password_description": "Opcjonalne. Ustaw hasło do uzyskania dostępu do docku. Będziesz potrzebować tego hasła, jeśli chcesz kontrolować dock z innych urządzeń.",
+          "ip_address": "URL docku",
+          "ip_address_description": "Wpisz URL API docku lub adres IP/hosta z numerem portu i ścieżką. Przykład dla Dock Two: `ws://$IP:946`, Dock 3: `ws://$IP/ws`.",
+          "setup_wifi": "Skonfiguruj WiFi",
+          "wifi_ssid": "SSID sieci WiFi",
+          "wifi_password": "Hasło sieci WiFi"
+        },
+        "error": {
+          "title": "Ups!",
+          "description": "Coś poszło nie tak podczas ustawiania docku."
+        },
+        "success": {
+          "title": "Gotowe!",
+          "description1": "Dok został dodany pomyślnie.",
+          "description2": "{{name}} jest gotowy do przesyłania kodów IR."
+        },
+        "setup_process": {
+          "configuring": "Konfiguracja w toku",
+          "press_control_button": "Proszę naciśnij przycisk sterujący docku, gdy zostaniesz poproszony na ekranie docku",
+          "error": {
+            "NONE": "Brak",
+            "NOT_FOUND": "Nie znaleziono",
+            "CONNECTION_REFUSED": "Połączenie odrzucone",
+            "CONNECTION_ERROR": "Nie można połączyć. Spróbuj ponownie.",
+            "AUTHORIZATION_ERROR": "Dostęp zabroniony. Prosimy sprawdzić swoje dane.",
+            "TIMEOUT": "Limit czasu",
+            "OTHER": "Wystąpił nieznany problem. Spróbuj ponownie."
+          }
+        }
+      },
+      "dock": "Dok",
+      "docks": "Dokki",
+      "status": {
+        "IDLE": "Bezczynny",
+        "CONNECTING": "Łączenie",
+        "CONNECTED": "Połączony",
+        "RECONNECTING": "Ponowne połączenie",
+        "AUTHENTICATED": "Uwierzytelniony",
+        "DISCONNECTED": "Rozłączony",
+        "CLOSING": "Zamykanie",
+        "ERROR": "Coś poszło nie tak. Spróbuj ponownie.",
+        "ACTIVE": "Aktywny",
+        "UNKNOWN": "nieznany"
+      },
+      "label": {
+        "state": "Stan",
+        "service_name": "Nazwa usługi",
+        "led_brightness": "Jasność diody LED",
+        "microphone": "Mikrofon"
+      },
+      "form": {
+        "custom_ip_or_url": "Niestandardowy URL"
+      },
+      "change_password": {
+        "trigger": "Zmień hasło",
+        "title": "Zmień hasło",
+        "pass_not_match": "Hasła nie są takie same"
+      },
+      "wifi_settings": {
+        "trigger": "Ustawienia WiFi",
+        "title": "Zmień ustawienia WiFi"
+      },
+      "port": {
+        "mode": {
+          "UNKNOWN": "Nieznany",
+          "NONE": "Brak",
+          "MANUAL": "Ręczny",
+          "INFRARED": "Podczerwień",
+          "IR_EMITTER_MONO_PLUG": "Nadajnik IR Mono Plug",
+          "IR_EMITTER_STEREO_PLUG": "Nadajnik IR Stereo Plug",
+          "TRIGGER_5V": "Spust 5V",
+          "ERROR": "Błąd"
+        },
+        "labels": {
+          "peripheral": "Urządzenie peryferyjne",
+          "baud_rate": "Stawka Baud",
+          "data_bits": "Bity danych",
+          "stop_bits": "Bity stopu",
+          "parity": {
+            "none": "brak",
+            "even": "parzysta",
+            "odd": "nieparzysta"
+          }
+        }
+      },
+      "edit_port": {
+        "mode": "Tryb",
+        "warning": "Nie podłączaj urządzeń peryferyjnych, gdy dock jest włączony. Czytaj dalej."
+      },
+      "delete": {
+        "title": "Usuń stacje dokującą",
+        "question": "Czy na pewno chcesz usunąć dock?"
+      },
+      "factory_reset": {
+        "title": "Punkt bez powrotu",
+        "description": "Potwierdzając reset fabryczny, usuniesz wszystkie konfiguracje i dane. Przywrócenie ich nie będzie możliwe."
+      },
+      "update": {
+        "ok": "Twoje oprogramowanie jest aktualne.",
+        "update": "Dostępna jest nowa wersja oprogramowania",
+        "disabled": "Sprawdzanie aktualizacji online wyłączone.",
+        "check": "Sprawdź aktualizacje",
+        "min_battery_percent_required": "Bateria za niska. Naładuj urządzenie i spróbuj ponownie.",
+        "firmware_version": "Wersja oprogramowania układowego",
+        "new_version": "Nowa wersja",
+        "release_notes": "Informacje o wersji",
+        "error_on_check": "Nie udało się sprawdzić oprogramowania. Spróbuj ponownie.",
+        "errors": {
+          "prefix": "Nie udało się rozpocząć aktualizacji oprogramowania docku."
+        },
+        "error_status": {
+          "400": "Aktualizacja jeszcze nie jest dostępna.",
+          "404": "Nie znaleziono aktualizacji oprogramowania układowego",
+          "409": "Aktualizacja oprogramowania docku jest już w toku.",
+          "503": "Stacja dokująca nie jest podłączona, pilot nie ma wystarczającej ilości baterii, aby rozpocząć aktualizację (wymagane min 20% naładowania), lub usługa aktualizacji jest niedostępna. Proszę spróbować ponownie później."
+        },
+        "in_progress": "Aktualizacja w toku",
+        "success": {
+          "title": "Aktualizacja zakończona pomyślnie",
+          "description": "Stacja dokująca została pomyślnie zaktualizowana."
+        },
+        "error": {
+          "title": "Nie udało się ukończyć aktualizacji. Proszę spróbować ponownie później.",
+          "description": "Wystąpił błąd podczas instalacji aktualizacji."
+        },
+        "do_not_turn_off": "Nie wyłączaj stacji dokującej podczas procesu instalacji!"
+      },
+      "no_docks": "Nie masz jeszcze żadnych stacji dokujących."
+    },
+    "entity": {
+      "missing_entity": {
+        "question_page_few": "'**{{ entities }}**' must be added to the activity before the copied page can be pasted. Would you like to add the entities to this activity?",
+        "question_page_many": "'**{{ entities }}**' must be added to the activity before the copied page can be pasted. Would you like to add the entities to this activity?",
+        "question_widget_few": "'**{{ entities }}**' must be added to the activity before the copied widget can be pasted. Would you like to add the entities to this activity?",
+        "question_widget_many": "'**{{ entities }}**' must be added to the activity before the copied widget can be pasted. Would you like to add the entities to this activity?"
+      },
+      "entities": "Podmioty",
+      "entity_type": {
+        "button": "Przycisk",
+        "switch": "Przełącznik",
+        "climate": "Klimat",
+        "cover": "Osłona",
+        "light": "Światło",
+        "media_player": "Odtwarzacz multimedialny",
+        "sensor": "Czujnik",
+        "activity": "Aktywność",
+        "macro": "Makro",
+        "remote": "Pilot"
+      },
+      "state": {
+        "off": "wyłączone",
+        "on": "włączone",
+        "available": "dostępne",
+        "unavailable": "niedostępne",
+        "heat": "ogrzewanie",
+        "cool": "chłodzenie",
+        "heat_cool": "ogrzewanie/chłodzenie",
+        "fan": "wentylator",
+        "auto": "Auto",
+        "opening": "otwieranie",
+        "open": "otwarte",
+        "closing": "zamykanie",
+        "closed": "zamknięte",
+        "playing": "odtwarzanie",
+        "paused": "pauza",
+        "standby": "czuwanie",
+        "buffering": "buforowanie",
+        "running": "działające",
+        "completed": "zakończono",
+        "unknown": "nieznany",
+        "error": "Coś poszło nie tak. Spróbuj ponownie."
+      },
+      "label": {
+        "state": "Stan",
+        "value": "Wartość"
+      },
+      "add_to_page": "Dodaj do strony",
+      "add_first": "Dodaj swój pierwszy podmiot",
+      "no_entity": "Nie masz jeszcze żadnych podmiotów.",
+      "no_bt": "Nie masz jeszcze żadnych encji Bluetooth.",
+      "no_ir": "Nie masz jeszcze żadnych encji na podczerwień.",
+      "no_external": "Nie masz jeszcze żadnych zewnętrznych pilotów.",
+      "included_entities": {
+        "title": "Dołączone podmioty"
+      },
+      "configured_entities": {
+        "title": "Skonfigurowane podmioty"
+      },
+      "delete_entity": {
+        "title": "Usuń podmiot",
+        "question": "Czy na pewno chcesz usunąć ten podmiot?"
+      },
+      "delete_entities": {
+        "title": "Usuń podmioty",
+        "question": "Czy na pewno chcesz usunąć te podmioty?"
+      },
+      "remove_entity": {
+        "title": "Usuń podmiot",
+        "question": "Czy na pewno chcesz usunąć ten podmiot?"
+      },
+      "remove_entities": {
+        "title": "Usuń podmioty",
+        "question": "Czy na pewno chcesz usunąć te podmioty?"
+      },
+      "no_other_settings": "Ten podmiot nie ma innych ustawień."
+    },
+    "resource": {
+      "delete_items": {
+        "question_few": "Czy na pewno chcesz usunąć te elementy?",
+        "question_many": "Czy na pewno chcesz usunąć te elementy?",
+        "title_few": "Usuń elementy",
+        "title_many": "Usuń elementy",
+        "title_one": "Usuń element",
+        "title_other": "Usuń elementy",
+        "question_one": "Czy na pewno chcesz usunąć ten element?",
+        "question_other": "Czy na pewno chcesz usunąć te elementy?"
+      },
+      "tap_to": "Stuknij, aby przesłać",
+      "drag_image": "Przeciągnij obraz tutaj",
+      "or": "lub",
+      "browse": "Przeglądaj",
+      "uploading": "Przekazywanie...",
+      "invalid_formats": "Niektóre pliki nie są obsługiwane. Sprawdź je.",
+      "upload": {
+        "error_status": {
+          "507": "Brak wystarczającej przestrzeni na przechowywanie zasobu."
+        }
+      }
+    },
+    "widget": {
+      "popup": {
+        "delete_widget": {
+          "question_few": "Czy na pewno chcesz usunąć widgety?",
+          "question_many": "Czy na pewno chcesz usunąć widgety?",
+          "title_few": "Usuń widgety",
+          "title_many": "Usuń widgety",
+          "title_one": "Usuń widget",
+          "title_other": "Usuń widgety",
+          "question_one": "Czy na pewno chcesz usunąć widget?",
+          "question_other": "Czy na pewno chcesz usunąć widgety?"
+        },
+        "icon": "Ikona",
+        "width": "Szerokość",
+        "height": "Wysokość",
+        "command": {
+          "color": "Kolor"
+        },
+        "error": {
+          "invalid_size": "Rozmiar przycisku jest niepoprawny. Wybierz prawidłowy rozmiar i spróbuj ponownie."
+        },
+        "convert_to_icon": "Przekształć w ikonę",
+        "convert_to_text": "Przekształć w tekst"
+      },
+      "add_widget": "Dodaj widżet",
+      "edit_widget": "Edytuj widżet",
+      "type": {
+        "icon": {
+          "title": "Przycisk Ikony",
+          "description": "Prosty przycisk, który wykonuje przypisane mu polecenie."
+        },
+        "text": {
+          "title": "Przycisk Tekstowy",
+          "description": "Prosty przycisk, który wykonuje przypisane mu polecenie.",
+          "default_text": "TEKST"
+        },
+        "media": {
+          "title": "Widżet Mediów",
+          "description": "Wyświetla grafikę mediów, tytuł i źródło oraz postęp.",
+          "component": {
+            "media_title": "Tytuł Mediów",
+            "source": "Źródło"
+          },
+          "no_space": "Niewystarczająca ilość miejsca na tej stronie dla widżetu."
+        },
+        "slider": {
+          "title": "Suwak",
+          "description": "Kontroluj jasność, głośność lub inne obsługiwane wartości."
+        },
+        "jump_to_page": {
+          "title": "Przejdź do strony",
+          "description": "Przycisk przechodzi do wskazanej strony."
+        }
+      },
+      "error": {
+        "no_position": "Nie znaleziono odpowiedniej pozycji dla nowego widżetu."
+      }
+    },
+    "ui": {
+      "more_information": "Więcej informacji",
+      "dismiss": "Zignoruj",
+      "delete": "Usuń",
+      "remove": "Usuń",
+      "cancel": "Anuluj",
+      "enter": "Wprowadź",
+      "accept": "Akceptuj",
+      "toggle": "Przełącz",
+      "press": "Naciśnij",
+      "save": "Zapisz",
+      "next": "Dalej",
+      "edit": "Edytuj",
+      "add": "Dodaj",
+      "add_all": "Dodaj wszystkie",
+      "skip": "Pomiń",
+      "new": "Nowy",
+      "add_new": "Dodaj nowy",
+      "paste": "Wklej",
+      "copy": "Kopiuj",
+      "search": "Szukaj",
+      "select": "Wybierz",
+      "select_all": "Wybierz wszystkie",
+      "clear_all": "Wyczyść wszystko",
+      "reset_all": "Resetuj wszystko",
+      "expand": "Rozwiń",
+      "contract": "Zwiń",
+      "reset": "Zresetuj",
+      "clear": "Wyczyść",
+      "move": "Przesuń",
+      "reset_to_defaults": "Przywróć domyślne",
+      "filters": "Filtry",
+      "required_field": "Proszę to wypełnić.",
+      "loading_more": "Ładuję więcej",
+      "background_images": "Obrazy tła",
+      "restore": "Przywróć",
+      "reboot": "Zrestartuj",
+      "browse": "Przeglądaj",
+      "download": "Pobierz",
+      "none": "brak",
+      "not_set": "nie ustawiony",
+      "read_more": "Czytaj więcej",
+      "confirm": "Potwierdź",
+      "close": "Zamknij",
+      "install": "Zainstaluj",
+      "back": "Wstecz",
+      "done": "Gotowe",
+      "label": "Etykieta",
+      "start_setup": "Rozpocznij konfigurację",
+      "modified": "zmodyfikowany",
+      "custom": "niestandardowy",
+      "select_file_to_upload": "Wybierz plik do przesłania",
+      "repeat": "Powtórz",
+      "password": "Hasło",
+      "new_password": "Nowe hasło",
+      "repeat_new_password": "Powtórz nowe hasło",
+      "update": "Aktualizuj",
+      "factory_reset": "Przywracanie ustawień fabrycznych",
+      "identify": "Identyfikuj",
+      "create": "Utwórz",
+      "version": "Wersja",
+      "n_a": "N/D",
+      "customise": "Dostosuj",
+      "try_again": "Spróbuj ponownie",
+      "send": "Wyślij",
+      "upload": "Prześlij",
+      "all": "Wszystko",
+      "enable": "Włącz",
+      "connect": "Połącz",
+      "disconnect": "Rozłącz",
+      "uploading": "Przesyłanie",
+      "scroll_for_more": "Przewiń, by zobaczyć więcej",
+      "select_color": "Wybierz kolor",
+      "saving_settings": "Zapisywanie ustawień",
+      "nothing_was_found": "Nie znaleziono."
+    },
+    "form": {
+      "name": "Nazwa",
+      "label": "Etykieta",
+      "button": "Przycisk",
+      "description": "Opis",
+      "manufacturer": "Producent",
+      "entity_state": "{{entity}} to {{state}}",
+      "provided_by": "Dostarczone przez",
+      "password": "Hasło",
+      "repeat_password": "Powtórz hasło",
+      "no_options_found": "Nie znaleziono opcji.",
+      "successful": "Udane",
+      "optional": "Opcjonalne"
+    },
+    "tab": {
+      "settings": "Ustawienia",
+      "sequences": "Sekwencje",
+      "user_interface": "Interfejs użytkownika",
+      "button_mapping": "Mapowanie przycisków"
+    },
+    "page": {
+      "customise_remote": "Dostosuj swoją pilot zdalnym sterowania",
+      "entities": "Podmioty",
+      "integrations": "Integracje",
+      "activities_macros": "Aktywności i Makra",
+      "settings": "Ustawienia",
+      "general": "Ogólne",
+      "display": "Wyświetlacz",
+      "user_interface": "Interfejs użytkownika",
+      "sound_haptic": "Dźwięk i haptyka",
+      "voice_control": "Sterowanie głosowe",
+      "power_saving": "Oszczędzanie energii",
+      "localization": "Lokalizacja",
+      "admin_password": "Hasło administratora",
+      "development": "Rozwój",
+      "factory_reset": "Przywracanie ustawień fabrycznych"
+    },
+    "notification": {
+      "saving_changes": "Zapisywanie zmian",
+      "changes_saved": "Zmiany zostały zapisane",
+      "restarting": {
+        "title": "Ponowne uruchomienie"
+      },
+      "reconnecting": {
+        "title": "Ponowne połączenie",
+        "info1": "Połączenie utracone. Próba ponownego połączenia z pilotem.",
+        "info2": "Upewnij się, że pilot nie jest w trybie uśpienia."
+      },
+      "cancelling": "Anulowanie"
+    },
+    "reboot": {
+      "title": "Zrestartuj",
+      "description": "Zrestartuj pilot, aby zmiany zaczęły obowiązywać."
+    },
+    "filter_dropdown": {
+      "integrations": "Integracje",
+      "entity_types": "Typy podmiotów"
+    },
+    "integration": {
+      "integrations": "Integracje",
+      "status": {
+        "UNKNOWN": "Nieznany",
+        "IDLE": "Bezczynny",
+        "CONNECTING": "Łączenie",
+        "CONNECTED": "Połączony",
+        "DISCONNECTED": "Rozłączony",
+        "RECONNECTING": "Ponowne połączenie",
+        "ACTIVE": "Aktywny",
+        "ERROR": "Coś poszło nie tak. Spróbuj ponownie.",
+        "NOT_CONFIGURED": "Nie skonfigurowany",
+        "SERVICE_UNAVAILABLE": "Usługa niedostępna"
+      },
+      "no_other_settings": "Ta integracja nie ma innych ustawień.",
+      "manage": {
+        "title": "Zarządzaj integracjami"
+      },
+      "install_custom": {
+        "trigger": "Zainstaluj niestandardowe",
+        "popup": {
+          "title": "Zainstaluj niestandardową integrację",
+          "upload": {
+            "label": "Wybierz plik do przesłania",
+            "description": "Maksymalny rozmiar pliku: 100MB"
+          }
+        },
+        "error_status": {
+          "400": "Nieprawidłowe archiwum, brakujące dane w archiwum lub załączone metadane nie mogą być odczytane.",
+          "403": "Zabronione, tylko konto administratora może instalować niestandardowe integracje.",
+          "409": "Niestandardowa integracja nie jest kompatybilna z bieżącym oprogramowaniem układowym, lub osiągnięto maksymalną liczbę instalacji niestandardowych integracji.",
+          "413": "Archiwum integracji jest zbyt duże.",
+          "422": "Integracja jest już zainstalowana lub unikalny identyfikator sterownika został użyty przez inną integrację.",
+          "503": "Instalacja już trwa lub wystąpił poważny błąd przy poprzedniej instalacji i urządzenie musi być ponownie uruchomione.",
+          "507": "Brak wystarczającej ilości miejsca, aby przesłać i przetworzyć archiwum instalacyjne."
+        }
+      },
+      "add": {
+        "title": "Dodaj nową integrację",
+        "setting_up": "Trwa konfigurowanie...",
+        "already_configured": {
+          "info": "Integracja została już skonfigurowana.",
+          "options": {
+            "add_entities": {
+              "title": "Dodaj dostępne encje",
+              "description": "Dodaj encje do pilota udostępnione przez integrację."
+            },
+            "start_setup": {
+              "title": "Rozpocznij konfigurację integracji",
+              "description": "Zmień konfigurację, dodaj lub usuń urządzenia poprzez ustawienia integracji."
+            }
+          }
+        },
+        "add_elements": {
+          "title": "Wybierz encje"
+        },
+        "success": {
+          "title": "Gotowe!",
+          "description": "Integracja została pomyślnie dodana."
+        },
+        "fail": {
+          "title": "Ups!",
+          "description": "Coś poszło nie tak podczas konfigurowania integracji."
+        },
+        "label": {
+          "state": "Stan",
+          "connection_test": "Test połączenia",
+          "version": "Wersja",
+          "developer": "Deweloper",
+          "developer_website": "Strona dewelopera"
+        },
+        "connect_external": {
+          "title": "Połącz z zewnętrzną integracją",
+          "driver_url": "URL sterownika",
+          "access_token": "Token dostępu",
+          "test_connection": {
+            "title": "Testuj połączenie"
+          },
+          "failed": "Błąd połączenia. Spróbuj ponownie.",
+          "instruction": "Kontroluj urządzenia {{name}} za pomocą pilotów Unfolded Circle."
+        }
+      },
+      "delete": {
+        "title": "Usuń integrację",
+        "question": "Czy na pewno chcesz usunąć integrację?"
+      },
+      "label": {
+        "state": "Stan",
+        "version": "Wersja",
+        "developer": "Deweloper",
+        "developer_website": "Strona dewelopera"
+      },
+      "driver": {
+        "state_active": "aktywny",
+        "state_inactive": "nieaktywny"
+      },
+      "driver_type": {
+        "local": "lokalny",
+        "external": "zewnętrzny",
+        "custom": "niestandardowy"
+      },
+      "driver_connection": {
+        "title": "Ustawienia połączenia sterownika",
+        "token_not_set": "Token nie jest ustawiony.",
+        "token_required": "Brak tokenu. Proszę go podać."
+      },
+      "start_integration": "Ponownie rozpocznij konfigurację integracji, aby zmienić jej ustawienia.",
+      "no_integrations": "Nie masz jeszcze żadnych integracji.",
+      "new_integration": {
+        "developer": "Sterownik opracowany przez {{dev}}",
+        "unknown_developer": "Nieznany deweloper",
+        "advanced_mode": {
+          "title": "Tryb zaawansowany",
+          "description": "Włącz zaawansowane opcje konfiguracji podczas ustawiania. Używaj tylko, gdy wiesz, co robisz."
+        }
+      }
+    },
+    "group": {
+      "delete": {
+        "title": "Usuń grupę",
+        "question": "Czy na pewno chcesz usunąć grupę?"
+      },
+      "add": {
+        "add_new_group": "Dodaj nową grupę",
+        "new_group": "Nowa grupa",
+        "add_to": "Dodaj do",
+        "add_to_description": "Dodaj grupę do strony po jej utworzeniu.",
+        "select_entities": "Wybierz jednostki do dodania do grupy",
+        "confirm_empty": {
+          "title": "Grupa nie ma jednostek",
+          "question": "Czy na pewno chcesz utworzyć pustą grupę?"
+        }
+      },
+      "edit": {
+        "edit_group": "Edytuj grupę",
+        "drag_instructions": "Po prostu przeciągnij jednostkę z listy, aby ją usunąć, lub wybierz kilka do usunięcia.",
+        "add_entities": "Dodaj jednostki"
+      }
+    },
+    "user_interface": {
+      "grid": "Siatka",
+      "edit_pages": "Edytuj strony",
+      "pages": {
+        "default_name": "Bez nazwy",
+        "options": {
+          "rename": "Zmień nazwę",
+          "copy": "Kopiuj",
+          "reset": "Zresetuj",
+          "delete": "Usuń"
+        },
+        "reset_page": {
+          "title": "Resetuj stronę",
+          "question": "Czy na pewno chcesz zresetować stronę {{name}}?"
+        },
+        "reset_ui": {
+          "title": "Resetuj UI",
+          "question": "Czy na pewno chcesz zresetować UI?"
+        }
+      },
+      "no_pages": {
+        "title": "Dodaj swoją pierwszą stronę",
+        "description": "Utwórz strony, aby zorganizować interfejs użytkownika według własnych potrzeb."
+      }
+    },
+    "entities": {
+      "add_new": "Dodaj nowy"
+    },
+    "integrations": {
+      "add_new_dock": "Dodaj nowy dock"
+    },
+    "activity": {
+      "activity": "Aktywność",
+      "activities": "Aktywności",
+      "add_first": "Dodaj swoją pierwszą aktywność",
+      "no_activities": "Nie masz jeszcze żadnych aktywności. Dodaj swoją pierwszą aktywność, klikając poniższy przycisk.",
+      "button_mapping": {
+        "instruction": "Dostosuj strony swojej aktywności, dodając widżety na ekranie lub edytując konfigurację przycisków."
+      },
+      "add": {
+        "add_new_activity": "Dodaj nową aktywność",
+        "new_activity": "Nowa aktywność",
+        "select_entities": "Wybierz jednostki do dodania do aktywności",
+        "prevent_sleep": {
+          "label": "Uniemożliwiają sen",
+          "description": "Gdy aktywność jest włączona, uniemożliwiaj przejście pilota w tryb uśpienia. Uwaga: żywotność baterii będzie zmniejszona."
+        },
+        "button_mapping": {
+          "title": "Wybierz jednostki do mapowania przycisków",
+          "description": "Możesz dostosować mapowanie przycisków i konfigurować UI w dowolnym momencie, edytując aktywność."
+        },
+        "volume_control": {
+          "label": "Kontrola głośności",
+          "description": "Wybierz urządzenie, które chcesz użyć do regulacji głośności."
+        },
+        "navigation": {
+          "label": "Nawigacja",
+          "description": "Wybierz urządzenie do użycia jako główną nawigację."
+        }
+      },
+      "clone": {
+        "clone_activity": "Klonuj aktywność"
+      },
+      "edit": {
+        "activity_state": "Stan: {{state}}",
+        "state": {
+          "on": "włączone",
+          "off": "wyłączone",
+          "running": "działające",
+          "error": "błąd"
+        },
+        "prevent_sleep": {
+          "label": "Uniemożliwiają sen",
+          "description": "Gdy aktywność jest włączona, uniemożliwiaj przejście pilota w tryb uśpienia. Uwaga: żywotność baterii będzie zmniejszona."
+        },
+        "activity_group": {
+          "label": "Grupa aktywności"
+        },
+        "editing_info": "Edytowanie działających aktywności nie jest zalecane.",
+        "add_entities": "Dodaj jednostki"
+      },
+      "delete": {
+        "title": "Usuń aktywność",
+        "question": "Czy na pewno chcesz usunąć aktywność?"
+      },
+      "user_interface": {
+        "intro": "Dostosuj strony swojej aktywności, dodając widżety na ekranie lub edytując konfigurację przycisków."
+      }
+    },
+    "macro": {
+      "macro": "Makro",
+      "macros": "Makra",
+      "add_first": "Dodaj swoje pierwsze makro",
+      "no_macros": "Nie masz jeszcze żadnych makr. Dodaj swoje pierwsze makro, klikając poniższy przycisk.",
+      "tab": {
+        "settings": "Ustawienia",
+        "sequence": "Sekwencja"
+      },
+      "add": {
+        "add_new_macro": "Dodaj nowe makro",
+        "new_macro": "Nowe makro",
+        "select_entities": "Wybierz jednostki do dodania do makra"
+      },
+      "clone": {
+        "clone_macro": "Klonuj makro"
+      },
+      "delete": {
+        "title": "Usuń makro",
+        "question": "Czy na pewno chcesz usunąć makro?"
+      }
+    },
+    "activity_group": {
+      "activity_group": "Grupa aktywności",
+      "activity_groups": "Grupy aktywności",
+      "add_first": "Dodaj swoją pierwszą grupę aktywności",
+      "no_activity_groups": "Nie masz jeszcze żadnych grup aktywności. Dodaj swoją pierwszą grupę aktywności, klikając poniższy przycisk.",
+      "add": {
+        "add_new_activity_group": "Dodaj nową grupę aktywności",
+        "new_activity_group": "Nowa grupa aktywności",
+        "select_activities": "Wybierz aktywności do dodania do grupy aktywności"
+      },
+      "edit": {
+        "available_activities": "Dostępne aktywności",
+        "included_activities": "Uwzględnione aktywności",
+        "add_first": {
+          "title": "Dodaj swoją pierwszą aktywność",
+          "descr": "Nie ma aktywności w grupie aktywności. Dodaj swoją pierwszą aktywność, klikając poniższy przycisk."
+        }
+      },
+      "delete": {
+        "title": "Usuń grupę aktywności",
+        "question": "Czy na pewno chcesz usunąć grupę aktywności?"
+      },
+      "options": {
+        "remove_turn_on_delays": {
+          "title": "Usuń opóźnienia po poleceniach włączenia",
+          "options": {
+            "previous_cmd_skipped": "Poprzednie polecenie pominięte",
+            "between_skipped_cmds": "Między pominiętymi poleceniami",
+            "never": "Nigdy"
+          }
+        },
+        "turn_off_unused_entities": {
+          "title": "Wyłącz nieużywane jednostki",
+          "options": {
+            "always": "Zawsze",
+            "in_off_sequence": "Używane w sekwencji wyłączania",
+            "run_off_sequence": "Uruchom zmodyfikowaną sekwencję wyłączania",
+            "never": "Nigdy"
+          }
+        }
+      }
+    },
+    "sequence": {
+      "on_sequence": {
+        "title": "Sekwencja włączenia",
+        "description": "Sekwencja włączania jest wykonywana, gdy aktywność zostanie uruchomiona."
+      },
+      "off_sequence": {
+        "title": "Sekwencja wyłączania",
+        "description": "Sekwencja wyłączania wykonywana jest po wyłączeniu aktywności."
+      },
+      "sequence": {
+        "title": "Sekwencja",
+        "description": "Sekwencja wykonywana jest po uruchomieniu makra."
+      },
+      "add_first": "Dodaj swoje pierwsze polecenie",
+      "add_commands": "Dodaj polecenia",
+      "color": "Kolor"
+    },
+    "button_mapping": {
+      "press": {
+        "short_press": "krótkie naciśnięcie",
+        "double_press": "podwójne naciśnięcie",
+        "long_press": "długie naciśnięcie"
+      },
+      "command": {
+        "title": "Polecenie",
+        "remap": {
+          "title": "Przypisanie przycisku",
+          "question": "To jest specjalny przycisk z funkcjonalnością nawigacji po interfejsie użytkownika. Jeśli zdecydujesz się przypisać nową funkcję, stracisz oryginalną funkcjonalność i będzie konieczne użycie ekranu dotykowego, aby wrócić do głównego ekranu."
+        },
+        "color": "Kolor"
+      },
+      "reset": {
+        "title": "Resetuj przypisanie przycisku",
+        "question": "Czy na pewno chcesz zresetować przypisanie przycisku?"
+      },
+      "reset_more": {
+        "title": "Resetuj przypisania przycisków",
+        "question": "Czy na pewno chcesz zresetować przypisania przycisków?"
+      },
+      "resetAll": {
+        "title": "Resetuj wszystko",
+        "question": "Czy na pewno chcesz zresetować wszystkie przypisania przycisków?"
+      }
+    },
+    "login": {
+      "enter_pin": "Wprowadź PIN, aby rozpocząć",
+      "pin_description": "Kod PIN znajdziesz, przechodząc do Ustawień na pilocie i włączając konfigurator Web.",
+      "api_definitions": {
+        "label": "Szukasz definicji API? Kliknij tutaj",
+        "items": {
+          "test_console": "Konsola testowa Websocket"
+        }
+      },
+      "error": {
+        "NOT_AUTHORIZED": "Niepoprawny PIN. Proszę spróbować ponownie.",
+        "VALIDATION_ERROR": "Niepoprawny PIN. Proszę spróbować ponownie.",
+        "ERR_NETWORK": "Wystąpił problem z siecią. Proszę sprawdzić połączenie i spróbować ponownie.",
+        "ERR_CANCELED": "Wystąpił problem z siecią. Proszę sprawdzić połączenie i spróbować ponownie.",
+        "UNKNOWN": "Wystąpił niespodziewany błąd. Proszę spróbować ponownie."
+      }
+    },
+    "home": {
+      "welcome": "Witamy z powrotem",
+      "lets_get": "Zacznijmy",
+      "customise": "Dostosuj swoją pilot zdalnym sterowania",
+      "add_device": "Dodaj nowe urządzenie",
+      "add_activity": "Dodaj nową aktywność",
+      "battery": "bateria",
+      "charged": "naładowane"
+    },
+    "profile": {
+      "add_profile": "Dodaj profil",
+      "edit_profile": "Edytuj profil",
+      "your_profiles": "Twoje profile",
+      "manage_profiles": "Zarządzaj profilami",
+      "delete_profile": {
+        "title": "Usuń profil",
+        "question": "Czy na pewno chcesz usunąć profil {{name}}?",
+        "active_not_allowed": "Aktywny profil nie może zostać usunięty"
+      },
+      "already_active": {
+        "title": "Profil już aktywny",
+        "info": "Wybrany profil jest już aktywny. Jeśli chcesz edytować profil, kliknij zarządzaj profilami."
+      },
+      "delete_already_active": {
+        "title": "Profil jest aktywny",
+        "info": "Nie można usunąć aktywnego profilu."
+      },
+      "enter_admin_pwd": {
+        "title": "Wpisz hasło administratora",
+        "info": "Wprowadź hasło administratora, aby kontynuować."
+      },
+      "select_manage_profile": "Wybierz profil lub kliknij zarządzaj profilami, aby edytować lub usunąć profile.",
+      "click_on_the_profile": "Kliknij profil, który chcesz edytować.",
+      "profile_has_changed": "Aktualny profil został zmieniony",
+      "name": "Nazwa",
+      "password": "Hasło",
+      "restricted_profile": "Profil ograniczony",
+      "restricted_profile_description": "Profil ograniczony nie ma dostępu do ustawień i konfiguracji. Użyj tego typu profilu, aby tworzyć profile dla gości lub dzieci.",
+      "switch": {
+        "error_status": {
+          "401": "Błędny kod admina.",
+          "404": "The resource does not exist or the URI is invalid."
+        }
+      },
+      "message": {
+        "adding_profile": "Dodawanie profilu",
+        "profile_added": "Profil dodany",
+        "deleting_profile": "Usuwanie profilu",
+        "profile_deleted": "Profil usunięty"
+      },
+      "select_an_icon": "Wybierz ikonę"
+    },
+    "remote": {
+      "infrared": "Podczerwień",
+      "external_remotes": "Zdalne piloty zewnętrzne",
+      "bluetooth": {
+        "connection_number": "Numer połączenia",
+        "connection": {
+          "connected": "połączony",
+          "disconnected": "rozłączony"
+        },
+        "device_profile": "Profil urządzenia",
+        "pair_state": {
+          "paired": "sparowany",
+          "unpaired": "niesparowany"
+        },
+        "pair": "Sparuj",
+        "forget_device": {
+          "title": "Zapomnij urządzenie",
+          "question": "Upewnij się, że zapomniałeś o pilocie na urządzeniu, z którym jest sparowany. Sprawdź w instrukcji obsługi urządzenia, jak wymazać połączenia Bluetooth."
+        }
+      },
+      "device_profile": {
+        "default": "Domyślne"
+      },
+      "label": {
+        "infrared_output_device": "Urządzenie wyjściowe IR",
+        "infrared_output_port": "Port wyjściowy IR"
+      },
+      "add_device_ir": {
+        "title": "Dodaj nowe urządzenie IR",
+        "title_short": "Dodaj nowe IR",
+        "create_blank": {
+          "title": "Utwórz puste",
+          "description": "Tworzy puste urządzenie IR. Musisz samodzielnie dodać lub nauczyć się kodów."
+        },
+        "custom_data_set": {
+          "title": "Utwórz własny zestaw danych IR",
+          "description": "Wprowadź unikalne urządzenie dla zestawu danych IR. Zostanie ono powiązane z niestandardowym producentem.",
+          "input_label": "Nazwa urządzenia"
+        },
+        "manufacturer": {
+          "title": "Wybierz zestaw kodu",
+          "search": "Szukaj producenta",
+          "instruction": "Wprowadź co najmniej 2 znaki",
+          "type": "Wpisz, aby wyszukać"
+        },
+        "test": {
+          "title": "Przetestuj kody IR",
+          "description1": "Sprawdź, czy polecenia działają, wybierając urządzenie wyjściowe IR i klikając w polecenia, które chcesz przetestować.",
+          "description2": "Upewnij się, że urządzenie wyjściowe ma bezpośrednią linię do urządzenia, które chcesz kontrolować.",
+          "output_device": "Urządzenie wyjściowe do testowania IR",
+          "output_port": "Port wyjściowy do testowania podczerwieni"
+        }
+      },
+      "add_device_bt": {
+        "title": "Dodaj nowe urządzenie Bluetooth",
+        "title_short": "Dodaj nowe Bluetooth",
+        "slots_available_one": "{{available}} z {{count}} miejsc dostępnych",
+        "slots_available_other": "{{available}} z {{count}} miejsc dostępnych",
+        "device_profile": {
+          "label": "Profil urządzenia",
+          "default": "domyślne",
+          "info": "Jeśli nie jesteś pewny, jaki profil urządzenia wybrać lub nie możesz znaleźć profilu dla swojego urządzenia, wybierz domyślne.",
+          "learn_more": "Dowiedz się więcej"
+        },
+        "enable_pairing": "Włącz parowanie",
+        "disabled_bt": {
+          "title": "Bluetooth jest wyłączony",
+          "description": "Włącz Bluetooth, aby móc dodać nowe urządzenie Bluetooth."
+        },
+        "no_slot": {
+          "title": "Brak dostępnych slotów",
+          "description": "Zajęto wszystkie dostępne sloty Bluetooth do parowania z urządzeniami. Usuń jakieś urządzenie Bluetooth i spróbuj ponownie."
+        },
+        "waiting": {
+          "title": "Oczekiwanie na żądanie parowania",
+          "description": "Znajdź pilota na urządzeniu, z którym parujesz, i wybierz parowanie.",
+          "advertisement_name": "Nazwa reklamy"
+        },
+        "code_input": {
+          "title": "Otrzymano żądanie parowania",
+          "description": {
+            "code": "Wprowadź kod parowania i potwierdź żądanie poniżej.",
+            "simple": "Proszę potwierdzić żądanie parowania, aby kontynuować."
+          }
+        },
+        "progress": {
+          "title": "Parowanie w toku"
+        },
+        "success": {
+          "title": "Parowanie zakończone sukcesem",
+          "description": "Pomyślnie sparowano z urządzeniem Bluetooth."
+        },
+        "fail": {
+          "title": "Parowanie nie powiodło się",
+          "description": "Oczekiwanie na nowe żądanie parowania."
+        },
+        "error": {
+          "empty_name": "Pole nazwy jest puste."
+        },
+        "message": {
+          "SUCCESS": "Sukces",
+          "AUTHENTICATION_FAILURE": "Logowanie nie powiodło się. Proszę sprawdzić dane i spróbować ponownie.",
+          "PASSKEY_ENTRY_FAILED": "Nie można wprowadzić klucza dostępu. Proszę spróbować ponownie.",
+          "AUTHENTICATION_REQUIREMENTS": "Wymagania dotyczące uwierzytelniania.",
+          "CONFIRM_VALUE_FAILED": "Potwierdzenie wartości nie powiodło się.",
+          "PAIRING_NOT_SUPPORTED": "Parowanie nie jest obsługiwane.",
+          "ENCRYPTION_KEY_SIZE": "Rozmiar klucza szyfrującego.",
+          "COMMAND_NOT_SUPPORTED": "Komenda nieobsługiwana.",
+          "UNSPECIFIED_REASON": "Nieokreślony powód.",
+          "REPEATED_ATTEMPTS": "Powtarzane próby.",
+          "INVALID_PARAMETERS": "Podano nieprawidłowy input. Proszę sprawdzić i spróbować ponownie.",
+          "DHKEY_CHECK_FAILED": "Sprawdzenie DHKEY nie powiodło się.",
+          "NUMERIC_COMPARISON_FAILED": "Porównanie liczb nie powiodło się."
+        }
+      },
+      "ir_code": {
+        "title": "Zestaw danych kodu IR",
+        "reset": {
+          "title": "Zresetuj kod IR",
+          "question": "Czy na pewno chcesz zresetować kod IR?"
+        },
+        "delete": {
+          "title": "Usuń kod IR",
+          "question": "Czy na pewno chcesz usunąć kod IR?"
+        },
+        "delete_codes": {
+          "title": "Usuń kody IR",
+          "question": "Czy na pewno chcesz usunąć kody IR?"
+        },
+        "add": {
+          "add_ir_code": "Dodaj nowy kod IR",
+          "edit_ir_code": "Edytuj kod IR",
+          "ir_code": "Kod IR",
+          "button": "Przycisk",
+          "new_button_name": {
+            "label": "Nazwa nowego przycisku",
+            "description": "Wpisz nazwę przycisku i wybierz poniżej opcję, aby kontynuować."
+          },
+          "selector": {
+            "paste_ir_code": "Wklej kod IR",
+            "learn_ir_code": "Naucz się kodu IR"
+          },
+          "error": {
+            "invalid_cmd_name": "Nieprawidłowa lub już istniejąca nazwa komendy.",
+            "invalid_code_format": "Nierozpoznany format kodu. Upewnij się, że kod jest poprawny, i spróbuj ponownie.",
+            "VALIDATION_ERROR": "Nieprawidłowe dane. Proszę poprawić."
+          },
+          "test_code": "Testuj kod",
+          "test_ok": "Testowanie kodu OK",
+          "infrared_learning": {
+            "title": "Nauka IR",
+            "description": "Skieruj stary pilot w stronę przedniej części stacji dokującej i naciśnij przycisk, którego chcesz się nauczyć."
+          },
+          "infrared_device": "Urządzenie IR",
+          "select_device": "Wybierz urządzenie IR, którego chcesz użyć do nauki kodów.",
+          "stop_learning": "Zakończ naukę",
+          "successful_learning": "Nauczanie było sukcesem.",
+          "not_support_learning": "To urządzenie nie obsługuje nauki IR.",
+          "emitter_offline": "To urządzenie jest teraz offline. Sprawdź, czy ma połączenie z siecią, i spróbuj jeszcze raz."
+        },
+        "import": {
+          "title": "Importuj kody IR",
+          "description": "Wgraj wiele kodów IR w pliku CSV. Kolejność kolumn nagłówków jest nieistotna, dodatkowe kolumny zostaną zignorowane. Domyślny format: PRONTO.",
+          "file_size": "Maksymalny rozmiar pliku: 10MB.",
+          "csv_template": "Pobierz szablon pliku CSV.",
+          "delimiter_label": "Separator",
+          "delimiter_info": "Opcjonalny znak rozdzielający CSV",
+          "comment_label": "Komentarz",
+          "comment_info": "Opcjonalne. Znak komentarza na początku linii do użycia podczas analizowania CSV. Domyślnie nie jest ustawiony żaden znak komentarza.",
+          "overwrite_label": "Zastąp kody",
+          "overwrite_description": "Zastąp istniejące kody IR takim samym kluczem.",
+          "state": {
+            "success": "Przekazywanie zakończone pomyślnie",
+            "error": "Przekazywanie nieudane"
+          },
+          "upload": "Prześlij",
+          "done": "Gotowe"
+        }
+      },
+      "user_interface": {
+        "intro": "Dostosuj swoje strony zdalne, dodając widżety do ekranu lub edytując konfigurację przycisków."
+      },
+      "button_mapping": {
+        "instruction": "Dostosuj swoje strony zdalne, dodając widżety do ekranu lub edytując konfigurację przycisków."
+      },
+      "change_device_profile": {
+        "title": "Zmień profil urządzenia",
+        "message": "Profile urządzeń mają domyślne mapowanie przycisków i konfigurację interfejsu użytkownika. Podczas zmiany profilu urządzenia możesz wybrać zresetowanie mapowania i konfiguracji oraz przywrócenie konfiguracji dostarczonej przez profil urządzenia.",
+        "reset_button_mapping": "Resetuj przypisanie przycisku",
+        "reset_ui_configuration": "Resetuj konfigurację interfejsu użytkownika"
+      }
+    },
+    "customise_remote": {
+      "tab": {
+        "pages": "Strony",
+        "icons": "Ikony",
+        "tv_channels": "Kanały TV",
+        "backgrounds": "Tła"
+      },
+      "pages": {
+        "add_page_title": "Dodaj swoją pierwszą stronę",
+        "add_page_descr": "Twórz strony dla każdego pokoju, typu urządzenia lub po prostu organizuj swoje urządzenia, jak chcesz.",
+        "remote": {
+          "description": "To jest podgląd strony. Możesz kliknąć ikony, aby włączyć lub wyłączyć urządzenia."
+        },
+        "your_pages": "Twoje strony",
+        "options": {
+          "edit_contents": "Edytuj zawartość",
+          "rename": "Zmień nazwę",
+          "replace_background": "Zastąp tło",
+          "add_background": "Dodaj tło",
+          "remove_background": "Usuń tło",
+          "duplicate": "Duplikuj",
+          "delete": "Usuń"
+        },
+        "delete_page": {
+          "title": "Usuń stronę",
+          "question": "Czy na pewno chcesz usunąć stronę {{name}}?"
+        },
+        "delete_item": {
+          "title": "Usuń element",
+          "question": "Czy na pewno chcesz usunąć ten element?"
+        },
+        "remove_background": {
+          "title": "Usuń tło",
+          "question": "Czy na pewno chcesz usunąć tło?"
+        },
+        "no_pages": "Nie masz jeszcze żadnych stron."
+      },
+      "options": {
+        "description": "Dostosuj swoją stronę, dodając jednostki lub grupy do ekranu lub edytując konfigurację przycisków.",
+        "description_options": "Wybierz jedną z poniższych opcji, aby rozpocząć.",
+        "rearrange_items": "Możesz rearrangować elementy na stronie, przeciągając i upuszczając na prawo. Aby usunąć element, wybierz usunięcie z opcji.",
+        "list": {
+          "add_entities": "Dodaj jednostki",
+          "add_groups": "Dodaj grupy",
+          "configure_buttons": "Konfiguruj przyciski"
+        },
+        "no_items": "Nie masz jeszcze żadnych elementów."
+      },
+      "rename_page": "Zmień nazwę strony",
+      "add_entities": {
+        "title": "Dodaj jednostki"
+      },
+      "add_groups": {
+        "title": "Dodaj grupy"
+      }
+    },
+    "software_update": {
+      "title": "Aktualizacja oprogramowania",
+      "state": {
+        "up_to_date": "Twoje oprogramowanie jest aktualne.",
+        "available_software": "Nowe oprogramowanie jest dostępne.",
+        "available_softwares": "Nowe oprogramowanie jest dostępne.",
+        "available_dock_firmware": "Nowy firmware stacji dokującej jest dostępny.",
+        "check_for_update": "Sprawdzanie aktualizacji.",
+        "check_error": "Nie można sprawdzić aktualizacji. Spróbuj ponownie później."
+      },
+      "min_battery": "Bateria musi być przynajmniej na poziomie 50% dla aktualizacji. Naładuj urządzenie i spróbuj ponownie.",
+      "up_to_date": {
+        "check_for_update": "Sprawdź aktualizacje",
+        "system_version": "Wersja systemu"
+      },
+      "new_version": {
+        "title": "Nowa wersja",
+        "system_version": "Wersja systemu"
+      },
+      "release_notes": {
+        "title": "Informacje o wersji"
+      },
+      "check_updates": {
+        "title": "Sprawdź aktualizacje",
+        "description": "Automatyczna kontrola aktualizacji."
+      },
+      "auto_update": {
+        "title": "Automatyczna aktualizacja",
+        "description": "Automatyczna aktualizacja pilota po dostępności nowego oprogramowania."
+      },
+      "beta_updates": {
+        "title": "Aktualizacje beta",
+        "description": "Zainstaluj i wypróbuj wczesnowersyjne oprogramowanie. Twoje uwagi pomogą nam poprawić stabilność i wydajność przyszłych wydań.",
+        "modal": {
+          "title": "Aktualizacje beta"
+        }
+      },
+      "status": {
+        "DOWNLOAD": "Pobierz",
+        "DOWNLOADING": "Pobieranie",
+        "DOWNLOADED": "Pobrane",
+        "PENDING": "Oczekuje"
+      },
+      "success": {
+        "title": "Aktualizacja zakończona pomyślnie",
+        "description": "Pilot zostanie ponownie uruchomiony za sekundę."
+      },
+      "fail": {
+        "title": "Nie udało się ukończyć aktualizacji. Proszę spróbować ponownie później.",
+        "description": "Wystąpił błąd podczas instalacji aktualizacji."
+      },
+      "progress": {
+        "title": "Aktualizacja w toku",
+        "step": "Krok {{current}} / {{total}}",
+        "do_not_turn_off": "Nie wyłączaj pilota podczas instalacji!"
+      }
+    },
+    "battery_status": {
+      "value": {
+        "FULL": "naładowane",
+        "CHARGING": "ładowanie",
+        "DISCHARGING": "rozładowanie",
+        "LOW_BATTERY": "niski poziom baterii"
+      }
+    },
+    "quick_tips": {
+      "tip2": {
+        "headline": "Tłumaczenia"
+      }
+    },
+    "icons": {
+      "title": "Ikony",
+      "default": "Domyślne",
+      "custom": "Niestandardowe",
+      "tv_channels": "Kanały TV"
+    },
+    "tv_channels": {
+      "title": "Kanały TV"
+    },
+    "edit": {
+      "entity": "Edytuj jednostkę"
+    },
+    "error": {
+      "session_expired": "Sesja wygasła.",
+      "unknown_error": "Coś poszło nie tak.",
+      "chunk_load_failed": "Nie udało się załadować części aplikacji. Sprawdź połączenie i spróbuj ponownie załadować stronę.",
+      "not_available": "Niedostępne",
+      "NOT_FOUND": "Nie znaleziono.",
+      "UNAUTHORIZED": "Nieautoryzowane.",
+      "FORBIDDEN": "Zabronione.",
+      "BAD_REQUEST": "Złe żądanie.",
+      "BAD_RESPONSE": "Zła odpowiedź.",
+      "SERVICE_UNAVAILABLE": "Usługa niedostępna.",
+      "ERR_NETWORK": "Błąd sieci.",
+      "ERR_BAD_REQUEST": "Złe żądanie.",
+      "ERR_BAD_RESPONSE": "Zła odpowiedź.",
+      "ERR_UNAUTHORIZED": "Nieautoryzowane.",
+      "ERR_NOT_FOUND": "Nie znaleziono.",
+      "ERR_INTERNAL_SERVER_ERROR": "Problem z serwerem wewnętrznym. Spróbuj później.",
+      "ERR_SERVICE_UNAVAILABLE": "Usługa niedostępna.",
+      "ERR_CANCELED": "Wystąpił problem z siecią. Proszę sprawdzić połączenie i spróbować ponownie.",
+      "VALIDATION_ERROR": "Nieprawidłowe dane. Proszę poprawić.",
+      "INVALID_FORMAT": "Nieobsługiwany format. Użyj obsługiwanego formatu i spróbuj ponownie.",
+      "TIMEOUT": "Przekroczenie limitu czasu.",
+      "HAS_TIMEOUT": "Wystąpiło przekroczenie limitu czasu.",
+      "NOT_IMPLEMENTED": "Nie wdrożono.",
+      "ALREADY_EXISTS": "Istnieje już."
+    },
+    "api_errors": {
+      "error_status": {
+        "400": "Niepoprawne żądanie. Sprawdź swoje dane wejściowe.",
+        "401": "Brak autoryzacji.",
+        "403": "Brak uprawnień dostępu.",
+        "404": "Zasób nie został znaleziony.",
+        "408": "Wystąpiło przekroczenie limitu czasu.",
+        "409": "Konflikt, obecnie operacja niedozwolona.",
+        "413": "Żądana jednostka jest za duża i nieobsługiwana.",
+        "415": "Nieobsługiwany typ mediów.",
+        "422": "Dane już istnieją.",
+        "429": "Za dużo żądań, spróbuj później.",
+        "500": "Błąd wewnętrzny serwera.",
+        "503": "Usługa jest obecnie niedostępna, spróbuj później.",
+        "507": "Brak wystarczającej ilości miejsca na dysku."
+      },
+      "generic_error": "Wystąpił nieznany błąd: "
+    },
+    "settings": {
+      "general": {
+        "remote_name": {
+          "label": "Nazwa pilota"
+        },
+        "about": {
+          "licenses": {
+            "label": "Informacje o licencji",
+            "title": "Informacje o licencji",
+            "error": "Nie udało się załadować informacji o licencji."
+          }
+        },
+        "software_update": {
+          "label": "Aktualizacja oprogramowania",
+          "status": {
+            "up_to_date": "Twoje oprogramowanie jest aktualne.",
+            "available_software": "Nowe oprogramowanie jest dostępne."
+          }
+        },
+        "backup": {
+          "label": "Kopia zapasowa",
+          "description": "Pobierz i przywróć kopie zapasowe konfiguracji."
+        },
+        "ir_dataset": {
+          "label": "Zestaw danych IR",
+          "description": "Pobierz swoje niestandardowe zbiory danych IR."
+        },
+        "download": {
+          "description": "Kliknij przycisk pobierania, aby pobrać kopię zapasową bieżącej konfiguracji. Kopie zapasowe niestandardowych integracji nie są tworzone."
+        },
+        "restore": {
+          "label": "Przywróć",
+          "description": "Select a backup to restore.",
+          "dialog": {
+            "title": "Przywróć kopię zapasową",
+            "question": "Are a really sure to restore a backup? This will delete your existing configuration."
+          },
+          "message": {
+            "restoring_backup": "Przywracanie kopii zapasowej"
+          },
+          "error_status": {
+            "400": "Archiwum kopii zapasowej jest nieprawidłowe lub uszkodzone. Sprawdź dzienniki, aby uzyskać więcej szczegółów.",
+            "403": "Zabronione, tylko konto administratora może przywrócić kopię zapasową.",
+            "409": "Trwa już proces tworzenia kopii zapasowej lub przywracania.",
+            "500": "Wewnętrzny błąd serwera, nie można przetworzyć archiwum kopii zapasowej. Sprawdź dzienniki, aby uzyskać więcej szczegółów.",
+            "507": "Brak wystarczającej ilości miejsca na dysku."
+          }
+        },
+        "reboot": {
+          "dialog": {
+            "title": "Uruchom ponownie urządzenie",
+            "question": "Proszę uruchomić ponownie urządzenie, aby załadować przywróconą konfigurację!"
+          }
+        }
+      },
+      "display": {
+        "auto_brightness": "Automatyczna jasność",
+        "auto_brightness_description": "Automatycznie dostosuj jasność wyświetlacza w oparciu o warunki oświetlenia otoczenia.",
+        "display_brightness": "Jasność wyświetlacza",
+        "button_backlight": "Podświetlenie przycisku",
+        "button_backlight_color": {
+          "label": "Kolor podświetlenia przycisku",
+          "dialog": {
+            "title": "Resetuj kolor",
+            "question": "Resetować kolor podświetlenia przycisku na biały?"
+          }
+        },
+        "button_backlight_description": "Kiedy aktywne, podświetlenie przycisków zostanie włączone automatycznie w ciemnym pomieszczeniu.",
+        "button_brightness": "Jasność podświetlenia przycisku"
+      },
+      "sound_haptic": {
+        "sound_effects": "Efekty dźwiękowe",
+        "sound_effects_description": "Włącz efekty dźwiękowe",
+        "sound_effects_volume": "Głośność efektów dźwiękowych",
+        "haptic_feedback": "Wibracja przy dotknięciu",
+        "haptic_feedback_description": "Włącz sprzężenie zwrotne"
+      },
+      "voice_control": {
+        "voice_control": "Sterowanie głosowe",
+        "voice_control_description": "Wyłączenie sterowania głosem nadal pozwala korzystać z dyktowania głosowego w integracjach.",
+        "microphone": "Mikrofon"
+      },
+      "wifi_bluetooth": {
+        "bluetooth": {
+          "current_version": "Obecna wersja",
+          "advertisement_name": "Nazwa reklamy",
+          "peripheral_connections": {
+            "label": "Połączenia peryferyjne",
+            "description": "Liczba jednoczesnych połączeń Bluetooth."
+          },
+          "hci_logs": {
+            "label": "Włącz logi HCI",
+            "description": "Rejestrowanie Host Controller Interface."
+          }
+        },
+        "wifi": "Wi-Fi"
+      },
+      "admin_password": {
+        "description": "Hasło administratora jest używane do przełączania z ograniczonych profili.",
+        "pass_not_match": "Hasła nie pasują do siebie."
+      },
+      "development": {
+        "logs": {
+          "label": "Logi",
+          "description": "Pobierz dzienniki dla integracji i systemu.",
+          "services": {
+            "label": "Usługi",
+            "description": "Wybierz usługę, dla której mają zostać pobrane dzienniki."
+          },
+          "priority": {
+            "label": "Priorytet",
+            "description": "Wybierz poziom priorytetu dziennika. Debug dostarczy Ci wszystkiego, podczas gdy crit pokaże krytyczne błędy."
+          },
+          "boot_id": {
+            "label": "ID uruchomienia",
+            "description": "Pozostaw puste, jeśli nie wiesz, co to jest."
+          },
+          "date_range": {
+            "label": "Zakres dat",
+            "description": "Wybierz konkretny przedział dat, aby filtrować wpisy dziennika."
+          },
+          "log_entries": {
+            "label": "Liczba wpisów rejestru",
+            "description": "Ogranicz liczbę wpisów dziennika."
+          },
+          "search_string": {
+            "label": "Ciąg wyszukiwania",
+            "description": "Wpisz dowolny ciąg, aby przeszukać dzienniki."
+          }
+        },
+        "preview_features": {
+          "label": "Podgląd funkcji",
+          "description": "Włącz funkcje zapowiedzi, które są aktualnie testowane lub jeszcze nie w pełni rozwinięte."
+        },
+        "restart_remote": {
+          "label": "Restartuj pilota",
+          "description": "Pilot musi zostać ponownie uruchomiony po zmianie funkcji podglądu."
+        }
+      },
+      "localization": {
+        "language": "Język",
+        "country": "Kraj",
+        "timezone": "Strefa czasowa",
+        "time_format": "Czas 24-godzinny",
+        "unit_system": "System jednostek"
+      },
+      "logs": {
+        "name": "Logi"
+      },
+      "power_saving": {
+        "wake_on_wlan": {
+          "label": "Utrzymuj WiFi połączone w trybie czuwania",
+          "description": "Utrzymuje połączenie WiFi nawet, gdy urządzenie jest w trybie uśpienia. Umożliwia szybsze połączenie po przebudzeniu. Należy zauważyć, że włączenie tej funkcji nieznacznie skraca czas pracy na baterii."
+        },
+        "wakeup_sensitivity": {
+          "label": "Czułość na wybudzenie",
+          "description": "Ilość ruchu wymagana do przebudzenia pilota.",
+          "level": {
+            "off": "wyłączone",
+            "low": "niski",
+            "medium": "średni",
+            "high": "wysoki"
+          }
+        },
+        "display_timeout": {
+          "label": "Czas wyłączenia ekranu",
+          "description": "Czas po wyłączeniu wyświetlacza."
+        },
+        "sleep_timeout": {
+          "label": "Limit czasu uśpienia",
+          "description": "Czas do przejścia pilota w tryb oszczędzania energii."
+        }
+      },
+      "factory_reset": {
+        "description": "Zresetowanie usunie wszystkie ustawienia, konfiguracje oraz wszelkie informacje zapisane na pilocie. Dane nie mogą zostać odzyskane. Kontynuować?",
+        "button": "Wymaż wszystko",
+        "config": {
+          "title": "Punkt bez powrotu",
+          "description": "Potwierdzając reset fabryczny, usuniesz wszystkie konfiguracje i dane. Przywrócenie ich nie będzie możliwe."
+        }
+      }
+    },
+    "ent_list": {
+      "paging": {
+        "showing": "Pokazuje {{items}} z {{total}}",
+        "items_per_page": "Elementów na stronie:"
+      }
+    },
+    "command": {
+      "delay": "Opóźnienie",
+      "remove": "Usuń"
+    }
+  }
+}

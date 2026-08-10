@@ -1,0 +1,118 @@
+/*
+ * Modified by Justin Jäger for the Unfolded.Tools Remote Simulator.
+ * Modified build first published: 2026-08-03.
+ * Licensed as part of the modified Web Configurator under GNU GPL v3.0 only.
+ * See /remote-simulator/licensing/modifications.md for details.
+ */
+/*
+ * Remote Simulator integration derived from the Web Configurator source.
+ * No History API wrapping or label-based DOM routing is used.
+ */
+body.ucvr-public-simulator .ucvr-simulator-disabled-setting {
+  opacity: .42;
+  cursor: not-allowed;
+  user-select: none;
+}
+body.ucvr-public-simulator .ucvr-simulator-disabled-setting:hover {
+  background: transparent;
+}
+body.ucvr-public-simulator .page-devices__tools__filter__options {
+  display: none !important;
+}
+body.ucvr-public-simulator .page-devices .ent-item__options {
+  display: none !important;
+}
+
+
+/* Public simulator login is self-contained: the PIN is displayed by the
+ * parent Unfolded.Tools page, and API documentation links are intentionally
+ * omitted from the embedded login surface. */
+body.ucvr-public-simulator .page-login__api-definitions,
+body.ucvr-public-simulator .page-login .form-item__description {
+  display: none !important;
+}
+
+
+body.ucvr-public-simulator .material-symbols-sharp {
+  font-family: "Material Symbols Sharp" !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  display: inline-block;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+body.ucvr-public-simulator .material-symbols-sharp--thin { font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24; }
+body.ucvr-public-simulator .material-symbols-sharp--light { font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24; }
+body.ucvr-public-simulator .material-symbols-sharp--regular { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+body.ucvr-public-simulator .material-symbols-sharp--solid { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24; }
+body.ucvr-public-simulator .ucvr-about-legal-field a { color: var(--uc-theme-accent, #79b7c3); text-decoration: none; }
+body.ucvr-public-simulator .ucvr-about-legal-field a:hover { text-decoration: underline; }
+
+/* Keep the original login layout and only raise text contrast on dark artwork. */
+body.ucvr-public-simulator .page-login {
+  justify-content: center !important;
+}
+body.ucvr-public-simulator .page-login,
+body.ucvr-public-simulator .page-login__body h1,
+body.ucvr-public-simulator .page-login__body h3,
+body.ucvr-public-simulator .page-login__body .device-meta__host,
+body.ucvr-public-simulator .page-login .form-item label,
+body.ucvr-public-simulator .page-login .version-info,
+body.ucvr-public-simulator .page-login .version-info * {
+  color: var(--uc-theme-color-90) !important;
+}
+body.ucvr-public-simulator .page-login .form-item input {
+  color: var(--uc-theme-color-90) !important;
+}
+body.ucvr-public-simulator .page-login .form-item__description {
+  color: var(--uc-theme-color-80) !important;
+}
+
+/* Neutralise the previous login-card treatment when this stylesheet is used
+ * with an older staged build. Rebuilt bundles already contain these values. */
+body.ucvr-public-simulator .page-login__body {
+  width: auto !important;
+  padding: 0 0 0 7.37rem !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+body.ucvr-public-simulator .page-login .form-item input {
+  color: var(--uc-theme-color-90) !important;
+  background: rgba(0, 0, 0, .1) !important;
+  border-color: transparent !important;
+}
+@media screen and (min-width: 769px) {
+  body.ucvr-public-simulator .page-login .form-item input {
+    border-color: var(--ucvtheme-color-40) !important;
+  }
+}
+@media screen and (max-width: 768px) {
+  body.ucvr-public-simulator .page-login__body {
+    width: fit-content !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+  }
+}
+@media screen and (max-width: 480px) {
+  body.ucvr-public-simulator .page-login__body {
+    margin: 0 auto !important;
+  }
+}
+body.ucvr-public-simulator .page-login__footer {
+  position: absolute !important;
+  right: 1.25rem !important;
+  bottom: 1.25rem !important;
+  left: 1.25rem !important;
+}

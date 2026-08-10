@@ -1,0 +1,144 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.remote-status {
+  @include mixins.body-small;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.625rem;
+  height: 3.125rem;
+  padding: 0.25rem 1rem 0.25rem 0.75rem;
+  color: var(--uc-text-text-secondary);
+  border: 1px solid var(--uc-buttons-secondary-button-secondary-disabled-bg);
+  border-radius: 1.875rem;
+  line-height: 1;
+  cursor: pointer;
+
+  @media screen and (max-width: variables.$bp-laptop) {
+    height: 2.5rem;
+    font-size: 0.6875rem;
+    gap: 0.5rem;
+    padding: 0.2rem 0.8rem 0.2rem 0.6rem;
+  }
+
+  &__timeout {
+    display: flex;
+    flex-direction: row;
+    gap: 0.625rem;
+    align-items: center;
+    justify-content: space-between;
+
+    &__value {
+      display: inline-block;
+      min-width: 2.125rem;
+      text-align: center;
+
+      @media screen and (max-width: variables.$bp-laptop) {
+        min-width: 1.625rem;
+      }
+
+      &--warning {
+        color: var(--uc-warning-warning);
+      }
+    }
+
+    .countdown-circle {
+      @media screen and (max-width: variables.$bp-laptop) {
+        transform: scale(0.8);
+      }
+
+      &__icon i {
+        @media screen and (max-width: variables.$bp-laptop) {
+          top: 1px;
+        }
+      }
+    }
+  }
+
+  &__battery {
+    display: flex;
+    flex-direction: row;
+    gap: 0.375rem;
+    align-items: center;
+    justify-content: space-between;
+
+    &__capacity {
+      line-height: 1rem;
+    }
+
+    &__indicator {
+      display: flex;
+      align-items: flex-end;
+      width: 0.625rem;
+      height: 1.125rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 0.125rem;
+
+      @media screen and (max-width: variables.$bp-laptop) {
+        width: 0.5rem;
+        height: 0.9rem;
+      }
+
+      &__value {
+        display: block;
+        width: 100%;
+        background: var(--uc-text-text-secondary);
+        border-radius: 0.125rem;
+      }
+    }
+
+    &--green {
+      color: var(--uc-success-success);
+
+      .remote-status__battery__indicator__value {
+        background: var(--uc-success-success);
+      }
+    }
+
+    &--red {
+      color: var(--uc-error-error-40);
+
+      .remote-status__battery__indicator__value {
+        background: var(--uc-error-error-40);
+      }
+    }
+  }
+
+  &__divider {
+    height: 1.125rem;
+    width: 1px;
+    background: var(--uc-buttons-secondary-button-secondary-disabled-bg);
+  }
+
+  &--minimal {
+    @media screen and (max-width: variables.$bp-phone) {
+      .remote-status {
+        &__timeout {
+          &__value {
+            display: none;
+          }
+        }
+
+        &__battery {
+          &__icon-charging {
+            display: none;
+          }
+
+          &__capacity {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  &--only-battery {
+    padding-left: 1rem;
+
+    @media screen and (max-width: variables.$bp-laptop) {
+      padding-left: 0.8rem;
+    }
+  }
+}

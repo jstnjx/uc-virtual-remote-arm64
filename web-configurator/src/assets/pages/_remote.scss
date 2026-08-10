@@ -1,0 +1,87 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.page-edit-remote {
+  .ep-settings {
+    &__form {
+      &__header {
+        &__remote-type {
+          display: flex;
+          flex-direction: row;
+          gap: 0.625rem;
+
+          i {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            width: 2rem;
+            height: 2rem;
+            color: var(--uc-theme-color-60);
+          }
+
+          span {
+            @include mixins.body-extrasmall;
+            display: flex;
+            align-items: center;
+            color: var(--uc-theme-color-70);
+          }
+        }
+      }
+
+      &__row {
+        &--device-profile {
+          @media screen and (max-width: variables.$bp-tablet) {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .v-select {
+            max-width: 17rem;
+
+            @media only screen and (max-width: 1250px) {
+              max-width: 12rem;
+            }
+
+            @media screen and (max-width: variables.$bp-tablet) {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+
+      .select-extra {
+        &--output_device,
+        &--output_port {
+          gap: 0.625rem;
+
+          @media screen and (max-width: variables.$bp-tablet) {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .v-select {
+            max-width: 17rem;
+            flex: 1;
+
+            @media only screen and (max-width: 1250px) {
+              max-width: 12rem;
+            }
+
+            @media screen and (max-width: variables.$bp-tablet) {
+              max-width: 100%;
+            }
+
+            @media screen and (max-width: variables.$bp-phone) {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .button-toggle {
+    min-width: 10.75rem;
+  }
+}

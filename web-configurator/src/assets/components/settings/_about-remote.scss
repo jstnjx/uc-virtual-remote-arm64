@@ -1,0 +1,128 @@
+@use "../../vars/variables";
+@use "../../base/mixins";
+
+.about-remote {
+  .settings-data-field {
+    &--webconfig {
+      .settings-data-field__label {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        gap: 0.75rem;
+      }
+    }
+
+    // A row that opens a further view instead of reporting a value: label left, chevron
+    // right. The divider is not touched here — `.settings-data-field:last-child` already
+    // removes it for the last row and restores it on the row above.
+    &--link {
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      gap: 0.75rem;
+      text-align: left;
+      cursor: pointer;
+      // This row is a <button>, and neither the global `button` rule
+      // (src/assets/ui/_button.scss:4) nor `.settings-data-field__label` sets a colour — so
+      // without this the label inherits the user agent's `buttontext` (black) instead of the
+      // page's text colour, and goes invisible on the dark theme. Its sibling rows are divs
+      // and inherit correctly.
+      color: var(--uc-text-text-primary);
+
+      .settings-data-field__label {
+        flex: 1;
+      }
+
+      .settings-data-field__icon {
+        margin-left: 0;
+        margin-bottom: 0;
+      }
+
+      .settings-data-field__nav-icon {
+        display: flex;
+        align-items: center;
+        font-size: 1.25rem;
+        color: var(--uc-text-text-secondary);
+      }
+
+      &:hover .settings-data-field__nav-icon {
+        color: var(--uc-text-text-primary);
+      }
+    }
+  }
+
+  .card {
+    display: flex;
+    flex-direction: row;
+
+    .settings-data-field {
+      &__label {
+        @media screen and (max-width: variables.$bp-tablet) {
+          @include mixins.body-extrasmall;
+          color: var(--uc-text-text-secondary);
+        }
+      }
+
+      &__value {
+        @media screen and (max-width: variables.$bp-tablet) {
+          @include mixins.body-large;
+          color: var(--uc-white);
+        }
+      }
+    }
+  }
+
+  &__data-fields {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 0.25rem;
+
+    &__row {
+      display: flex;
+      flex-direction: column;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      div.settings-data-field {
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--uc-theme-color-30);
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          flex: 1;
+          padding-right: 1rem;
+        }
+      }
+
+      &:last-child {
+        div.settings-data-field:last-child {
+          border: 0;
+          padding-bottom: 0;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .remote-controller {
+    margin-right: 2.5rem;
+
+    @media screen and (min-width: variables.$bp-tablet-plus) and (max-width: 1080px) {
+      display: none;
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      margin-right: 2rem;
+    }
+
+    &__device {
+      width: 5.125rem;
+      height: 22.5625rem;
+    }
+  }
+}

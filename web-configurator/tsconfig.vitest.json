@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "public/icons/selection.json",
+    "test/**/*"
+  ],
+  // licenseGenerator.test.ts spawns tools/transform-license-checker.js, so it needs the node
+  // types this DOM project does not carry. It is type-checked by tsconfig.config.json instead;
+  // vitest still runs it, since the runner globs test files rather than reading this project.
+  "exclude": ["test/e2e/**", "test/licenseGenerator.test.ts"]
+}

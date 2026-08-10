@@ -1,0 +1,28 @@
+@use "../base/mixins";
+
+.list-loader {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, -0.5rem);
+  -webkit-transform: translate(-50%, -0.5rem);
+  background: var(--uc-bg-bg-surface-1);
+  border-radius: 1.875rem;
+  padding: 0.625rem 1.25rem 0.625rem 0.625rem;
+  gap: 1.25rem;
+
+  &__img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  &__text {
+    @include mixins.body-small;
+    color: var(--uc-text-text-primary);
+    text-wrap: nowrap;
+  }
+}
+
+@include mixins.transition-list-loader;

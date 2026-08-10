@@ -1,0 +1,37 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.page-home {
+  height: 100%;
+  height: calc(100vh - var(--uc-navbar-height) - 3.75rem);
+  height: calc(100dvh - var(--uc-navbar-height) - 3.75rem);
+  display: flex;
+  gap: 0.625rem;
+  width: 100%;
+
+  @include mixins.scrollbar;
+
+  @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    flex-direction: column;
+    padding-bottom: 0.5rem;
+  }
+
+  &--customise {
+    @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+      overflow: hidden;
+      height: calc(100vh - var(--uc-navbar-height) - 3.5rem);
+      height: calc(100dvh - var(--uc-navbar-height) - 3.5rem);
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      height: calc(100vh - var(--uc-navbar-height) - 0.625rem);
+      height: calc(100dvh - var(--uc-navbar-height) - 0.625rem);
+      padding-bottom: 0;
+    }
+  }
+}

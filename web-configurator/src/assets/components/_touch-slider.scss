@@ -1,0 +1,87 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.config-touch-slider {
+  .config-touch-slider__item {
+    padding-right: 1.5rem;
+    gap: 1.25rem;
+
+    .config-touch-slider__item__config {
+      position: relative;
+      flex-wrap: wrap;
+      min-width: 3rem;
+      max-width: 50%;
+      gap: 0.75rem;
+      justify-content: space-between;
+
+      .button-reset {
+        color: var(--uc-text-text-tertiary);
+        margin-right: 0.75rem;
+        width: 1.75rem;
+        height: 1.75rem;
+        min-height: 1.75rem;
+
+        @media (pointer: fine) {
+          &:hover {
+            color: var(--uc-buttons-tertiary-button-tertiary-hover-text);
+          }
+        }
+      }
+    }
+
+    &__feature {
+      @include mixins.secondary-body-small;
+      display: flex;
+      flex-direction: column;
+      min-width: 7.75rem;
+      max-width: 40%;
+      gap: 0.1875rem;
+
+      &__value {
+        color: var(--uc-foreground);
+
+        &::first-letter {
+          text-transform: uppercase;
+        }
+      }
+
+      &__entity {
+        @include mixins.secondary-body-extrasmall;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      &--inactive {
+        color: var(--uc-theme-color-60) !important;
+      }
+    }
+
+    &__extra {
+      @include mixins.secondary-body-small;
+      color: var(--uc-foreground);
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        background: var(--uc-foreground);
+        cursor: pointer;
+
+        .config-touch-slider__item {
+          &__icon i,
+          &__name {
+            color: var(--uc-background);
+          }
+
+          &__feature {
+            span {
+              color: var(--uc-background);
+            }
+          }
+
+          &__extra {
+            color: var(--uc-background);
+          }
+        }
+      }
+    }
+  }
+}

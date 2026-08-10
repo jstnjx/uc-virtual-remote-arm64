@@ -1,0 +1,1799 @@
+{
+  "translation": {
+    "ui": {
+      "menu":"Menu",
+      "dismiss": "Dismiss",
+      "delete": "Delete",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "enter": "Enter",
+      "ok": "Ok",
+      "accept": "Accept",
+      "toggle": "Toggle",
+      "press": "Press",
+      "save": "Save",
+      "next": "Next",
+      "edit": "Edit",
+      "add": "Add",
+      "add_all": "Add all",
+      "skip": "Skip",
+      "new": "New",
+      "add_new": "Add new",
+      "paste": "Paste",
+      "merge": "Merge",
+      "copy": "Copy",
+      "search": "Search",
+      "select": "Select",
+      "select_all": "Select all",
+      "clear_all": "Clear all",
+      "reset_all": "Reset all",
+      "expand": "Expand",
+      "contract": "Contract",
+      "reset": "Reset",
+      "clear": "Clear",
+      "disable": "Disable",
+      "move": "Move",
+      "default": "Default",
+      "reset_to_defaults": "Reset to defaults",
+      "filters": "Filters",
+      "required_field": "Please fill this in.",
+      "loading_more": "Loading more",
+      "background_images": "Background images",
+      "restore": "Restore",
+      "reboot": "Reboot",
+      "browse": "Browse",
+      "download": "Download",
+      "none": "none",
+      "not_set": "not set",
+      "read_more": "Read more",
+      "confirm": "Confirm",
+      "confirm_and_reboot": "Confirm & Reboot",
+      "close": "Close",
+      "install": "Install",
+      "back": "Back",
+      "back_to_edit": "Back to edit",
+      "done": "Done",
+      "label": "Label",
+      "start_setup": "Start setup",
+      "modified": "modified",
+      "custom": "custom",
+      "select_file_to_upload": "Select file to upload",
+      "repeat": "Repeat",
+      "password": "Password",
+      "new_password": "New password",
+      "repeat_new_password": "Repeat new password",
+      "update": "Update",
+      "factory_reset": "Factory Reset",
+      "identify": "Identify",
+      "create": "Create",
+      "version": "Version",
+      "n_a": "N/A",
+      "customise": "Customize",
+      "try_again": "Try again",
+      "send": "Send",
+      "upload": "Upload",
+      "all": "All",
+      "enable": "Enable",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "uploading": "Uploading",
+      "scroll_for_more": "Scroll for more",
+      "select_color": "Select color",
+      "saving_settings": "Saving settings",
+      "nothing_was_found": "Nothing was found.",
+      "extend": "Extend",
+      "test": "Test",
+      "reload": "Reload",
+      "logout": "Logout",
+      "disabled": "Disabled",
+      "enabled": "Enabled",
+      "feature": "Feature",
+      "volume": "Volume"
+    },
+    "form": {
+      "name": "Name",
+      "label": "Label",
+      "button": "Button",
+      "description": "Description",
+      "manufacturer": "Manufacturer",
+      "option": "Option",
+      "entity_state": "{{entity}} is {{state}}",
+      "provided_by": "Provided by",
+      "password": "Password",
+      "repeat_password": "Repeat password",
+      "no_options_found": "No options found.",
+      "successful": "Successful",
+      "optional": "Optional"
+    },
+    "tab": {
+      "settings": "Settings",
+      "sequences": "Sequences",
+      "user_interface": "User interface",
+      "button_mapping": "Button mapping"
+    },
+    "page": {
+      "home": "Home",
+      "customise_remote": "Customize your remote",
+      "entities": "Entities",
+      "integrations": "Integrations",
+      "activities_macros": "Activities & Macros",
+      "settings": "Settings",
+      "general": "General",
+      "display": "Display",
+      "user_interface": "User interface",
+      "sound_haptic": "Sound & haptic",
+      "voice_control": "Voice control",
+      "power_saving": "Power saving",
+      "wifi_bluetooth": "Wifi & Bluetooth",
+      "localization": "Localization",
+      "admin_password": "Admin password",
+      "application_credentials": "Application credentials",
+      "development": "Development",
+      "factory_reset": "Factory reset"
+    },
+    "notification": {
+      "saving_changes": "Saving changes",
+      "changes_saved": "Changes saved",
+      "restarting": {
+        "title": "Restarting"
+      },
+      "reconnecting": {
+        "title": "Reconnecting",
+        "info1": "Connection lost. Trying to reconnect to the remote.",
+        "info2": "Please check that the remote is not sleeping."
+      },
+      "cancelling": "Cancelling"
+    },
+    "logout": {
+      "title": "Logout",
+      "question": "Are you sure you want to logout from Web Configurator?"
+    },
+    "reboot": {
+      "title": "Reboot",
+      "description": "Reboot the remote for changes to take effect."
+    },
+    "filter_dropdown": {
+      "integrations": "Integrations",
+      "entity_types": "Entity types"
+    },
+    "entity": {
+      "title": "Entity",
+      "entities": "Entities",
+      "entity_type": {
+        "button": "Button",
+        "switch": "Switch",
+        "climate": "Climate",
+        "cover": "Cover",
+        "light": "Light",
+        "media_player": "Media player",
+        "sensor": "Sensor",
+        "activity": "Activity",
+        "macro": "Macro",
+        "remote": "Remote",
+        "select": "Select"
+      },
+      "state": {
+        "off": "off",
+        "on": "on",
+        "available": "available",
+        "unavailable": "unavailable",
+        "heat": "heating",
+        "cool": "cooling",
+        "heat_cool": "heating/cooling",
+        "fan": "fan",
+        "auto": "auto",
+        "opening": "opening",
+        "open": "open",
+        "closing": "closing",
+        "closed": "closed",
+        "playing": "playing",
+        "paused": "paused",
+        "standby": "standby",
+        "buffering": "buffering",
+        "running": "running",
+        "completed": "completed",
+        "unknown": "unknown",
+        "error": "Something went wrong. Please try again.",
+        "normal": "normal",
+        "charging": "charging",
+        "not_charging": "not charging",
+        "detected": "detected",
+        "clear": "clear",
+        "cold": "cold",
+        "wet": "wet",
+        "dry": "dry",
+        "connected": "connected",
+        "disconnected": "disconnected",
+        "opened": "opened",
+        "hot": "hot",
+        "light_detected": "light detected",
+        "no_light": "no light",
+        "unlocked": "unlocked",
+        "locked": "locked",
+        "moving": "moving",
+        "not_moving": "not moving",
+        "plugged_in": "plugged in",
+        "unplugged": "unplugged",
+        "home": "home",
+        "not_home": "not home",
+        "problem": "problem",
+        "ok": "ok",
+        "unsafe": "unsafe",
+        "safe": "safe",
+        "tampering_detected": "tampering detected",
+        "update_detected": "update detected",
+        "up_to_date": "up to date",
+        "not_running": "not running"
+      },
+      "device_class": {
+        "battery": "Battery",
+        "current": "Current",
+        "energy": "Energy",
+        "humidity": "Humidity",
+        "power": "Power",
+        "temperature": "Temperature",
+        "voltage": "Voltage"
+      },
+      "label": {
+        "state": "State",
+        "value": "Value",
+        "current_option": "Current option"
+      },
+      "features": {
+        "volume": "Volume",
+        "seek": "Seek",
+        "dim": "Brightness",
+        "position": "Position",
+        "no_features_found": "No features found."
+      },
+      "command": {
+        "press": "Press",
+        "play_pause": "Play pause",
+        "open": "Open",
+        "close": "Close",
+        "toggle": "Power toggle",
+        "on_off": "Power toggle",
+        "on": "On",
+        "off": "Off",
+        "select_next": "Select next"
+      },
+      "non_existent": "Non-existent entity",
+      "add_to_page": "Add to page",
+      "add_first": "Add your first entity",
+      "add_first_btn_below": "Add your first entity by clicking on the button below.",
+      "no_entity": "You don’t have any entities yet.",
+      "no_bt": "You don’t have any Bluetooth entities yet.",
+      "no_ir": "You don’t have any infrared entities yet.",
+      "no_external": "You don’t have any external remotes yet.",
+      "no_entities_found": "No entities found.",
+      "included_entities": {
+        "title": "Included entities"
+      },
+      "configured_entities": {
+        "title": "Configured entities"
+      },
+      "delete_entity": {
+        "title": "Delete entity",
+        "question": "Are you sure you want to delete the entity?"
+      },
+      "delete_entities": {
+        "title": "Delete entities",
+        "question": "Are you sure you want to delete the entities?"
+      },
+      "remove_entity": {
+        "title": "Remove entity",
+        "question": "Are you sure you want to remove the entity?"
+      },
+      "remove_entities": {
+        "title": "Remove entities",
+        "question": "Are you sure you want to remove the entities?"
+      },
+      "no_other_settings": "This entity has no other settings.",
+      "missing_entity": {
+        "title_one": "Missing entity",
+        "title_other": "Missing entities",
+        "question_page_one": "'**{{ entities }}**' must be added to the activity before the copied page can be pasted. Would you like to add the entity to this activity?",
+        "question_page_other": "'**{{ entities }}**' must be added to the activity before the copied page can be pasted. Would you like to add the entities to this activity?",
+        "question_widget_one": "'**{{ entities }}**' must be added to the activity before the copied widget can be pasted. Would you like to add the entity to this activity?",
+        "question_widget_other": "'**{{ entities }}**' must be added to the activity before the copied widget can be pasted. Would you like to add the entities to this activity?",
+        "add_one": "Add entity",
+        "add_other": "Add entities"
+      },
+      "assign": {
+        "title": "Assign entity"
+      }
+    },
+    "integration": {
+      "integrations": "Integrations",
+      "status": {
+        "UNKNOWN": "Unknown",
+        "IDLE": "Idle",
+        "CONNECTING": "Connecting",
+        "CONNECTED": "Connected",
+        "DISCONNECTED": "Disconnected",
+        "RECONNECTING": "Reconnecting",
+        "ACTIVE": "Active",
+        "ERROR": "Something went wrong. Please try again.",
+        "NOT_CONFIGURED": "Not configured",
+        "SERVICE_UNAVAILABLE": "Service Unavailable"
+      },
+      "no_other_settings": "This integration has no other settings.",
+      "manage": {
+        "title": "Manage integrations"
+      },
+      "install_custom": {
+        "trigger": "Install custom",
+        "popup": {
+          "title": "Install a custom integration",
+          "upload": {
+            "label": "Select a file to upload",
+            "description": "Maximum file size: 100MB"
+          },
+          "update_installed": "Update installed integration"
+        },
+        "error_status": {
+          "400": "Invalid archive, missing data in archive or included metadata cannot be read.",
+          "403": "Forbidden, only an administrator account may install custom integrations.",
+          "404": "Custom integration not found for updating. There's no installed custom integration with the same identifier.",
+          "409": "Custom integration is not compatible with the current firmware or the maximum amount of custom integration installations has been reached.",
+          "413": "Integration archive is too large.",
+          "422": "Integration is already installed, or the unique driver identification has been used by another integration.",
+          "503": "An installation is already running or a fatal error occurred at a previous installation and the device needs to be restarted.",
+          "507": "There is insufficient storage to upload and process installation archive."
+        }
+      },
+      "add": {
+        "title": "Add new integration",
+        "setting_up": "Setting up ...",
+        "already_configured": {
+          "info": "The integration has been already configured.",
+          "options": {
+            "add_entities": {
+              "title": "Add available entities",
+              "description": "Add entities to the remote that are made available by the integration."
+            },
+            "start_setup": {
+              "title": "Start integration setup",
+              "description": "Change configuration, add or remove devices via the integration settings."
+            }
+          }
+        },
+        "add_elements": {
+          "title": "Select entities"
+        },
+        "success": {
+          "title": "You’re all set!",
+          "description": "The integration has been successfully added."
+        },
+        "fail": {
+          "title": "Oops!",
+          "description": "Something went wrong while setting up the integration."
+        },
+        "label": {
+          "state": "State",
+          "connection_test": "Connection test",
+          "version": "Version",
+          "developer": "Developer",
+          "developer_website": "Developer website"
+        },
+        "connect_external": {
+          "title": "Connect to external integration",
+          "driver_url": "Driver URL",
+          "access_token": "Access token",
+          "test_connection": {
+            "title": "Test connection"
+          },
+          "failed": "Connection failed. Try again.",
+          "instruction": "Control {{name}} devices with Unfolded Circle remotes."
+        }
+      },
+      "delete": {
+        "title": "Delete integration",
+        "question": "Are you sure you want to delete the integration?"
+      },
+      "label": {
+        "state": "State",
+        "version": "Version",
+        "developer": "Developer",
+        "developer_website": "Developer website"
+      },
+      "driver": {
+        "state_active": "active",
+        "state_inactive": "inactive"
+      },
+      "driver_type": {
+        "local": "local",
+        "external": "external",
+        "custom": "custom"
+      },
+      "driver_connection": {
+        "title": "Driver connection settings",
+        "token": "Token",
+        "token_not_set": "Token is not set.",
+        "token_required": "Token missing. Please provide it."
+      },
+      "start_integration": "Start integration setup again to change its configuration.",
+      "instruction": "Control {{name}} entities with Unfolded Circle Remotes.",
+      "no_integrations": "You don’t have any integrations yet.",
+      "new_integration": {
+        "developer": "Driver developed by {{dev}}",
+        "unknown_developer": "Unknown developer",
+        "advanced_mode": {
+          "title": "Advanced mode",
+          "description": "Enable advanced configuration options during setup. Only use it when you know what you’re doing."
+        }
+      }
+    },
+    "dock": {
+      "dock": "Dock",
+      "docks": "Docks",
+      "status": {
+        "IDLE": "Idle",
+        "CONNECTING": "Connecting",
+        "CONNECTED": "Connected",
+        "RECONNECTING": "Reconnecting",
+        "AUTHENTICATED": "Authenticated",
+        "DISCONNECTED": "Disconnected",
+        "CLOSING": "Closing",
+        "ERROR": "Something went wrong. Please try again.",
+        "ACTIVE": "Active",
+        "UNKNOWN": "unknown"
+      },
+      "label": {
+        "state": "State",
+        "service_name": "Service name",
+        "led_brightness": "Led brightness",
+        "microphone": "Microphone"
+      },
+      "form": {
+        "custom_ip_or_url": "Custom URL"
+      },
+      "change_password": {
+        "trigger": "Change password",
+        "title": "Change password",
+        "pass_not_match": "Passwords are not the same",
+        "change_dock_token": "Also change password stored in Dock",
+        "connection_required_hint": "Save requires dock connection when updating dock password"
+      },
+      "wifi_settings": {
+        "trigger": "Wifi settings",
+        "title": "Change WiFi settings",
+        "disabled_hint": "Save disabled - dock must be connected"
+      },
+      "port": {
+        "title": "Port",
+        "mode": {
+          "UNKNOWN": "Unknown",
+          "NONE": "None",
+          "AUTO": "Auto",
+          "MANUAL": "Manual",
+          "INFRARED": "Infrared",
+          "IR_BLASTER": "IR Blaster",
+          "IR_EMITTER_MONO_PLUG": "IR Emitter Mono Plug",
+          "IR_EMITTER_STEREO_PLUG": "IR Emitter Stereo Plug",
+          "TRIGGER_5V": "Trigger 5V",
+          "ERROR": "Error"
+        },
+        "labels": {
+          "peripheral": "Peripheral",
+          "baud_rate": "Baud Rate",
+          "data_bits": "Data Bits",
+          "stop_bits": "Stop Bits",
+          "parity": {
+            "title": "Parity",
+            "none": "none",
+            "even": "even",
+            "odd": "odd"
+          }
+        }
+      },
+      "edit_port": {
+        "mode": "Mode",
+        "warning": "Do not plug in peripherals while the dock is powered on. Read more."
+      },
+      "delete": {
+        "title": "Delete dock",
+        "question": "Are you sure you want to delete the dock?"
+      },
+      "factory_reset": {
+        "title": "Point of no return",
+        "description": "Confirming factory reset will erase all configuration and data. It will not be possible to restore anything."
+      },
+      "add": {
+        "title": "Add new dock",
+        "start": {
+          "instruction1": "Click discover to search for docks on your network or via Bluetooth.",
+          "instruction2": "If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.",
+          "bluetooth": {
+            "warning": "Bluetooth is disabled. Discovery limited to network only."
+          },
+          "manual_setup": "Manual setup",
+          "discover": "Discover"
+        },
+        "discover": {
+          "discovering": "Discovering docks",
+          "discovered_dock_one": "{{count}} dock discovered",
+          "discovered_dock_other": "{{count}} docks discovered",
+          "no_dock_discovered": {
+            "title": "No dock discovered",
+            "help": "Please try the following troubleshooting steps:\n\n- Restart the dock by unplugging and replugging the USB-C cable.\n- If using Bluetooth setup, move the remote closer to the dock or restart the dock if multiple setup attempts fail.\n- If using Ethernet, make sure **mDNS** is not disabled in your router, firewall, and/or access point.",
+            "support_articles": {
+              "title": "Related support articles",
+              "article_1": "Dock 3 Bluetooth LE setup",
+              "article_2": "Add a new Dock in the Web Configurator",
+              "article_3": "Manually add a Dock in the Web Configurator"
+            }
+          },
+          "last_seen": "Last seen {{sec}}s ago",
+          "bt_pre_warn": "Make sure the dock is in close proximity to the remote and the indicator LED is blinking amber."
+        },
+        "add_discovered": {
+          "instruction": "Make sure the dock is available and reachable on the network."
+        },
+        "add_manually": {
+          "title": "Manual setup",
+          "instruction": "Make sure the dock is available and reachable on the network. Docks cannot be set up via Bluetooth if using manual setup."
+        },
+        "form": {
+          "password_description": "Optional. Set a password for accessing the dock. You will need this password if you’d like to control the dock from other devices.",
+          "ip_address": "Dock URL",
+          "ip_address_description": "Enter the Dock API URL or an IP address / hostname with port number and path. Example for Dock Two: `ws://$IP:946`, Dock 3: `ws://$IP/ws`.",
+          "setup_wifi": "Setup WiFi",
+          "wifi_ssid": "WiFi network SSID",
+          "wifi_password": "WiFi network password"
+        },
+        "error": {
+          "title": "Oops!",
+          "description": "Something went wrong while setting up the dock."
+        },
+        "success": {
+          "title": "You’re all set!",
+          "description1": "The dock has been added successfully.",
+          "description2": "{{name}} is ready to blast IR codes."
+        },
+        "setup_process": {
+          "configuring": "Setting up",
+          "press_control_button": "Please press the dock's control button when prompted on the dock screen",
+          "error": {
+            "NONE": "None",
+            "NOT_FOUND": "Not found",
+            "CONNECTION_REFUSED": "Connection refused",
+            "CONNECTION_ERROR": "Cannot connect. Try again.",
+            "AUTHORIZATION_ERROR": "Access denied. Please check your credentials.",
+            "TIMEOUT": "Timeout",
+            "OTHER": "An unknown issue occurred. Please try again."
+          }
+        }
+      },
+      "update": {
+        "ok": "Your software is up to date.",
+        "update": "New firmware version available",
+        "disabled": "Online update check disabled.",
+        "check": "Check for update",
+        "min_battery_percent_required": "Battery too low. Charge your device and try again.",
+        "firmware_version": "Firmware version",
+        "new_version": "New version",
+        "release_notes": "Release notes",
+        "error_on_check": "Firmware check failed. Please try again.",
+        "errors": {
+          "prefix": "Failed to start dock firmware update."
+        },
+        "error_status": {
+          "400": "Update is not yet available.",
+          "404": "Firmware update not found. Please try again later",
+          "409": "A dock firmware update is already in progress.",
+          "503": "The dock is not connected, the remote does not have enough battery to start the update (min 20% charge required), or the update service is unavailable. Please try again later."
+        },
+        "in_progress": "Update in progress",
+        "success": {
+          "title": "Update success",
+          "description": "The dock has been successfully updated."
+        },
+        "error": {
+          "title": "Update could not be completed. Please try again later.",
+          "description": "There was an error during installing the update."
+        },
+        "do_not_turn_off": "Do not turn off the dock during the installation process!"
+      },
+      "no_docks": "You don’t have any docks yet."
+    },
+    "widget": {
+      "add_widget": "Add widget",
+      "edit_widget": "Edit widget",
+      "type": {
+        "icon": {
+          "title": "Icon Button",
+          "description": "Simple button that executes a command associated with it."
+        },
+        "text": {
+          "title": "Text Button",
+          "description": "Simple button that executes a command associated with it.",
+          "default_text": "TEXT"
+        },
+        "sensor": {
+          "title": "Sensor",
+          "description": "Shows the values of a sensor."
+        },
+        "select": {
+          "title": "Select",
+          "description": "Shows the current option of a select."
+        },
+        "media": {
+          "title": "Media Widget",
+          "description": "Displays media artwork, title and source as well as progress.",
+          "component": {
+            "media_title": "Media title",
+            "source": "Source"
+          },
+          "no_space": "Not enough space for this widget on the page."
+        },
+        "slider": {
+          "title": "Slider",
+          "description": "Control brightness, volume or other supported values."
+        },
+        "jump_to_page": {
+          "title": "Jump to page",
+          "description": "Button that jumps to the specified page."
+        }
+      },
+      "popup": {
+        "icon": "Icon",
+        "width": "Width",
+        "height": "Height",
+        "command": {
+          "color": "Color"
+        },
+        "sensor": {
+          "label": "Sensor entity",
+          "show_label": "Show label",
+          "show_unit": "Show unit"
+        },
+        "select": {
+          "label": "Select entity",
+          "show_entity_name": "Show enity name"
+        },
+        "error": {
+          "invalid_size": "Button size is not valid. Please choose a valid size and try again."
+        },
+        "convert_to_icon": "Convert to icon",
+        "convert_to_text": "Convert to text",
+        "delete_widget": {
+          "title_one": "Delete widget",
+          "title_other": "Delete widgets",
+          "question_one": "Are you sure you want to delete the widget?",
+          "question_other": "Are you sure you want to delete the widgets?"
+        }
+      },
+      "error": {
+        "no_position": "No suitable position found for the new widget."
+      }
+    },
+    "group": {
+      "delete": {
+        "title": "Delete group",
+        "question": "Are you sure you want to delete the group?"
+      },
+      "add": {
+        "add_new_group": "Add new group",
+        "new_group": "New group",
+        "add_to": "Add to",
+        "add_to_description": "Add the group to the page after it has been created.",
+        "select_entities": "Select entities to add to the group",
+        "confirm_empty": {
+          "title": "Group has no entities",
+          "question": "Are you sure you want to create an empty group?"
+        }
+      },
+      "edit": {
+        "edit_group": "Edit group",
+        "drag_instructions": "Simply drag the entity out of the list to remove it or select multiple for deletion.",
+        "add_entities": "Add entities",
+        "empty": "The group is empty."
+      }
+    },
+    "user_interface": {
+      "grid": "Grid",
+      "edit_pages": "Edit pages",
+      "pages": {
+        "default_name": "untitled",
+        "options": {
+          "rename": "Rename",
+          "copy": "Copy",
+          "reset": "Reset",
+          "delete": "Delete"
+        },
+        "reset_page": {
+          "title": "Reset page",
+          "question": "Are you sure you want to reset the page {{name}}?"
+        },
+        "reset_ui": {
+          "title": "Reset UI",
+          "question": "Are you sure you want to reset UI?"
+        },
+        "non_existent_entities": "Not available due to non-existent entities"
+      },
+      "no_pages": {
+        "title": "Add your first page",
+        "description": "Create pages to organise your user interface the way you want."
+      }
+    },
+    "entities": {
+      "add_new": "Add new"
+    },
+    "integrations": {
+      "add_new_dock": "Add new dock"
+    },
+    "activity": {
+      "activity": "Activity",
+      "activities": "Activities",
+      "add_first": "Add your first activity",
+      "no_activities": "You don’t have any activities yet. Add your first activity by clicking on the button below.",
+      "button_mapping": {
+        "instruction": "Customize your activity pages by adding widgets to the screen or editing the button configuration."
+      },
+      "add": {
+        "add_new_activity": "Add new activity",
+        "new_activity": "New activity",
+        "select_entities": "Select entities to add to the activity",
+        "prevent_sleep": {
+          "label": "Prevent sleep",
+          "description": "While the activity is on, prevent the remote to go to sleep. Note: battery life will be reduced."
+        },
+        "button_mapping": {
+          "title": "Select entities for button mapping",
+          "description": "You can adjust button mapping and customise the UI anytime by editing the activity."
+        },
+        "volume_control": {
+          "label": "Volume control",
+          "description": "Select the device you’d like to use for volume control."
+        },
+        "navigation": {
+          "label": "Navigation",
+          "description": "Select the device to use for main navigation."
+        }
+      },
+      "clone": {
+        "clone_activity": "Clone activity"
+      },
+      "edit": {
+        "activity_state": "State: {{state}}",
+        "state": {
+          "on": "on",
+          "off": "off",
+          "running": "running",
+          "error": "error"
+        },
+        "prevent_sleep": {
+          "label": "Prevent sleep",
+          "description": "While the activity is on, prevent the remote to go to sleep. Note: battery life will be reduced."
+        },
+        "ready_check": {
+          "label": "Readiness check",
+          "description": "Check the state of entities included in the sequences before turning on or off an activity. Disabling the check might lead to error messages if the entities are not available."
+        },
+        "activity_group": {
+          "label": "Activity group"
+        },
+        "editing_info": "Editing running activities is not recommended.",
+        "entities_no_exist_info": "The activity contains entities that no longer exist.",
+        "add_entities": "Add entities",
+        "empty": "The activity is empty."
+      },
+      "delete": {
+        "title": "Delete activity",
+        "question": "Are you sure you want to delete the activity?"
+      },
+      "user_interface": {
+        "intro": "Customize your activity pages by adding widgets to the screen or editing the button configuration."
+      },
+      "voice_assistant": {
+        "override": "A global voice assistant is configured. You can select a different voice assistant for this activity here.",
+        "select": "No global voice assistant is configured. You can select a voice assistant for this activity here."
+      }
+    },
+    "macro": {
+      "macro": "Macro",
+      "macros": "Macros",
+      "add_first": "Add your first macro",
+      "no_macros": "You don’t have any macros yet. Add your first macro by clicking on the button below.",
+      "tab": {
+        "settings": "Settings",
+        "sequence": "Sequence"
+      },
+      "add": {
+        "add_new_macro": "Add new macro",
+        "new_macro": "New macro",
+        "select_entities": "Select entities to add to the macro"
+      },
+      "edit": {
+        "empty": "The macro is empty."
+      },
+      "clone": {
+        "clone_macro": "Clone macro"
+      },
+      "delete": {
+        "title": "Delete macro",
+        "question": "Are you sure you want to delete the macro?"
+      }
+    },
+    "activity_group": {
+      "activity_group": "Activity group",
+      "activity_groups": "Activity groups",
+      "add_first": "Add your first activity group",
+      "no_activity_groups": "You don’t have any activity groups yet. Add your first activity group by clicking on the button below.",
+      "add": {
+        "add_new_activity_group": "Add new activity group",
+        "new_activity_group": "New activity group",
+        "select_activities": "Select activities to add to the activity group"
+      },
+      "edit": {
+        "available_activities": "Available activities",
+        "included_activities": "Included activities",
+        "add_first": {
+          "title": "Add your first activity",
+          "descr": "There are no activities in the activity group. Add your first activities by clicking on the button below."
+        }
+      },
+      "delete": {
+        "title": "Delete activity group",
+        "question": "Are you sure you want to delete the activity group?"
+      },
+      "options": {
+        "remove_turn_on_delays": {
+          "title": "Remove delays after turn-on commands",
+          "options": {
+            "previous_cmd_skipped": "Previous command skipped",
+            "between_skipped_cmds": "Between skipped commands",
+            "never": "Never"
+          }
+        },
+        "turn_off_unused_entities": {
+          "title": "Turn off unused entities",
+          "options": {
+            "always": "Always",
+            "in_off_sequence": "Used in off sequence",
+            "run_off_sequence": "Run modified off-sequence",
+            "never": "Never"
+          }
+        }
+      }
+    },
+    "sequence": {
+      "on_sequence": {
+        "title": "On sequence",
+        "description": "The on sequence is executed when an activity is started.",
+        "empty": "There are no commands yet in the on sequence."
+      },
+      "off_sequence": {
+        "title": "Off sequence",
+        "description": "The off sequence is executed when an activity is turned off.",
+        "empty": "There are no commands yet in the off sequence."
+      },
+      "sequence": {
+        "title": "Sequence",
+        "description": "The sequence is executed when a macro is started.",
+        "empty": "There are no commands yet in the sequence."
+      },
+      "add_first": "Add your first command",
+      "add_first_btn_below": "Add your first command by clicking on the button below.",
+      "add_commands": "Add commands",
+      "color": "Color"
+    },
+    "button_mapping": {
+      "press": {
+        "short_press": "short press",
+        "double_press": "double press",
+        "long_press": "long press"
+      },
+      "command": {
+        "title": "Command",
+        "remap": {
+          "title": "Button remap",
+          "question": "This is a special button with functionality to navigate the user interface. If you choose to assign a new function, you’ll loose the original functionality and need to use the touchscreen to navigate back to the main screen.",
+          "question_voice": "If a voice assistant is configured, custom microphone button functions are ignored."
+        },
+        "color": "Color"
+      },
+      "reset": {
+        "title": "Reset button mapping",
+        "question": "Are you sure you want to reset button mapping?"
+      },
+      "reset_more": {
+        "title": "Reset button mappings",
+        "question": "Are you sure you want to reset button mappings?"
+      },
+      "resetAll": {
+        "title": "Reset all",
+        "question": "Are you sure you want to reset all button mappings?"
+      }
+    },
+    "touch_slider": {
+      "title": "Touch slider",
+      "reset": {
+        "title": "Reset touch slider settings",
+        "question": "Are you sure you want to reset the touch slider settings?"
+      }
+    },
+    "login": {
+      "enter_pin": "Enter PIN to get started",
+      "pin": "Pin",
+      "pin_description": "You can find the PIN code by going to Settings on the remote and enabling the Web configurator.",
+      "api_definitions": {
+        "label": "Looking for API definitions? Click here",
+        "items": {
+          "api_rest": "Core-API REST",
+          "api_ws": "Core-API WS",
+          "test_console": "Websocket test console",
+          "integration_api_ws": "Integration-API WS"
+        }
+      },
+      "error": {
+        "NOT_AUTHORIZED": "Incorrect PIN. Please retry.",
+        "VALIDATION_ERROR": "Incorrect PIN. Please retry.",
+        "ERR_NETWORK": "Network issue. Please check your connection and try again.",
+        "ERR_CANCELED": "Network issue. Please check your connection and try again.",
+        "TIMEOUT": "The remote did not respond — it may be asleep. Please try again.",
+        "UNKNOWN": "An unexpected error occurred. Please try again."
+      },
+      "connecting": {
+        "title": "Connecting to your Remote…",
+        "description": "The Remote is not responding — it may be asleep or waking up. You will be signed in automatically once it is reachable.",
+        "retry": "Retry now"
+      }
+    },
+    "home": {
+      "welcome": "Welcome back",
+      "lets_get": "Let’s get started",
+      "customise": "Customize your remote",
+      "add_device": "Add a new device",
+      "add_activity": "Add a new activity",
+      "battery": "battery",
+      "charged": "charged"
+    },
+    "profile": {
+      "add_profile": "Add profile",
+      "edit_profile": "Edit profile",
+      "your_profiles": "Your profiles",
+      "manage_profiles": "Manage profiles",
+      "delete_profile": {
+        "title": "Delete profile",
+        "question": "Are you sure you want to delete the profile {{name}}?",
+        "active_not_allowed": "An active profile cannot be deleted"
+      },
+      "already_active": {
+        "title": "Profile already active",
+        "info": "The profile you’ve selected is already active. If you’d like to edit the profile, click on manage profiles."
+      },
+      "delete_already_active": {
+        "title": "Profile is active",
+        "info": "Cannot delete an active profile."
+      },
+      "enter_admin_pwd": {
+        "title": "Enter admin password",
+        "info": "Please enter the admin password to continue."
+      },
+      "select_manage_profile": "Select a profile or click on manage profiles to edit or delete profiles.",
+      "click_on_the_profile": "Click on the profile you want to edit.",
+      "profile_has_changed": "Current profile has changed",
+      "name": "Name",
+      "password": "Password",
+      "restricted_profile": "Restricted profile",
+      "restricted_profile_description": "A restricted profile has no access to settings and configuration. Use this type to create profiles for guests or kids for example.",
+      "switch": {
+        "error_status": {
+          "401": "Wrong admin pin.",
+          "404": "Profile not found."
+        }
+      },
+      "message": {
+        "adding_profile": "Adding profile",
+        "profile_added": "Profile added",
+        "deleting_profile": "Deleting profile",
+        "profile_deleted": "Profile deleted"
+      },
+      "select_an_icon": "Select an icon"
+    },
+    "remote": {
+      "infrared": "Infrared",
+      "external_remotes": "External remotes",
+      "bluetooth": {
+        "connection_number": "Connection number",
+        "connection": {
+          "connected": "connected",
+          "disconnected": "disconnected"
+        },
+        "device_profile": "Device profile",
+        "pair_state": {
+          "paired": "paired",
+          "unpaired": "unpaired"
+        },
+        "pair": "Pair",
+        "forget_device": {
+          "title": "Forget device",
+          "question": "Make sure to forget the remote on the device it’s paired with. Please look in your device’s user manual on how to forget Bluetooth pairings."
+        }
+      },
+      "device_profile": {
+        "default": "Default"
+      },
+      "label": {
+        "infrared_output_device": "Infrared output device",
+        "infrared_output_port": "Infrared output port"
+      },
+      "no_output_device": "No output device available",
+      "add_device_ir": {
+        "title": "Add new infrared device",
+        "title_short": "Add new infrared",
+        "create_blank": {
+          "title": "Create blank",
+          "description": "Creates a blank infrared device. You need to add or learn the codes yourself."
+        },
+        "custom_data_set": {
+          "title": "Create a custom infrared data set",
+          "description": "Enter a unique device for the IR data set. This will be linked to the Custom manufacturer.",
+          "input_label": "Device name"
+        },
+        "manufacturer": {
+          "title": "Choose a code dataset",
+          "search": "Search for manufacturer",
+          "instruction": "Enter at least 2 characters",
+          "type": "Type to search"
+        },
+        "test": {
+          "title": "Test the infrared codes",
+          "description1": "Please verify the commands are working by selecting and IR output device and clicking on the commands you want to test.",
+          "description2": "Make sure that the infrared output device has line of sight to the device you would like to control.",
+          "output_device": "Infrared test output device",
+          "output_port": "Infrared test output port"
+        }
+      },
+      "add_device_bt": {
+        "title": "Add new Bluetooth device",
+        "title_short": "Add new Bluetooth",
+        "slots_available_one": "{{available}} of {{count}} slot available",
+        "slots_available_other": "{{available}} of {{count}} slots available",
+        "device_profile": {
+          "label": "Device profile",
+          "default": "default",
+          "info": "If you are unsure about what device profile to select or you cannot find a profile for your device, select default.",
+          "learn_more": "Learn more"
+        },
+        "enable_pairing": "Enable pairing",
+        "disabled_bt": {
+          "title": "Bluetooth is turned off",
+          "description": "Enable Bluetooth to be able to add a new Bluetooth device."
+        },
+        "no_slot": {
+          "title": "No slots available",
+          "description": "You have used all the available Bluetooth slots to pair with devices. Please remove a Bluetooth device and try again."
+        },
+        "waiting": {
+          "title": "Waiting for pairing request",
+          "description": "Find the remote on the device you’re pairing with and select pair.",
+          "advertisement_name": "Advertisement name"
+        },
+        "code_input": {
+          "title": "Pairing request received",
+          "description": {
+            "code": "Enter the pairing code and confirm the pairing request below.",
+            "simple": "Please confirm the pairing request to continue."
+          }
+        },
+        "progress": {
+          "title": "Pairing in progress"
+        },
+        "success": {
+          "title": "Pairing success",
+          "description": "You have successfully paired with the Bluetooth device."
+        },
+        "fail": {
+          "title": "Pairing failed",
+          "description": "Waiting for a new pairing request."
+        },
+        "error": {
+          "empty_name": "Name field is empty."
+        },
+        "message": {
+          "SUCCESS": "Success",
+          "AUTHENTICATION_FAILURE": "Login failed. Please check your credentials and try again.",
+          "PASSKEY_ENTRY_FAILED": "Unable to enter passkey. Please retry.",
+          "AUTHENTICATION_REQUIREMENTS": "Authentication requirements.",
+          "CONFIRM_VALUE_FAILED": "Confirm value failed.",
+          "PAIRING_NOT_SUPPORTED": "Pairing not supported.",
+          "ENCRYPTION_KEY_SIZE": "Encryption key size.",
+          "COMMAND_NOT_SUPPORTED": "Command not supported.",
+          "UNSPECIFIED_REASON": "Unspecified reason.",
+          "REPEATED_ATTEMPTS": "Repeated attempts.",
+          "INVALID_PARAMETERS": "Invalid input provided. Please check and try again.",
+          "DHKEY_CHECK_FAILED": "DHKEY check failed.",
+          "NUMERIC_COMPARISON_FAILED": "Numeric comparison failed."
+        }
+      },
+      "ir_code": {
+        "title": "Infrared code data set",
+        "reset": {
+          "title": "Reset infrared code",
+          "question": "Are you sure you want to reset infrared code?"
+        },
+        "delete": {
+          "title": "Delete infrared code",
+          "question": "Are you sure you want to delete infrared code?"
+        },
+        "delete_codes": {
+          "title": "Delete infrared codes",
+          "question": "Are you sure you want to delete infrared codes?"
+        },
+        "add": {
+          "add_ir_code": "Add new infrared code",
+          "edit_ir_code": "Edit infrared code",
+          "ir_code": "IR code",
+          "button": "Button",
+          "new_button_name": {
+            "label": "New button name",
+            "description": "Enter a button name and select an option below to continue."
+          },
+          "selector": {
+            "paste_ir_code": "Paste IR code",
+            "learn_ir_code": "Learn IR code"
+          },
+          "error": {
+            "invalid_cmd_name": "Invalid or existing command name.",
+            "invalid_code_format": "Unrecognized code format. Ensure the code is correct and try again.",
+            "VALIDATION_ERROR": "Invalid data. Please correct it."
+          },
+          "paste_code_placeholder": "Paste your code here and select the correct format in the top right corner. Learned codes will also appear here.",
+          "test_code": "Test code",
+          "test_ok": "Code testing OK",
+          "infrared_learning": {
+            "title": "Infrared learning",
+            "description": "Point your old remote towards the front of the dock at a close distance and press the button you would like to learn."
+          },
+          "infrared_device": "Infrared device",
+          "select_device": "Select the infrared device you would like to use to learn the codes.",
+          "start_learning": "Learn code",
+          "stop_learning": "Stop learning",
+          "successful_learning": "Learning was successful.",
+          "not_support_learning": "This device does not support IR learning.",
+          "emitter_offline": "This device is currently offline. Check its network connection and try again."
+        },
+        "import": {
+          "title": "Import infrared codes",
+          "description": "Upload multiple IR codes in a CSV file. Order of the header columns is not relevant, additional columns will be ignored. Default format: PRONTO.",
+          "file_size": "Maximum file size: 10MB.",
+          "csv_template": "Download CSV file template.",
+          "delimiter_label": "Delimiter",
+          "delimiter_info": "Optional CSV delimiter character",
+          "comment_label": "Comment",
+          "comment_info": "Optional. The comment character at the start of a line to use when parsing CSV. No comment character is set by default.",
+          "overwrite_label": "Overwrite codes",
+          "overwrite_description": "Overwrite existing IR codes with the same key.",
+          "state": {
+            "success": "Upload success",
+            "error": "Upload failed"
+          },
+          "upload": "Upload",
+          "done": "Done"
+        }
+      },
+      "user_interface": {
+        "intro": "Customize your remote pages by adding widgets to the screen or editing the button configuration."
+      },
+      "button_mapping": {
+        "instruction": "Customize your remote pages by adding widgets to the screen or editing the button configuration."
+      },
+      "change_device_profile": {
+        "title": "Change device profile",
+        "message": "Device profiles have default button mappings and UI configuration. When changing a device profile you can choose to reset the mapping and configuration and restore the configuration provided by the device profile.",
+        "reset_button_mapping": "Reset button mapping",
+        "reset_ui_configuration": "Reset UI configuration"
+      },
+      "color": {
+        "d": "Dark grey",
+        "s": "Silver"
+      },
+      "meta_label": {
+        "model_name": "Model name",
+        "model_number": "Model number",
+        "serial_number": "Serial number",
+        "revision": "Revision",
+        "color": "Color",
+        "system_version": "System version",
+        "core_version": "Core version",
+        "ui_version": "UI version",
+        "web_configurator_version": "Web Configurator version",
+        "wiFi_address": "WiFi address",
+        "bluetooth_address": "Bluetooth address"
+      }
+    },
+    "device": {
+      "add_device": {
+        "title": "Add new device",
+        "discover": {
+          "discovering": "Discovering integrations",
+          "discovered_integration_one": "{{count}} integration available",
+          "discovered_integration_other": "{{count}} integrations available",
+          "no_integration_discovered": "No integration discovered"
+        },
+        "menu_list": {
+          "infrared": {
+            "title": "Infrared",
+            "description": "Add an IR dataset for your infrared device or learn your old remote’s commands."
+          },
+          "bluetooth": {
+            "description": "Pair with a Bluetooth device as a keyboard/mouse."
+          },
+          "dock": {
+            "title": "Dock",
+            "description": "Add an Unfolded Circle smart dock or a compatible device."
+          }
+        }
+      }
+    },
+    "customise_remote": {
+      "tab": {
+        "pages": "Pages",
+        "icons": "Icons",
+        "tv_channels": "TV channels",
+        "backgrounds": "Backgrounds"
+      },
+      "pages": {
+        "add_page_title": "Add your first page",
+        "add_page_descr": "Create pages for every room, device type or just organise your devices the way you want.",
+        "remote": {
+          "description": "This is a page preview. You can click on the icons to turn devices on or off."
+        },
+        "your_pages": "Your pages",
+        "options": {
+          "edit_contents": "Edit contents",
+          "rename": "Rename",
+          "replace_background": "Replace background",
+          "add_background": "Add background",
+          "remove_background": "Remove background",
+          "duplicate": "Duplicate",
+          "delete": "Delete"
+        },
+        "delete_page": {
+          "title": "Delete page",
+          "question": "Are you sure you want to delete the page {{name}}?"
+        },
+        "delete_item": {
+          "title": "Delete item",
+          "question": "Are you sure you want to delete the item?"
+        },
+        "remove_background": {
+          "title": "Remove background",
+          "question": "Are you sure you want to remove the background?"
+        },
+        "no_pages": "You don’t have any pages yet.",
+        "paste": {
+          "errors": {
+            "not_fully_completed": "Paste operation could not be fully completed.",
+            "no_available_command": "Paste operation cannot be completed."
+          }
+        },
+        "merge": {
+          "errors": {
+            "not_fully_completed": "Merge operation could not be fully completed.",
+            "no_available_command": "Merge operation cannot be completed."
+          }
+        }
+      },
+      "options": {
+        "description": "Customize your page by adding entities or groups to the screen or editing the button configuration.",
+        "description_options": "Choose one of the options below to get started.",
+        "rearrange_items": "You can rearrange items on a page by simply dragging and dropping on the right. To remove an item, select delete from options.",
+        "list": {
+          "add_entities": "Add entities",
+          "add_groups": "Add groups",
+          "configure_buttons": "Configure buttons"
+        },
+        "no_items": "You don’t have any items yet."
+      },
+      "rename_page": "Rename page",
+      "add_entities": {
+        "title": "Add entities"
+      },
+      "add_groups": {
+        "title": "Add groups"
+      }
+    },
+    "software_update": {
+      "title": "Software update",
+      "state": {
+        "up_to_date": "Your software is up to date.",
+        "available_software": "A new software is available.",
+        "available_softwares": "New software is available.",
+        "available_dock_firmware": "New dock firmware is available.",
+        "check_for_update": "Checking for update.",
+        "check_error": "Could not check for updates. Please try again later."
+      },
+      "check": {
+        "error_status": {
+          "401": "Invalid authentication for the configured software update channel.",
+          "503": "Online update service is currently not available. Try again later."
+        }
+      },
+      "min_battery": "Battery must be at least 50% for updates. Please charge and try again.",
+      "up_to_date": {
+        "check_for_update": "Check for update",
+        "system_version": "System version"
+      },
+      "new_version": {
+        "title": "New version",
+        "system_version": "System version"
+      },
+      "release_notes": {
+        "title": "Release notes"
+      },
+      "check_updates": {
+        "title": "Check for updates",
+        "description": "Automatically check for updates."
+      },
+      "auto_update": {
+        "title": "Auto update",
+        "description": "Automatically update the remote when new software is available."
+      },
+      "beta_updates": {
+        "title": "Beta updates",
+        "description": "Install and try pre-release software. Your input helps us improve the stability and performance of future releases.",
+        "modal": {
+          "title": "Beta updates",
+          "disclaimer": "### Beta Firmware Update Disclaimer\n**Attention: the Remote must be restarted after enabling or disabling beta updates!**\n\nBy enabling beta firmware updates, you acknowledge and accept the following: \n\n1. Data Loss and Factory Reset.  \n   Beta firmware updates may result in data loss and necessitate a factory reset of your device.\n   It is recommended to back up all essential data before proceeding with beta firmware installation.\n\n2. Use at Your Own Risk.  \n   Beta firmware updates may contain bugs and unfinished or unstable features.\n   We advise against installing beta software on devices used daily.\n\n3. Support & Feedback.  \n   We can't provide support for beta software. While support may be limited, we encourage users to provide feedback,\n   report bugs, and share their experiences with beta firmware updates.\n   Your input helps us improve the stability and performance of future releases.\n\nPlease note that issues can only be opened on GitHub with the appropriate tagging specifying it as a beta issue and providing the beta version number.\nThis ensures that feedback and bug reports are directed to the appropriate channels for beta testing purposes.\n\nBy proceeding with the installation of beta firmware updates, you agree to abide by the terms outlined in this disclaimer.\nWe appreciate your understanding and cooperation in helping us enhance our products and services.",
+          "disabling": "The Remote must be restarted after disabling beta updates!"
+        }
+      },
+      "status": {
+        "DOWNLOAD": "Download",
+        "DOWNLOADING": "Downloading",
+        "DOWNLOADED": "Downloaded",
+        "START": "Start",
+        "PENDING": "Pending"
+      },
+      "success": {
+        "title": "Update success",
+        "description": "The remote will reboot in a second."
+      },
+      "fail": {
+        "title": "Update could not be completed. Please try again later.",
+        "description": "There was an error during installing the update."
+      },
+      "progress": {
+        "title": "Update in progress",
+        "step": "Step {{current}} / {{total}}",
+        "do_not_turn_off": "Do not turn off the remote during the installation process!"
+      },
+      "reload": {
+        "title": "Your system has been updated",
+        "description": "Your remote has been updated to version {{version}}. The Web Configurator needs to be reloaded. Please click on the Reload button below or refresh your web browser."
+      }
+    },
+    "language_text": {
+      "popup_delete": {
+        "title": "Delete language text",
+        "question": "Are you sure you want to delete the language text?"
+      }
+    },
+    "battery_status": {
+      "value": {
+        "FULL": "charged",
+        "CHARGING": "charging",
+        "NOT_CHARGING": "not charging",
+        "DISCHARGING": "discharging",
+        "LOW_BATTERY": "low battery",
+        "undefined": "unknown"
+      }
+    },
+    "quick_tips": {
+      "tip1": {
+        "headline": "Integrations",
+        "body": "Entities are not automatically configured after adding a new integration. On the integration screen, click the + button above the list of configured entities and select which of the available entities you want to include."
+      },
+      "tip2": {
+        "headline": "Translations",
+        "body": "The Web Configurator has been translated into Danish, Dutch, French, German, Swiss German, Hungarian, and Italian. Additional translations are currently being prepared on SimpleLocalize and will be available soon."
+      },
+      "tip3": {
+        "headline": "Custom integrations",
+        "body": "You can use the 'Add new' button on the Integrations screen to upload up to 10 custom integrations. This is currently a preview feature, and custom integrations are not included in backups."
+      },
+      "tip4": {
+        "headline": "Updating a custom integration",
+        "body": "Installed custom integrations can now be updated in the upload dialog by selecting the \"Update\" checkbox. Existing entities will no longer be removed from the UI pages. If a custom integrations cannot yet be updated, please contact the integration's developer."
+      },
+      "tip5": {
+        "headline": "Backups",
+        "body": "Backup archives contain configuration settings only. Please note that archives are not encrypted and may contain sensitive information. Custom integrations are not included in backups."
+      },
+      "tip6": {
+        "headline": "Recently added features",
+        "body": "2.9.3 Updating custom integrations | 2.9.0 Media browsing, searching and playback | 2.8.3 Select-entity | 2.8.2 Android TV voice commands | 2.8.1 Initial support for Home Assistant voice commands"
+      }
+    },
+    "icons": {
+      "title": "Icons",
+      "default": "Default",
+      "custom": "Custom",
+      "tv_channels": "TV channels"
+    },
+    "resource": {
+      "tap_to": "Tap to upload",
+      "drag_image": "Drag an image here",
+      "or": "or",
+      "browse": "Browse",
+      "uploading": "Uploading...",
+      "invalid_formats": "Some files are unsupported. Please check them.",
+      "invalid_dimensions": "Invalid image dimensions. Please upload images with size {{width}}x{{height}}px.",
+      "delete_items": {
+        "title_one": "Remove item",
+        "title_other": "Remove items",
+        "question_one": "Are you sure you want to delete the item?",
+        "question_other": "Are you sure you want to delete the items?"
+      },
+      "upload": {
+        "error_status": {
+          "507": "There is insufficient storage to store the resource."
+        }
+      }
+    },
+    "tv_channels": {
+      "title": "TV channels"
+    },
+    "edit": {
+      "entity": "Edit entity"
+    },
+    "error": {
+      "session_expired": "Session expired.",
+      "unknown_error": "Something went wrong.",
+      "chunk_load_failed": "Part of the app could not be loaded. Please check your connection and reload the page.",
+      "not_available": "Not available",
+      "NOT_FOUND": "Not found.",
+      "UNAUTHORIZED": "Unauthorized.",
+      "FORBIDDEN": "Forbidden.",
+      "BAD_REQUEST": "Bad request.",
+      "BAD_RESPONSE": "Bad response.",
+      "SERVICE_UNAVAILABLE": "Service unavailable.",
+      "ERR_NETWORK": "Network error.",
+      "ERR_BAD_REQUEST": "Bad request.",
+      "ERR_BAD_RESPONSE": "Bad response.",
+      "ERR_UNAUTHORIZED": "Unauthorized.",
+      "ERR_NOT_FOUND": "Not found.",
+      "ERR_INTERNAL_SERVER_ERROR": "Internal server issue. Please try later.",
+      "ERR_SERVICE_UNAVAILABLE": "Service unavailable.",
+      "ERR_CANCELED": "Network issue. Please check your connection and try again.",
+      "VALIDATION_ERROR": "Invalid data. Please correct it.",
+      "INVALID_FORMAT": "Unsupported format. Please use a supported format and try again.",
+      "TIMEOUT": "Timeout.",
+      "HAS_TIMEOUT": "There was a timeout.",
+      "NOT_IMPLEMENTED": "Not implemented.",
+      "ALREADY_EXISTS": "Already exists."
+    },
+    "api_errors": {
+      "error_status": {
+        "400": "Invalid request. Check your input.",
+        "401": "Not authenticated.",
+        "403": "Missing access rights.",
+        "404": "Resource not found.",
+        "408": "There was a timeout.",
+        "409": "Conflict, the operation is currently not allowed.",
+        "413": "Request entity is too large and not supported.",
+        "415": "Unsupported media type.",
+        "422": "Data already exists.",
+        "429": "Too many requests, please try later.",
+        "500": "Internal server error.",
+        "503": "Service is currently not available, please try later.",
+        "507": "Not enough disk space available."
+      },
+      "generic_error": "An unknown error occurred: "
+    },
+    "settings": {
+      "general": {
+        "remote_name": {
+          "label": "Remote name"
+        },
+        "about": {
+          "label": "About",
+          "description": "Information about your device",
+          "licenses": {
+            "label": "License information",
+            "title": "License information",
+            "error": "The license information could not be loaded."
+          }
+        },
+        "software_update": {
+          "label": "Software update",
+          "status": {
+            "up_to_date": "Your software is up to date.",
+            "available_software": "New software is available."
+          }
+        },
+        "backup": {
+          "label": "Backup",
+          "description": "Download and restore backups of your configuration."
+        },
+        "ir_dataset": {
+          "label": "IR dataset",
+          "description": "Download your custom IR datasets."
+        },
+        "download": {
+          "description": "Click the download button to download a backup of your current configuration. Custom integrations are not backed up."
+        },
+        "restore": {
+          "label": "Restore",
+          "description": "Select a backup to restore. Only files with a .backup extension are supported.",
+          "dialog": {
+            "title": "Restore backup",
+            "question": "Are you really sure to restore a backup? This will delete your existing configuration."
+          },
+          "message": {
+            "restoring_backup": "Restoring backup"
+          },
+          "error_status": {
+            "400": "Backup archive is invalid or corrupt. Check logs for further details.",
+            "403": "Forbidden, only an administrator account may restore a backup.",
+            "409": "A backup or restore process is already running.",
+            "500": "Internal server error, the backup archive could not be processed. Check logs for further details.",
+            "507": "Not enough disk space available."
+          }
+        },
+        "reboot": {
+          "dialog": {
+            "title": "Reboot device",
+            "question": "Please reboot device to load restored configuration!"
+          }
+        }
+      },
+      "display": {
+        "auto_brightness": "Auto brightness",
+        "auto_brightness_description": "Automatically adjust the display brightness based on ambient lighting conditions.",
+        "display_brightness": "Display brightness",
+        "button_backlight": "Button backlight",
+        "button_backlight_color": {
+          "label": "Button backlight color",
+          "dialog": {
+            "title": "Reset color",
+            "question": "Reset button backlight color to white?"
+          }
+        },
+        "button_backlight_description": "When on, button backlight will automatically turn on in a dark room.",
+        "button_brightness": "Button backlight brightness"
+      },
+      "sound_haptic": {
+        "sound_effects": "Sound effects",
+        "sound_effects_description": "Enable sound effects",
+        "sound_effects_volume": "Sound effects volume",
+        "haptic_feedback": "Haptic feedback",
+        "haptic_feedback_description": "Enable haptic feedback"
+      },
+      "voice_control": {
+        "voice_control": "Voice control",
+        "voice_control_description": "Disabling voice control will still let you use voice dictation with integrations.",
+        "microphone": "Microphone",
+        "microphone_description": "Disabling the microphone will also disable the voice assistant.",
+        "voice_assistant": {
+          "title": "Voice assistant",
+          "select": "Select Voice Assistant",
+          "description": {
+            "base": "Select a voice assistant that will handle the voice commands on the remote.",
+            "no_items": "No voice assistants available"
+          },
+          "support_link": "Using Voice Assistants",
+          "profile": {
+            "title": "Voice Assistant Profile",
+            "select": "Select Voice Assistant Profile"
+          }
+        }
+      },
+      "wifi_bluetooth": {
+        "bluetooth": {
+          "current_version": "Current version",
+          "advertisement_name": "Advertisement name",
+          "peripheral_connections": {
+            "label": "Peripheral connections",
+            "description": "Number of simultaneous Bluetooth connections."
+          },
+          "hci_logs": {
+            "label": "Enable HCI logs",
+            "description": "Host Controller Interface logging."
+          }
+        },
+        "wifi": "WiFi",
+        "wifi_scanning": {
+          "label": "Active WiFi scanning",
+          "description": "Actively scan for nearby WiFi networks in the configured interval."
+        },
+        "wifi_band": {
+          "label": "WiFi band",
+          "option": {
+            "auto": "Auto"
+          }
+        }
+      },
+      "admin_password": {
+        "description": "The administrator password is used to switch from restricted profiles.",
+        "pass_not_match": "The passwords don’t match."
+      },
+      "development": {
+        "logs": {
+          "label": "Logs",
+          "description": "Download logs for integrations and the system.",
+          "services": {
+            "label": "Services",
+            "description": "Select a service to download the logs for."
+          },
+          "priority": {
+            "label": "Priority",
+            "description": "Select the log priority level. Debug gives you everything, while crit shows critical errors."
+          },
+          "boot_id": {
+            "label": "Boot id",
+            "description": "Leave blank if you don’t know what this is."
+          },
+          "date_range": {
+            "label": "Date range",
+            "description": "Select a specific date range to filter log entries."
+          },
+          "log_entries": {
+            "label": "Number of log entries",
+            "description": "Limit the number of log entries."
+          },
+          "search_string": {
+            "label": "Search string",
+            "description": "Enter any string to search in the logs."
+          }
+        },
+        "preview_features": {
+          "label": "Preview features",
+          "description": "Enable preview features which are currently being tested or not yet fully developed."
+        },
+        "restart_remote": {
+          "label": "Restart remote",
+          "description": "The remote must be restarted after changing a preview feature."
+        }
+      },
+      "localization": {
+        "language": "Language",
+        "country": "Country",
+        "timezone": "Timezone",
+        "time_format": "24 hour time",
+        "unit_system": "Unit system"
+      },
+      "logs": {
+        "name": "Logs"
+      },
+      "power_saving": {
+        "wake_on_wlan": {
+          "label": "Keep WiFi connected in standby",
+          "description": "Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decrease battery life."
+        },
+        "wakeup_sensitivity": {
+          "label": "Wakeup sensitivity",
+          "description": "Amount of movement needed to wake up the remote.",
+          "level": {
+            "off": "off",
+            "low": "low",
+            "medium": "medium",
+            "high": "high"
+          }
+        },
+        "display_timeout": {
+          "label": "Display timeout",
+          "description": "Time after the display turns off."
+        },
+        "sleep_timeout": {
+          "label": "Sleep timeout",
+          "description": "Time after the remote enters power saving mode."
+        }
+      },
+      "factory_reset": {
+        "description": "Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?",
+        "button": "Erase everything",
+        "config": {
+          "title": "Point of no return",
+          "description": "Confirming factory reset will erase all configuration and data. It will not be possible to restore anything."
+        }
+      },
+      "application_credentials": {
+        "description": "OAuth is used to grant the Remote secure delegated access to information on other websites without revealing your personal credentials."
+      }
+    },
+    "ent_list": {
+      "paging": {
+        "showing": "Showing {{items}} of {{total}}",
+        "items_total": "{{items}} of {{total}}",
+        "items_per_page": "Items per page:"
+      }
+    },
+    "command": {
+      "delay": "Delay",
+      "remove": "Remove",
+      "assign": {
+        "title": "Assign command",
+        "showing_all_commands": "Showing all commands",
+        "select_an_entity": "Select an entity to see its commands."
+      }
+    },
+    "remote_status": {
+      "extend_timeout": {
+        "title": "Your remote is going to sleep",
+        "question": "The remote is going to sleep in {{seconds}} seconds. If you’d like to keep using the Web Configurator, you can extend the timeout by clicking on Extend."
+      }
+    },
+    "sleep_timeout": {
+      "title": "Sleep timeout",
+      "info_prevent": "You can prevent the remote from going to sleep by clicking on Prevent sleep or remove the timeout by clicking on the delete icon.",
+      "info_charging": "The remote is connected to a power supply and won’t go to sleep.",
+      "prevent_sleep_for": {
+        "label": "Prevent sleep for",
+        "unit": "min",
+        "action": "Prevent sleep for {{minutes}} minutes"
+      },
+      "going_to_sleep": "Going to sleep in",
+      "dialog": {
+        "delete_inhibitor": {
+          "title": "Delete standby inhibitor",
+          "question": "Are you sure you want to delete the standby inhibitor?"
+        }
+      }
+    },
+    "application_credentials": {
+      "add": {
+        "title": "Add Application Credentials",
+        "description": "OAuth is used to grant the Remote secure delegated access to information on other websites without revealing your personal credentials.",
+        "learn_more": "Click here to learn more.",
+        "integration": "Integration",
+        "name": "Name",
+        "client_id": {
+          "label": "OAuth client ID",
+          "description": "Public identifier of the OAuth application"
+        },
+        "client_secret": {
+          "label": "OAuth client secret",
+          "description": "Secret of the OAuth application"
+        }
+      },
+      "list": {
+        "name": "Name",
+        "integration": "Integration",
+        "client_id": "OAuth client ID"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Delete Application credential",
+          "question": "Are you sure you want to delete the Application credential?"
+        }
+      }
+    },
+    "no_results": {
+      "title": "No results found",
+      "instruction": "Try something else"
+    },
+    "media_browse": {
+      "error_status": {
+        "400": "Media browsing failed.",
+        "409": "Media browsing failed.",
+        "503": "Media browsing is not available."
+      }
+    },
+    "media_class": {
+      "album": "Album",
+      "app": "App",
+      "artist": "Artist",
+      "channel": "Channel",
+      "composer": "Composer",
+      "directory": "Directory",
+      "episode": "Episode",
+      "game": "Game",
+      "genre": "Genre",
+      "image": "Image",
+      "movie": "Movie",
+      "music": "Music",
+      "playlist": "Playlist",
+      "podcast": "Podcast",
+      "radio": "Radio",
+      "season": "Season",
+      "track": "Track",
+      "tv_show": "TV Show",
+      "video": "Video"
+    }
+  }
+}

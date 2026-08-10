@@ -1,0 +1,217 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.page-devices {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 2.1875rem);
+  margin-top: 2.1875rem;
+  padding-top: 2.1875rem;
+  border-radius: 1rem;
+  padding: 1.875rem;
+  background: var(--uc-bg-bg-surface-1);
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    background: transparent;
+  }
+
+  &::before {
+    position: absolute;
+    content: "";
+    left: 0.625rem;
+    bottom: 0;
+    height: calc(100% - 4.375rem);
+    width: calc(100% - 1.25rem);
+    background: var(--uc-bg-bg-surface-1);
+    border-radius: 1rem 1rem 0 0;
+
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      display: none;
+    }
+  }
+
+  .page-mobile-header {
+    margin-bottom: 0.625rem;
+  }
+
+  &__tools {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    flex-direction: row;
+    margin-bottom: 2.5rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      position: relative;
+      padding-top: 3.75rem;
+
+      .tab-menu {
+        position: absolute;
+        left: 0.625rem;
+        top: 0;
+      }
+
+      &__filter__options {
+        position: absolute;
+        right: 0.625rem;
+        top: 0;
+
+        .dropdown-menu {
+          &--open {
+            z-index: var(--uc-vselect-z-index);
+          }
+        }
+      }
+    }
+
+    .button-group {
+      max-height: 2.5rem;
+      top: 0.25rem;
+    }
+
+    .tab-menu {
+      @media screen and (max-width: variables.$bp-tablet) {
+        .vs__dropdown-menu {
+          left: 0;
+          margin-left: 0;
+        }
+      }
+    }
+
+    &__filter {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 20.5rem;
+      margin-left: 1.875rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        max-width: calc(100% - 3.75rem);
+      }
+
+      &__search {
+        position: relative;
+        display: flex;
+        max-width: 20rem;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          margin-top: 1.875rem;
+        }
+
+        @media screen and (max-width: variables.$bp-phone) {
+          max-width: 100%;
+        }
+
+        .filter-dropdown {
+          position: absolute;
+          top: 0.25rem;
+          right: 0.75rem;
+
+          &--open {
+            @media screen and (max-width: variables.$bp-phone) {
+              z-index: var(--uc-vselect-z-index);
+            }
+          }
+        }
+      }
+
+      &__tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.625rem;
+
+        &:has(div) {
+          margin-top: 1rem;
+        }
+      }
+
+      &__options {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        gap: 1.25rem;
+        margin-left: auto;
+        margin-right: 0;
+
+        .button--icon {
+          max-height: 2.25rem;
+          min-height: 2.25rem;
+          width: 2.25rem;
+        }
+      }
+    }
+  }
+
+  // Slot availability caption. Its own row rather than a child of `__tools`:
+  // that row re-stacks below $bp-tablet with the tab menu and the button group
+  // absolutely positioned, so only a sibling keeps the same reading order at
+  // every breakpoint.
+  &__tools:has(+ .page-devices__slots) {
+    margin-bottom: 1.25rem;
+  }
+
+  &__slots {
+    @include mixins.body-small;
+    // Positioned for the same reason `__body` is: the mobile card background is
+    // drawn by `.page-devices::before`, which would otherwise paint over an
+    // in-flow block and hide this line entirely.
+    position: relative;
+    width: 100%;
+    margin-bottom: 1.25rem;
+    color: var(--uc-text-text-secondary);
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      padding-left: 1.875rem;
+    }
+  }
+
+  &__body {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    width: calc(100% + 0.5rem);
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      left: 1.875rem;
+      width: calc(100% - 3.75rem);
+      padding-bottom: 1.875rem;
+    }
+
+    &__inner {
+      display: flex;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        height: calc(100% - 1.875rem);
+      }
+    }
+  }
+
+  @media screen and (max-width: variables.$bp-laptop) {
+    margin-top: 0;
+    height: 100%;
+  }
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    @include mixins.subpage-mobile;
+    margin-top: 0;
+  }
+}
+
+.page-edit-entity {
+  height: 100%;
+
+  &__main {
+    height: 100%;
+    @include mixins.card-minimal;
+  }
+
+  .button-toggle {
+    min-width: 10.75rem;
+  }
+}

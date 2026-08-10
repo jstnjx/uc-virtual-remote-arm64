@@ -1,0 +1,65 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+// Edit activity - button mapping
+// Edit remote - button mapping
+.ea-button-mapping,
+.er-button-mapping {
+  // position: relative;
+  // display: flex;
+  // flex-direction: row;
+  // width: 100%;
+  // height: 100%;
+  // justify-content: space-around;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 40%;
+    padding: 1.875rem 0 0.25rem 1.875rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      width: 100%;
+      padding-right: 0;
+      padding-bottom: 0;
+      flex: 1;
+      padding: 1.25rem 0 0.25rem 1.25rem;
+    }
+
+    &::before {
+      position: absolute;
+      content: "";
+      right: 0;
+      top: 1.25rem;
+      height: calc(100% - 2.5rem);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &__remote {
+    position: relative;
+    width: 60%;
+    height: 100%;
+    display: flex;
+    align-self: flex-end;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 1.88rem;
+    padding-right: 1.88rem;
+    gap: 1.88rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: none;
+    }
+
+    .remote-controller {
+      margin-top: variables.$rc-button-mapping-offset;
+
+      &--v2 {
+        margin-top: variables.$rc-button-mapping-offset-v2;
+      }
+    }
+  }
+}

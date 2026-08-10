@@ -1,0 +1,208 @@
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.customise-remote-options {
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    p {
+      @include mixins.body-large;
+      color: var(--uc-text-text-secondary);
+
+      @media screen and (max-width: variables.$bp-phone) {
+        @include mixins.body-small;
+      }
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.62rem;
+
+    // @media screen and (max-width: $bp-tablet) {
+    //   position: fixed;
+    //   left: 0;
+    //   top: 0;
+    //   width: 100vw;
+    //   padding: 0.625rem;
+    //   justify-content: space-between;
+    // }
+
+    .vs__dropdown-toggle {
+      @media screen and (max-width: variables.$bp-tablet) {
+        background: var(--uc-theme-color-20);
+      }
+    }
+  }
+
+  &__footer {
+    margin-bottom: 1.25rem;
+
+    @media screen and (max-width: 1200px) {
+      display: none;
+    }
+
+    p {
+      @include mixins.body-extrasmall;
+      color: var(--text-text-secondary);
+    }
+  }
+
+  &__back {
+    &--desktop {
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: none;
+      }
+    }
+
+    &--mobile {
+      position: fixed;
+      left: 0.625rem;
+      top: 0.6375rem;
+      z-index: 1200;
+
+      @media screen and (min-width: variables.$bp-tablet-plus) {
+        display: none;
+      }
+
+      &--in-background {
+        opacity: 0.2;
+        cursor: default;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+    }
+  }
+
+  &__page-select {
+    &--desktop {
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: none;
+      }
+    }
+
+    &--mobile {
+      position: fixed;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      width: calc(100vw - 18rem);
+      left: 3.875rem;
+      top: 0.5rem;
+      z-index: 1200;
+      background-color: var(--uc-black);
+
+      @media screen and (min-width: variables.$bp-laptop-plus) {
+        display: none;
+      }
+
+      @media screen and (max-width: variables.$bp-phone) {
+        width: calc(100vw - 12rem);
+        left: 3.25rem;
+      }
+
+      .vs__dropdown-toggle {
+        background: var(--uc-theme-color-30);
+        width: fit-content;
+
+        .vs__selected {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        @media (pointer: fine) {
+          &:hover {
+            color: var(--uc-white);
+            background: var(--uc-theme-color-40);
+
+            .vs__selected {
+              color: var(--uc-white);
+            }
+
+            .vs__actions::after {
+              color: var(--uc-white);
+            }
+          }
+        }
+      }
+
+      &--in-background {
+        &::after {
+          position: absolute;
+          content: "";
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.6);
+          cursor: default;
+          pointer-events: none;
+          transition: background-color 0.2s;
+        }
+      }
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      gap: 0.625rem;
+    }
+
+    button {
+      gap: 1.25rem;
+      width: 100%;
+      border-radius: 0.5rem;
+
+      img {
+        width: 100%;
+        aspect-ratio: 33 / 10;
+
+        @media screen and (max-width: variables.$bp-phone) {
+          display: none;
+        }
+      }
+
+      span {
+        @include mixins.body-large;
+        color: var(--uc-theme-color-80);
+      }
+
+      @media screen and (min-width: variables.$bp-phone-plus) {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 12.375rem;
+        padding: 1.25rem;
+        background: var(--uc-theme-color-30);
+        border-color: transparent;
+      }
+
+      @media screen and (max-width: variables.$bp-phone) {
+        flex-basis: calc(50% - 2.125rem);
+        border-radius: 1.875rem;
+      }
+
+      @media (pointer: fine) {
+        &:hover {
+          background: var(--uc-foreground);
+          border-color: var(--uc-foreground);
+
+          span {
+            color: var(--uc-forbackgroundeground);
+          }
+        }
+      }
+    }
+  }
+}

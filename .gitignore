@@ -1,0 +1,16 @@
+node_modules/
+data/*
+test/*
+!data/.gitkeep
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.DS_Store
+*.zip
+.env
+.env.*
+!.env.example
+
+/web-configurator-build/
+/web-configurator-source/
+/.cache/

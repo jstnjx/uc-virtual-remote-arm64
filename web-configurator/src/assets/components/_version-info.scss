@@ -1,0 +1,6 @@
+@use "../base/mixins";
+
+.version-info {
+  @include mixins.secondary-body-small;
+  color: var(--uc-theme-color-60);
+}

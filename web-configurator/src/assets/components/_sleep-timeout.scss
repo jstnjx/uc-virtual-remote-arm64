@@ -1,0 +1,117 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.sleep-timeout {
+  @include mixins.dropdown;
+  width: 20rem;
+  max-width: 94vw;
+  padding: 1.25rem;
+  outline: none;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: -2px;
+  right: -2px;
+  gap: 0.25rem;
+
+  &.opened {
+    z-index: 51;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: var(--uc-vselect-z-index);
+    }
+  }
+
+  .select-extra__label {
+    @include mixins.body-small;
+  }
+
+  &__title {
+    @include mixins.body-large;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: var(--uc-white);
+    min-height: 1.625rem;
+    margin-bottom: 1.4rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__info {
+    @include mixins.body-small;
+  }
+
+  &__charging {
+    display: flex;
+    width: fit-content;
+    height: 3.125rem;
+    padding: 0.25rem 1rem 0.25rem 0.75rem;
+    align-items: center;
+    border-radius: 1.875rem;
+    border: 1px solid var(--uc-buttons-secondary-button-secondary-disabled-bg);
+    text-transform: capitalize;
+    color: var(--uc-success-success);
+
+    i {
+      font-size: 0.75rem;
+      margin-right: 0.75rem;
+    }
+
+    span {
+      @include mixins.menuitem;
+    }
+  }
+
+  &__timer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    margin-top: -0.625rem;
+
+    &__label {
+      @include mixins.body-small;
+      margin-left: 0;
+      margin-right: auto;
+      color: var(--uc-text-text-primary);
+    }
+
+    &__value {
+      @include mixins.body-small;
+    }
+  }
+
+  .button-close {
+    position: absolute;
+    display: none;
+    top: 1.25rem;
+    right: 1.25rem;
+    display: inline-flex;
+  }
+}
+
+.sleep-timeout-background {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 50;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    z-index: var(--uc-vselect-z-index);
+  }
+}

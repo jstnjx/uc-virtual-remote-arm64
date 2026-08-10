@@ -1,0 +1,81 @@
+/*
+ * Modified by Justin Jäger for the Unfolded.Tools Remote Simulator.
+ * Modified: 2026-08-03.
+ * GNU GPL v3.0 only; see MODIFICATIONS.md.
+ */
+@use "../vars/variables";
+
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 200;
+  src:
+    local("Poppins-ExtraLight"),
+    url("/fonts/poppins/poppins-latin-ext_latin-extralight.woff2")
+      format("woff2"),
+    url("/fonts/poppins/poppins-latin-ext_latin-extralight.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 300;
+  src:
+    local("Poppins-Light"),
+    url("/fonts/poppins/poppins-v20-latin-ext_latin-300.woff2") format("woff2"),
+    url("/fonts/poppins/poppins-v20-latin-ext_latin-300.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local("Poppins-Regular"),
+    url("/fonts/poppins/poppins-v20-latin-ext_latin-regular.woff2")
+      format("woff2"),
+    url("/fonts/poppins/poppins-v20-latin-ext_latin-regular.woff")
+      format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  src:
+    local("Poppins-Medium"),
+    url("/fonts/poppins/poppins-latin-ext_latin-medium.woff2") format("woff2"),
+    url("/fonts/poppins/poppins-latin-ext_latin-medium.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local("Space Mono-Regular"),
+    url("/fonts/space-mono/space-mono-v11-latin-ext_latin-regular.woff2")
+      format("woff2"),
+    url("/fonts/space-mono/space-mono-v11-latin-ext_latin-regular.woff")
+      format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 700;
+  src:
+    local("Space Mono-Bold"),
+    url("/fonts/space-mono/space-mono-v11-latin-ext_latin-700.woff2")
+      format("woff2"),
+    url("/fonts/space-mono/space-mono-v11-latin-ext_latin-700.woff")
+      format("woff");
+  font-display: swap;
+}
+

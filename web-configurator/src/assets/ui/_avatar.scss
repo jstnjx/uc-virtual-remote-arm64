@@ -1,0 +1,159 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.avatar-element {
+  @include mixins.card-minimal;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 0.625rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all variables.$transition-bg-timing;
+
+  @media (pointer: fine) {
+    &:hover {
+      background-color: var(--uc-theme-color-10);
+      transition: all variables.$transition-bg-timing;
+    }
+  }
+
+  img {
+    width: 5.625rem;
+    height: 5.625rem;
+    border-radius: 50%;
+  }
+
+  .icon-container {
+    width: 5.625rem;
+    height: 5.625rem;
+    font-size: 2.25rem;
+    border-radius: 50%;
+  }
+
+  &__name {
+    @include mixins.heading-4;
+
+    & {
+      display: inline-block;
+      text-align: center;
+      color: var(--uc-white);
+      margin-top: 0.75rem;
+    }
+
+    &--small {
+      font-size: 1rem;
+    }
+  }
+
+  &__state {
+    position: absolute;
+    top: 1.25rem;
+    left: calc(50% + 2.8rem);
+    transform: translate(-50%, 0);
+    -webkit-transform: translate(-50%, 0);
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 2;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      left: calc(50% + 1.75rem);
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+    width: 1.875rem;
+    height: 1.875rem;
+    font-size: 1rem;
+    color: var(--uc-background);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 1.25rem;
+      height: 1.25rem;
+      font-size: 0.75rem;
+    }
+
+    &--check {
+      background-color: var(--uc-success-success);
+    }
+
+    &--lock {
+      background-color: var(--uc-theme-color-90);
+    }
+  }
+
+  &__action {
+    position: absolute;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+
+    &--edit {
+      top: 0.35rem;
+      left: 0.35rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      font-size: 0.65rem;
+      border-radius: 0.25rem;
+      background-color: var(--uc-theme-color-40);
+    }
+  }
+
+  @media (pointer: fine) {
+    &:hover {
+      .avatar-element--action {
+        display: flex;
+      }
+    }
+  }
+
+  // Small avatar
+  &--small {
+    padding: 0.625rem;
+
+    img {
+      width: 3.75rem;
+      height: 3.75rem;
+    }
+
+    .icon-container {
+      width: 3.75rem;
+      height: 3.75rem;
+      font-size: 1.5rem;
+    }
+
+    .avatar-element {
+      &__name {
+        @include mixins.body-small;
+        margin-top: 0.6rem;
+
+        &--small {
+          font-size: 0.65rem;
+        }
+      }
+
+      &__state {
+        top: 0.62rem;
+        left: calc(50% + 1.8rem);
+        transform: translate(-50%, 0);
+        -webkit-transform: translate(-50%, 0);
+        gap: 0.2rem;
+      }
+
+      &__icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 0.75rem;
+      }
+    }
+  }
+}

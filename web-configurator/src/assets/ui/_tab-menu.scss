@@ -1,0 +1,123 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.tab-menu {
+  width: 100%;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: none;
+    }
+
+    &__item {
+      @include mixins.menuitem;
+      display: flex;
+      padding: 0.75rem 1rem;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      border-radius: 3.75rem;
+      color: var(--uc-theme-color-70);
+      cursor: pointer;
+
+      i {
+        font-size: 1.5rem;
+      }
+
+      @media (pointer: fine) {
+        &:hover {
+          color: var(--uc-foreground);
+        }
+      }
+
+      &.active {
+        background: var(--uc-theme-color-20);
+        color: var(--uc-foreground);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+      }
+
+      &.disabled {
+        @include mixins.menuitem;
+        cursor: default;
+        color: var(--uc-theme-color-70);
+        pointer-events: none;
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .tab-menu__select {
+    display: none;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: flex;
+      z-index: var(--uc-vselect-z-index);
+    }
+
+    .vs__dropdown-toggle {
+      background: var(--uc-buttons-secondary-button-secondary-bg);
+    }
+
+    .vs__dropdown-option {
+      &--selected {
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &--compact {
+    width: fit-content;
+    height: 2.5rem;
+
+    .tab-menu {
+      &__list {
+        gap: 0.625rem;
+        border-radius: 2.5rem;
+        background: rgba(0, 0, 0, 0.8);
+
+        @media screen and (max-width: 420px) {
+          gap: 0.125rem;
+        }
+
+        &__item {
+          color: var(--uc-text-text-secondary);
+
+          @media screen and (max-width: 420px) {
+            padding: 0.75rem 0.625rem;
+          }
+
+          &.active {
+            color: var(--uc-background);
+            background: var(--uc-foreground);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            cursor: default;
+          }
+        }
+      }
+    }
+  }
+
+  &--no-responsive {
+    .tab-menu__list {
+      display: flex;
+    }
+
+    .tab-menu__select {
+      display: none;
+    }
+  }
+}

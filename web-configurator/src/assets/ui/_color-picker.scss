@@ -1,0 +1,64 @@
+@use "../vars/variables";
+
+.color-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__trigger {
+    width: 1.875rem;
+    height: 1.875rem;
+    min-height: 1.875rem;
+    border-radius: 50%;
+    padding: 0;
+    border: 0;
+  }
+
+  canvas {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__selector {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--uc-background);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+.color-picker-modal {
+  z-index: var(--uc-vselect-z-index);
+
+  .modal-secondary {
+    &__header {
+      font-size: 1rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    &__body {
+      position: relative;
+      margin-left: 1.25rem;
+      margin-right: 1.25rem;
+      overflow: visible;
+    }
+
+    &__container {
+      padding-left: 0;
+      padding-right: 0;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        left: calc(50% - 8.125rem) !important;
+        top: 7.5rem !important;
+      }
+    }
+  }
+}

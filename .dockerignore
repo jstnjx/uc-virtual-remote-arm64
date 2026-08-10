@@ -1,0 +1,8 @@
+.git
+data
+test
+*.zip
+.DS_Store
+web-configurator-build
+web-configurator-source
+.cache

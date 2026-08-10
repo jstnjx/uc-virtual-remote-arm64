@@ -1,0 +1,117 @@
+@use "../base/mixins";
+
+.collapse-container {
+  border-radius: 0.5rem;
+  background: var(--uc-bg-bg-surface-1);
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.62rem;
+      padding: 0;
+      min-height: 2.875rem;
+      box-sizing: content-box;
+      @include mixins.secondary-body-small;
+      color: var(--uc-foreground);
+
+      .icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--uc-foreground);
+        width: 1.875rem;
+        height: 1.875rem;
+        font-size: 1.125rem;
+        margin-right: 0.62rem;
+
+        img {
+          width: 1.875rem;
+          height: 1.875rem;
+        }
+      }
+
+      & > label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .label-text {
+        display: -webkit-box;
+        align-items: center;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    transition: all 0.35s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--uc-foreground);
+
+    span {
+      @include mixins.body-small;
+    }
+
+    i {
+      font-size: 0.875rem;
+      color: var(--uc-foreground);
+      cursor: pointer;
+      transition: rotateX 0.3s ease-in;
+    }
+  }
+
+  &__body {
+    max-height: 14.5rem;
+    width: calc(100% + 0.35rem);
+    padding-top: 0.5rem;
+    padding-right: 0.35rem;
+    overflow: hidden;
+    overflow-y: scroll;
+    transition: all 0.35s;
+
+    @include mixins.scrollbar;
+
+    .form-item--checkbox-tick .toggle {
+      border-color: var(--uc-text-text-tertiary);
+    }
+  }
+
+  &.collapsed {
+    .collapse-container__header {
+      padding-bottom: 0;
+      transition: all 0.35s;
+      border-color: transparent;
+
+      i {
+        transform: rotateX(180deg);
+        transition: rotateX 0.3s ease-in;
+      }
+    }
+
+    .collapse-container__body {
+      max-height: 0;
+      padding-top: 0;
+      transition: all 0.35s;
+    }
+  }
+}

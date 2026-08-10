@@ -1,0 +1,120 @@
+name: Apply lighting refresh fix on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.ref == 'fix/integration-update-icon-remote-lighting'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/integration-update-icon-remote-lighting
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Apply source changes
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          root = Path.cwd()
+          edit_path = root / "web-configurator/src/components/integration/EditIntegration.vue"
+          edit = edit_path.read_text(encoding="utf-8")
+          pattern = re.compile(r'(<button[^>]*@click="updateInstalledIntegration"[^>]*>)(.*?)(</button>)', re.S)
+          match = pattern.search(edit)
+          if not match:
+              raise SystemExit("Update integration button not found")
+          body = match.group(2)
+          cleaned = re.sub(r'<(?:i|span)\b[^>]*(?:fa-|material-symbols|icon)[^>]*>.*?</(?:i|span)>', '', body, flags=re.S | re.I)
+          cleaned = re.sub(r'<UCIcon\b[^>]*/?>', '', cleaned, flags=re.S | re.I)
+          cleaned = re.sub(r'\n\s*\n', '\n', cleaned)
+          edit = edit[:match.start()] + match.group(1) + cleaned + match.group(3) + edit[match.end():]
+          edit_path.write_text(edit, encoding="utf-8")
+
+          simulator_path = root / "web-configurator/public/assets/ucvr-simulator.js"
+          simulator = simulator_path.read_text(encoding="utf-8")
+          if '    routeKey: "",\n' not in simulator:
+              anchor = '    refreshGeneration: 0,\n'
+              if anchor not in simulator:
+                  raise SystemExit("Simulator state anchor not found")
+              simulator = simulator.replace(anchor, anchor + '    routeKey: "",\n', 1)
+          function_anchor = '  function syncPageState(forceRefresh = false) {\n'
+          if function_anchor not in simulator:
+              raise SystemExit("syncPageState function not found")
+          if 'const routeChanged = routeKey !== state.routeKey;' not in simulator:
+              simulator = simulator.replace(
+                  function_anchor,
+                  function_anchor
+                  + '    const routeKey = `${window.location.pathname}${window.location.search}${window.location.hash}`;\n'
+                  + '    const routeChanged = routeKey !== state.routeKey;\n'
+                  + '    state.routeKey = routeKey;\n',
+                  1,
+              )
+          simulator, count = re.subn(
+              r'refresh\(true,\s*entering\s*\|\|\s*forceRefresh(?:\s*\|\|\s*routeChanged)?\)',
+              'refresh(true, entering || forceRefresh || routeChanged)',
+              simulator,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("Remote-tab refresh call not found")
+          simulator_path.write_text(simulator, encoding="utf-8")
+
+          test_path = root / "test/remote-lighting-route-refresh.test.js"
+          test_path.write_text('''import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+const simulator = fs.readFileSync(new URL("../web-configurator/public/assets/ucvr-simulator.js", import.meta.url), "utf8");
+const editIntegration = fs.readFileSync(new URL("../web-configurator/src/components/integration/EditIntegration.vue", import.meta.url), "utf8");
+
+test("Remote route changes force a fresh simulator settings request", () => {
+  assert.match(simulator, /routeKey: ""/);
+  assert.match(simulator, /const routeChanged = routeKey !== state\.routeKey/);
+  assert.match(simulator, /refresh\(true, entering \|\| forceRefresh \|\| routeChanged\)/);
+});
+
+test("Update integration button has no icon markup", () => {
+  const button = editIntegration.match(/<button[^>]*@click="updateInstalledIntegration"[^>]*>([\\s\\S]*?)<\\/button>/);
+  assert.ok(button, "Update integration button must exist");
+  assert.doesNotMatch(button[1], /<i\\b|<UCIcon\\b|material-symbols|class="[^"]*icon/);
+  assert.match(button[1], /Update integration/);
+});
+''', encoding="utf-8")
+
+      - name: Build bundled configurator
+        working-directory: web-configurator
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run project validation
+        run: |
+          npm ci
+          npm run ci
+
+      - name: Commit feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/apply-lighting-refresh-fix.yml || true
+          git rm -f .lighting-refresh-fix-status || true
+          git add -A
+          git commit -m "Fix integration update action and Remote lighting refresh"
+          git push origin HEAD:fix/integration-update-icon-remote-lighting

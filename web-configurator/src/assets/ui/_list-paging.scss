@@ -1,0 +1,109 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.list-paging {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  &__left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.875rem;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      gap: 0.625rem;
+    }
+
+    span {
+      @include mixins.body-small;
+      color: var(--uc-text-text-tertiary);
+    }
+  }
+
+  &__per-page {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+
+    & > span {
+      @media screen and (max-width: variables.$bp-phone) {
+        display: none;
+      }
+    }
+
+    .v-select {
+      .vs__dropdown-toggle {
+        @include mixins.body-small;
+        color: var(--uc-text-text-tertiary);
+        background: var(--uc-theme-color-20);
+        min-width: 2.5rem;
+        min-height: 1.625rem;
+        padding: 0.25rem 0.75rem;
+        gap: 0.5rem;
+
+        .vs__selected {
+          @include mixins.body-small;
+          color: var(--uc-text-text-tertiary);
+        }
+
+        .vs__actions::after {
+          color: var(--uc-text-text-tertiary);
+        }
+      }
+    }
+  }
+
+  &__page-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+
+    &__spacer {
+      color: var(--uc-text-text-secondary);
+      width: 1.625rem;
+      text-align: center;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        display: none;
+      }
+    }
+
+    .button--blank {
+      min-height: 1.375rem;
+      width: 1.375rem;
+      padding: 0;
+      color: var(--uc-text-text-secondary);
+
+      @media (pointer: fine) {
+        &:hover {
+          color: var(--uc-background);
+        }
+      }
+    }
+
+    .button--active {
+      color: var(--uc-text-text-primary);
+      pointer-events: none;
+    }
+
+    .button {
+      @media screen and (max-width: variables.$bp-phone) {
+        display: none;
+
+        &:first-child,
+        &:last-child {
+          display: flex;
+        }
+
+        &:last-child {
+          margin-left: 1.625rem;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+@use "../../base/mixins";
+
+// Scoped to this modal on purpose. The global `.vue-markdown` rules have no `pre`/`code`
+// styling, and adding some there would restyle the release-notes and firmware-notes markdown
+// too. The attribution page is the only markdown in the app built from fenced blocks — ~500 of
+// them — so it is the only one that needs them.
+.modal-secondary--licenses {
+  .modal-secondary__body {
+    // The global cap is 50dvh, which is unusable for a ~25,000-line document.
+    max-height: 70vh;
+    max-height: 70dvh;
+  }
+
+  .licenses__text {
+    // Every entry names its repository as a bare URL, and package names are long unbreakable
+    // tokens (`@rollup/rollup-darwin-arm64@4.62.2`). At a phone width a single
+    // `https://github.com/DefinitelyTyped/DefinitelyTyped` is wider than the modal, so without
+    // this the whole body scrolls sideways.
+    overflow-wrap: anywhere;
+
+    pre {
+      margin-bottom: 1.25rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      background: var(--uc-theme-color-20);
+      overflow-x: auto;
+      @include mixins.scrollbar;
+    }
+
+    code {
+      font-family: var(--uc-font-family-space-mono);
+      // License texts are hard-wrapped at ~80 columns and contain long URLs. Without
+      // wrapping they push the modal into horizontal overflow.
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: var(--uc-text-text-secondary);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    h4 {
+      margin-top: 1.25rem;
+    }
+
+    hr {
+      margin-bottom: 1.25rem;
+      border: 0;
+      border-top: 1px solid var(--uc-theme-color-30);
+    }
+  }
+}

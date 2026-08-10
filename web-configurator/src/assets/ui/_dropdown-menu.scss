@@ -1,0 +1,151 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.dropdown-menu {
+  position: relative;
+
+  &__trigger {
+    position: relative;
+
+    .button {
+      i {
+        margin-top: 0.1rem;
+      }
+    }
+
+    & > div {
+      width: fit-content;
+      cursor: pointer;
+    }
+  }
+
+  &__background {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1100;
+  }
+
+  &__main {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    padding: 0.625rem;
+    gap: 0.625rem;
+    border-radius: 1rem;
+    background: var(--uc-background);
+    z-index: 1150;
+
+    &__title {
+      @include mixins.heading-4;
+
+      & {
+        display: none;
+        color: var(--uc-white);
+        text-align: center;
+        padding: 0.62rem 0;
+      }
+
+      @media screen and (max-width: variables.$bp-phone) {
+        display: block;
+      }
+    }
+  }
+
+  div.dropdown-menu__main--fixed {
+    @media screen and (max-width: variables.$bp-phone) {
+      position: fixed;
+      width: fit-content;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
+    }
+  }
+
+  &__options {
+    position: relative;
+  }
+
+  &__list {
+    cursor: default;
+
+    &__item {
+      display: flex;
+      padding: 0.25rem 0.625rem;
+      flex-direction: column;
+      justify-content: center;
+      align-self: stretch;
+      white-space: nowrap;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 0.75rem;
+      color: var(--uc-foreground);
+
+      @media (pointer: fine) {
+        &:hover {
+          color: var(--uc-background);
+          background: var(--uc-foreground);
+        }
+      }
+
+      &__main {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.625rem;
+        min-height: 3rem;
+      }
+
+      &__icon {
+        display: inline-flex;
+        justify-content: center;
+        width: 2rem;
+        font-size: 1.5rem;
+      }
+
+      &__label {
+        @include mixins.popupmenu-item;
+        margin-right: 0.25rem;
+      }
+
+      &__description {
+        @include mixins.body-extrasmall;
+      }
+
+      &--disabled {
+        color: var(--uc-text-text-tertiary);
+        pointer-events: none;
+        cursor: default;
+      }
+    }
+  }
+
+  @include mixins.transition-grow;
+  @include mixins.transition-grow-from-left;
+
+  &--on-right {
+    .dropdown-menu {
+      &__main {
+        left: auto;
+        right: 0;
+      }
+    }
+  }
+
+  &--on-bottom {
+    .dropdown-menu {
+      &__main {
+        top: auto;
+        bottom: 0;
+      }
+    }
+  }
+}

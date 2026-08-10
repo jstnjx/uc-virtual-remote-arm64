@@ -1,0 +1,609 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+$crm-width: calc(100vw - 2.5rem);
+$crm-height: calc(100% - 4rem);
+$crm-width-folded: 100%;
+$crm-height-folded: calc(100% - 14.4rem);
+
+.section-customise-remote {
+  position: relative;
+  width: 100%;
+  transition: all 0.6s;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &--folded {
+    @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+      margin-top: 11.4rem;
+      height: 39.0375rem;
+    }
+
+    @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 700px) {
+      margin-top: 6rem;
+      height: 38.4375rem;
+    }
+
+    .custom-remote-pages {
+      transition: all 0.6s;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        // height: 31.5rem;
+        max-height: 40rem;
+      }
+
+      &__remote {
+        width: 100%;
+        padding: 0;
+
+        @media screen and (min-width: variables.$bp-tablet-plus) {
+          transition: all 0.6s;
+        }
+
+        @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+          overflow: hidden;
+        }
+
+        &::before {
+          display: none;
+        }
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          display: flex;
+        }
+      }
+    }
+  }
+
+  .customise-remote {
+    &__navbar {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 3rem;
+      width: $crm-width;
+
+      @media screen and (min-width: 1921px) {
+        width: calc(var(--uc-app-max-width) - 2.5rem);
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        position: relative;
+        width: 100%;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+      }
+    }
+
+    &__main {
+      @include mixins.card-minimal;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: $crm-width;
+      height: $crm-height;
+      transition: all 0.6s;
+      overflow: hidden;
+
+      @media screen and (min-width: 1921px) {
+        width: calc(var(--uc-app-max-width) - 2.5rem);
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 10.5rem);
+        height: calc(100dvh - 10.5rem);
+        // flex: 1;
+        // border-bottom-left-radius: 0;
+        // border-bottom-right-radius: 0;
+        padding-bottom: 0.125rem;
+      }
+
+      &--folded {
+        width: $crm-width-folded;
+        height: $crm-height-folded;
+        transition: all 0.6s;
+        padding: 1.88rem 1.88rem;
+
+        @media only screen and (max-width: 1250px),
+          only screen and (max-height: 700px) {
+          height: calc($crm-height-folded + 8.4rem);
+        }
+
+        @media only screen and (max-width: 1370px) {
+          height: calc($crm-height-folded + 5.4rem);
+        }
+
+        @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+          height: 100%;
+        }
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          height: calc(100dvh - 11rem);
+          padding: 1.25rem;
+          padding-bottom: 0;
+        }
+
+        .remote-controller__device {
+          transition: all 0.6s;
+
+          @media screen and (max-width: variables.$bp-phone) {
+            height: 100%;
+          }
+        }
+
+        @media (pointer: fine) {
+          &:hover {
+            background-color: var(--uc-bg-bg-surface-3);
+
+            .button--tertiary {
+              background-color: var(
+                --uc-buttons-tertiary-button-tertiary-hover-bg
+              );
+              border-color: var(--uc-buttons-tertiary-button-tertiary-hover-bg);
+              color: var(--uc-buttons-tertiary-button-tertiary-hover-text);
+
+              i {
+                transform: scale(1);
+                font-size: 1.375rem;
+                transition: all 0.2s;
+              }
+            }
+
+            .remote-controller__device {
+              transform: scale(1.005);
+              transform-origin: bottom;
+              transition: all 0.6s;
+            }
+          }
+        }
+
+        .customise-remote {
+          &__tab {
+            @media screen and (max-width: variables.$bp-tablet) {
+              position: relative;
+              background: transparent;
+            }
+          }
+        }
+
+        .remote-controller {
+          top: 3rem;
+
+          @media screen and (min-width: variables.$bp-tablet-plus) {
+            transform: scale(0.75562, 0.75562);
+            transition: all 0.6s;
+          }
+
+          .entity-item {
+            &__options,
+            &__drag {
+              display: none;
+            }
+          }
+
+          @media screen and (max-width: variables.$bp-tablet) {
+            flex: 1;
+            top: 1.88rem;
+            transition: none;
+
+            &__display {
+              overflow: hidden;
+
+              &__list {
+                overflow: hidden;
+              }
+            }
+          }
+        }
+      }
+
+      &--edit-page {
+        height: 100%;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          position: fixed;
+          left: 0;
+          top: 0;
+          height: 100vh;
+          height: 100dvh;
+          z-index: 100;
+        }
+
+        .custom-remote-pages {
+          @media screen and (max-width: variables.$bp-tablet) {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--uc-bg-bg-surface-1);
+          }
+
+          @media screen and (max-width: variables.$bp-tablet) and (max-height: 780px) {
+            display: block;
+            overflow-x: hidden;
+            overflow-y: scroll;
+          }
+
+          &--active-option {
+            @media screen and (max-width: variables.$bp-tablet) and (max-height: 780px) {
+              overflow-y: hidden;
+            }
+          }
+
+          &__remote {
+            &__body {
+              background: var(--uc-bg-bg-surface-1);
+
+              @media screen and (max-width: variables.$bp-phone) {
+                padding-bottom: 2.5rem;
+              }
+            }
+          }
+        }
+
+        .remote-controller {
+          top: 3.6rem;
+
+          @media screen and (min-width: variables.$bp-tablet-plus) {
+            transition: all 0.6s;
+          }
+
+          @media screen and (max-width: variables.$bp-phone) {
+            top: 2.5rem;
+          }
+        }
+      }
+
+      &.growing {
+        animation: growingRemote 0.6s ease;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          animation: none;
+        }
+      }
+
+      &.shrinking {
+        animation: shrinkingRemote 0.6s ease;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          animation: none;
+        }
+      }
+    }
+
+    &__header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+
+      h2 {
+        display: flex;
+        align-items: flex-end;
+        flex: 1;
+        padding-right: 0.5rem;
+        @include mixins.heading-4;
+      }
+    }
+
+    &__tabs {
+      position: relative;
+      height: 100%;
+    }
+
+    &__tab {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+
+      // @media screen and (max-width: $bp-tablet) {
+      //   background: var(--uc-black);
+      // }
+
+      .icon-list {
+        .list-with-filter {
+          &__search {
+            max-width: 19.5rem;
+
+            input {
+              background: var(--uc-background);
+            }
+          }
+
+          &__form {
+            &__tools {
+              justify-content: flex-start;
+
+              .button-group {
+                background: var(--uc-background);
+              }
+
+              &__col-right {
+                flex: 1;
+
+                .list-with-filter__form__button-delete {
+                  margin-left: auto;
+                  margin-right: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .resource-list {
+        .list-with-filter {
+          &__form {
+            input {
+              max-width: 20rem;
+            }
+          }
+        }
+      }
+
+      &--icons,
+      &--backgrounds {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 1.88rem;
+        padding-bottom: 0;
+
+        @media screen and (max-width: variables.$bp-phone) {
+          padding: 1.25rem;
+          padding-bottom: 0;
+        }
+      }
+
+      &--backgrounds {
+        .resource-upload {
+          &__drop-area {
+            // max-height: 13.15vw;
+
+            // @media screen and (max-width: $bp-phone) {
+            //   max-height: 7.25rem;
+            // }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Pages
+.custom-remote-pages {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  justify-content: space-around;
+  transition: all 0.6s;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    transition: none;
+  }
+
+  &__lists {
+    position: relative;
+    width: 40%;
+    padding-right: 1.88rem;
+    padding-bottom: 0.25rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      width: 100%;
+      padding-right: 0;
+      padding-bottom: 0;
+      background-color: var(--uc-bg-bg-surface-1);
+      // z-index: 15;
+      flex: 1;
+    }
+
+    &::before {
+      position: absolute;
+      content: "";
+      right: 0;
+      top: 1.25rem;
+      height: calc(100% - 2.5rem);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    & > div:not([class]) {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+
+      .page-list {
+        height: 100%;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          border-radius: 1rem 1rem 0 0;
+          background: var(--uc-bg-bg-surface-1);
+        }
+      }
+    }
+
+    &__no-page,
+    .page-list,
+    .customise-remote-options {
+      padding-left: 1.88rem;
+      padding-top: 1.88rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        padding: 1.25rem 1.25rem 0;
+      }
+    }
+
+    .customise-remote-options {
+      position: relative;
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        margin: 3.75rem 0.625rem 0;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        background: var(--uc-bg-bg-surface-1);
+      }
+    }
+
+    &__no-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      gap: 1.88rem;
+
+      h1 {
+        @include mixins.heading-4;
+      }
+
+      p {
+        @include mixins.body-large;
+        max-width: 22.5rem;
+        color: var(--uc-theme-color-60);
+        text-align: center;
+      }
+    }
+  }
+
+  &__remote {
+    position: relative;
+    width: 60%;
+    height: 100%;
+    display: flex;
+    align-self: flex-end;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 1.88rem;
+    padding-right: 1.88rem;
+    // overflow: hidden;
+    gap: 1.88rem;
+
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      transition: all 0.6s;
+    }
+
+    @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+      overflow-x: hidden;
+      overflow-y: auto;
+      @include mixins.scrollbar;
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: none;
+    }
+
+    &--page-edit {
+      display: flex;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: block;
+        width: calc(100% - 1.25rem);
+        height: -moz-fit-content;
+        height: fit-content;
+        padding: 0;
+        margin: 0 0.625rem;
+      }
+    }
+
+    &__descr {
+      @include mixins.body-extrasmall;
+      max-width: 22.25rem;
+      color: var(--uc-text-text-secondary);
+      text-align: center;
+      margin-top: 2.62rem;
+    }
+
+    &__header {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      top: 1.88rem;
+      right: 1.88rem;
+      width: calc(100% - 3.76rem);
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        display: none;
+      }
+    }
+
+    &__body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-left: 1.88rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        flex: 1;
+        margin-left: 0;
+      }
+
+      .remote-controller {
+        top: 9.4rem;
+        transition: all 0.6s;
+      }
+    }
+  }
+}
+
+@include mixins.transition-grow-from-left-bottom;
+@include mixins.transition-slide-tab;
+
+@keyframes growingRemote {
+  0% {
+    width: $crm-width-folded;
+    height: $crm-height-folded;
+  }
+  70% {
+    width: $crm-width;
+    height: $crm-height;
+  }
+  85% {
+    width: calc($crm-width + 20px);
+    height: $crm-height;
+  }
+  100% {
+    width: $crm-width;
+    height: $crm-height;
+  }
+}
+
+@keyframes shrinkingRemote {
+  0% {
+    width: $crm-width;
+    height: $crm-height;
+  }
+  70% {
+    width: $crm-width-folded;
+    height: $crm-height-folded;
+  }
+  85% {
+    width: calc($crm-width-folded - 12px);
+    height: $crm-height-folded;
+  }
+  100% {
+    width: $crm-width-folded;
+    height: $crm-height-folded;
+  }
+}

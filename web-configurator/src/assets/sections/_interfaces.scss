@@ -1,0 +1,153 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+// Edit activity interfaces
+// Edit remote interfaces
+.ea-interfaces,
+.er-interfaces {
+  display: flex;
+  flex-direction: row-reverse;
+  height: 100%;
+
+  &__list {
+    position: relative;
+    padding-left: 1.875rem;
+    padding-top: 1.875rem;
+    padding-right: 1.875rem;
+    overflow: hidden;
+    width: calc(40% + 0.5rem);
+    border: 0;
+
+    &::before {
+      position: absolute;
+      content: "";
+      height: 100%;
+      width: 1px;
+      top: 0;
+      right: 4px;
+      background-color: var(--uc-bg-bg-surface-1);
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      position: absolute;
+      width: 100%;
+      height: calc(100% + 0.125rem);
+      // z-index: 1;
+      background-color: var(--uc-bg-bg-surface-1);
+      padding-left: 1.25rem;
+      padding-top: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    &__header {
+      display: flex;
+      flex-direction: row;
+      gap: 1.25rem;
+
+      &__buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 1.25rem;
+      }
+    }
+
+    &__wrapper {
+      position: relative;
+      height: 100%;
+    }
+
+    &__tab {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+    }
+
+    .page-list__body {
+      width: calc(100% + 1.825rem);
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        width: calc(100% + 1.25rem);
+        padding-right: 1.25rem;
+      }
+    }
+  }
+
+  &__remote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(60% - 0.5rem);
+
+    @media screen and (max-height: 900px) {
+      overflow-x: none;
+      overflow-y: auto;
+      @include mixins.scrollbar;
+      @include mixins.scrollbar-sqeezing;
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    &--overflow-hidden {
+      overflow: hidden;
+
+      @media screen and (max-height: 900px) {
+        padding-right: 0.5rem;
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        padding-right: 0.5rem;
+      }
+    }
+
+    .remote-controller {
+      width: fit-content;
+
+      &__device {
+        margin-left: auto;
+        margin-right: auto;
+
+        @media screen and (min-width: variables.$bp-tablet-plus) {
+          margin-top: 4.25rem;
+        }
+      }
+    }
+  }
+}
+
+.ea-interfaces {
+  &--button-mapping {
+    .ea-interfaces__remote {
+      @media screen and (max-width: variables.$bp-tablet) {
+        overflow-y: hidden;
+      }
+    }
+
+    .ea-interfaces__list {
+      @media screen and (max-width: variables.$bp-tablet) {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+.er-interfaces {
+  &__remote {
+    .widget-popup {
+      &__command-wrapper {
+        min-height: 3.75rem;
+
+        &--open {
+          min-height: 11.75rem;
+        }
+      }
+    }
+  }
+}

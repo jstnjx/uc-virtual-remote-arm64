@@ -1,0 +1,17 @@
+{
+  "extends": ["@tsconfig/node22/tsconfig.json", "@vue/tsconfig/tsconfig.json"],
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "playwright.config.*",
+    "playwright.visual.config.*",
+    "test/e2e/**/*",
+    "test/licenseGenerator.test.ts"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node"],
+    "target": "es2019",
+    "lib": ["es2019", "dom"]
+  }
+}

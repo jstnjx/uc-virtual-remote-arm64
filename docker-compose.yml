@@ -1,0 +1,43 @@
+services:
+  virtual-remote:
+    build: .
+    image: ghcr.io/jstnjx/uc-virtual-remote:latest
+    container_name: uc-virtual-remote
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    environment:
+      TZ: "${TZ:-Europe/Berlin}"
+      UCVR_REST_PORT: "${UCVR_REST_PORT:-11090}"
+      UCVR_NAME: "${UCVR_NAME:-Virtual Remote 3}"
+      UCVR_PIN: "${UCVR_PIN:-1234}"
+      UCVR_CORE_TOKEN: "${UCVR_CORE_TOKEN:-}"
+      UCVR_ADMIN_TOKEN: "${UCVR_ADMIN_TOKEN:-}"
+      UCVR_UPDATE_REPOSITORY: "${UCVR_UPDATE_REPOSITORY:-jstnjx/uc-virtual-remote}"
+      UCVR_UPDATE_BRANCH: "${UCVR_UPDATE_BRANCH:-main}"
+      UCVR_GITHUB_TOKEN: "${UCVR_GITHUB_TOKEN:-}"
+      UCVR_INTEGRATION_REGISTRY_URLS: "${UCVR_INTEGRATION_REGISTRY_URLS:-}"
+      UCVR_INTEGRATION_REGISTRY_URL: "${UCVR_INTEGRATION_REGISTRY_URL:-https://raw.githubusercontent.com/JackJPowell/uc-intg-list/refs/heads/main/registry.json}"
+      UCVR_INTEGRATION_PORT_START: "${UCVR_INTEGRATION_PORT_START:-11091}"
+      UCVR_INTEGRATION_HOST: "127.0.0.1"
+      UCVR_RUN_AS_ROOT: "true"
+      UCVR_DEMO_INTERVAL_MS: "${UCVR_DEMO_INTERVAL_MS:-5000}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    volumes:
+      - "${UCVR_HOST_DATA_DIR:-./data}:/data"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+      - /sys:/host/sys:ro
+      - /run/udev:/run/udev:ro
+      - /dev:/host/dev
+
+  demo-integration:
+    build: .
+    image: ghcr.io/jstnjx/uc-virtual-remote:latest
+    container_name: uc-virtual-remote-demo
+    profiles: ["demo"]
+    restart: unless-stopped
+    network_mode: host
+    command: ["node", "examples/demo-integration.js"]
+    environment:
+      DEMO_INTEGRATION_PORT: "11091"

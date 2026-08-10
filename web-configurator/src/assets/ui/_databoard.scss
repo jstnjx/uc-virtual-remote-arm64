@@ -1,0 +1,95 @@
+@use "../base/mixins";
+
+.databoard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 1.25rem;
+  gap: 1.25rem;
+  border-radius: 1rem;
+  background: var(--uc-bg-bg-surface-1);
+
+  &__text {
+    @include mixins.body-small;
+    color: var(--uc-text-text-secondary);
+  }
+
+  &__row {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--uc-theme-color-30);
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    // &--developer {
+    //   .databoard__item {
+    //     max
+    //   }
+    // }
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    flex: 1;
+    gap: 0.25rem;
+    overflow: hidden;
+
+    &__label {
+      @include mixins.body-large;
+      color: var(--uc-text-text-primary);
+    }
+
+    &__value {
+      @include mixins.secondary-body-extrasmall;
+      color: var(--uc-text-text-secondary);
+
+      &--status {
+        display: flex;
+        align-items: center;
+
+        i {
+          font-size: 1.2rem;
+          margin-right: 0.375rem;
+        }
+
+        & > span {
+          @include mixins.body-extrasmall;
+        }
+      }
+
+      &--url {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        max-width: 100%;
+      }
+
+      &--green {
+        color: var(--uc-success-success);
+
+        i {
+          color: var(--uc-success-success);
+        }
+      }
+
+      &--red {
+        color: var(--uc-error-error-60);
+
+        i {
+          color: var(--uc-error-error-60);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+# Visual-regression runner — docs/specs/007-simulator-based-testing.md phase 3.
+#
+# Pins the whole rendering environment so a local run and a CI run produce
+# identical pixels: the simulator and the Playwright Linux image are siblings on
+# one network, and the browser + dev server both run inside `runner`. Baselines
+# live in the bind-mounted repo, so an --update writes them straight back.
+services:
+  sim:
+    image: ${SIM_IMAGE:-unfoldedcircle/core-simulator:latest}
+    # No published port: the runner reaches it as sim:8080 on the compose network.
+    # State is thrown away with the container (compose down), so every run starts
+    # from a pristine device (I1).
+
+  runner:
+    # Pinned to the installed @playwright/test version; the image ships the exact
+    # browser build, which is what makes the pixels reproducible.
+    image: mcr.microsoft.com/playwright:v1.61.1-noble
+    depends_on:
+      - sim
+    working_dir: /work
+    volumes:
+      - ../..:/work
+      # Linux-native node_modules, kept out of the host's macOS install and
+      # cached across runs.
+      - visual-node-modules:/work/node_modules
+    environment:
+      CI: "1"
+      # Passed through to `npx playwright test` by run.sh (e.g. --update-snapshots).
+      PW_ARGS: ${PW_ARGS:-}
+    command: ["bash", "docker/visual/run.sh"]
+
+volumes:
+  visual-node-modules:

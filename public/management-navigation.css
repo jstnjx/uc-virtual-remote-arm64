@@ -1,0 +1,96 @@
+.management-tabs {
+  position: sticky;
+  z-index: 19;
+  top: var(--navbar-height);
+  display: flex;
+  gap: 4px;
+  margin: 0 -8px;
+  padding: 14px 8px 12px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--uc-theme-30);
+  background: color-mix(in srgb, var(--uc-black) 92%, transparent);
+  backdrop-filter: blur(14px);
+  scrollbar-width: none;
+}
+
+.management-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.management-tab {
+  position: relative;
+  min-height: 38px;
+  flex: 0 0 auto;
+  padding: 0 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  outline: 0;
+  background: transparent;
+  color: var(--uc-theme-60);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.management-tab:hover {
+  border-color: var(--uc-theme-30);
+  background: var(--uc-theme-10);
+  color: var(--uc-theme-90);
+}
+
+.management-tab:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--uc-accent) 45%, transparent);
+}
+
+.management-tab.active,
+.management-tab[aria-selected="true"] {
+  border-color: var(--uc-theme-40);
+  background: var(--uc-theme-20);
+  color: var(--uc-white);
+}
+
+.management-tab.active::after,
+.management-tab[aria-selected="true"]::after {
+  position: absolute;
+  right: 12px;
+  bottom: -1px;
+  left: 12px;
+  height: 2px;
+  background: var(--uc-accent);
+  content: "";
+}
+
+[data-management-panel][hidden] {
+  display: none !important;
+}
+
+[data-management-panel] {
+  scroll-margin-top: calc(var(--navbar-height) + 82px);
+}
+
+@media (max-width: 700px) {
+  .management-tabs {
+    margin-right: -24px;
+    margin-left: -24px;
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .management-tabs {
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .management-tab {
+    min-height: 36px;
+    padding-right: 12px;
+    padding-left: 12px;
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,60 @@
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.base-entity-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &__tools {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  &__body-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    @include mixins.scrollbar;
+  }
+
+  &__body {
+    flex: 1;
+    // width: calc(100% + 0.5rem);
+  }
+
+  &__footer {
+    padding-top: 1.25rem;
+    padding-right: 1rem;
+  }
+
+  &--compact-items {
+    .base-entity-list__body {
+      display: grid;
+      flex: none;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.625rem;
+
+      @media screen and (max-width: 1600px) {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      @media screen and (max-width: 1300px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media screen and (max-width: variables.$bp-phone) {
+        grid-template-columns: repeat(1, 1fr);
+      }
+    }
+  }
+}

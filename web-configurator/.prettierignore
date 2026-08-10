@@ -1,0 +1,35 @@
+# Prettier already skips node_modules and .git. This mirrors .gitignore and the
+# ESLint ignores so that `prettier --write .` is safe to run at any time and only
+# ever touches source we hand-maintain.
+
+# Build / test output
+dist
+dist-ssr
+coverage
+/test-results/
+/playwright-report/
+
+# Local scratch, generated files, and archives
+/_work
+/tmp/
+/version.txt
+*.local
+*.tar.gz
+
+# Static assets and lockfiles Prettier must not reformat
+# (public/ carries intentionally hand-formatted JSON, e.g. the icon maps, and the generated
+# licenses.md.)
+public/
+package-lock.json
+
+# Verbatim third-party license texts. Prettier parses the fenced blocks in the footer template
+# as Markdown and rewrites them — it turns the OFL's "1)" clause markers into "1.", reflows
+# them, and collapses the "-----" separators into "---". A reproduced license has to stay
+# byte-for-byte what upstream published.
+tools/patches/
+tools/templates/
+
+# Locale files are machine-translated by an external service and round-tripped
+# through it — CLAUDE.md forbids modifying the non-English ones, and en_US.json
+# is managed by the same pipeline. Kept entirely out of Prettier's scope.
+src/i18next/

@@ -1,0 +1,292 @@
+@use "../../base/mixins";
+
+$button-width: 25%;
+$button-height: 4rem;
+$button-gap: 0.6875rem;
+$button-size-v2: 20%;
+
+.remote-button-layout {
+  position: absolute;
+  top: 39.125rem;
+  left: 0.4375rem;
+  width: calc(100% - 0.875rem);
+  aspect-ratio: 1 / 1.635;
+
+  &__item {
+    position: absolute;
+    border: 2px solid var(--uc-theme-accent);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    z-index: 1;
+    opacity: 0;
+    transition: none;
+
+    // V3
+    width: $button-width;
+    height: $button-height;
+
+    &__label {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, 0);
+      top: -1.55rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      @include mixins.secondary-body-extrasmall;
+      background: var(--uc-theme-accent);
+      color: var(--uc-black);
+      position: absolute;
+      padding: 0.2rem 0.8rem;
+      border-radius: 1rem;
+      white-space: nowrap;
+    }
+
+    &:hover,
+    &--show {
+      opacity: 1;
+      transition: all 0.2s;
+    }
+
+    &--back {
+      top: 0;
+      left: 0;
+    }
+
+    &--home {
+      top: 0;
+      left: $button-width;
+      width: $button-width * 2;
+    }
+
+    &--power {
+      top: 0;
+      left: $button-width * 3;
+    }
+
+    &--volume-up {
+      top: calc($button-height + $button-gap);
+      left: 0;
+      height: $button-height * 1.2;
+    }
+
+    &--volume-down {
+      top: calc($button-height * 5 + $button-gap * 1.8);
+      left: 0;
+      height: $button-height * 1.2;
+    }
+
+    &--dpad-up {
+      top: calc($button-height * 1.75 + $button-gap);
+      left: $button-width * 1.5;
+      height: $button-height * 1.2;
+    }
+
+    &--dpad-down {
+      top: calc($button-height * 4.25 + $button-gap * 1.8);
+      left: $button-width * 1.5;
+      height: $button-height * 1.2;
+    }
+
+    &--dpad-left {
+      top: calc($button-height * 3 + $button-gap * 1.45);
+      left: $button-width * 0.55;
+      height: $button-height * 1.2;
+    }
+
+    &--dpad-right {
+      top: calc($button-height * 3 + $button-gap * 1.45);
+      left: $button-width * 2.45;
+      height: $button-height * 1.2;
+    }
+
+    &--dpad-middle {
+      top: calc($button-height * 3 + $button-gap * 1.45);
+      left: $button-width * 1.5;
+      height: $button-height * 1.2;
+    }
+
+    &--channel-up {
+      top: calc($button-height + $button-gap);
+      left: $button-width * 3;
+      height: $button-height * 1.2;
+    }
+
+    &--channel-down {
+      top: calc($button-height * 5 + $button-gap * 1.8);
+      left: $button-width * 3;
+      height: $button-height * 1.2;
+    }
+
+    &--mute {
+      top: calc($button-height * 6 + $button-gap * 4);
+      left: 0;
+    }
+
+    &--menu {
+      top: calc($button-height * 6 + $button-gap * 4);
+      left: $button-width * 2;
+    }
+
+    &--voice {
+      top: calc($button-height * 6 + $button-gap * 4);
+      left: $button-width * 3;
+    }
+
+    &--prev {
+      top: calc($button-height * 7 + $button-gap * 4);
+      left: 0;
+    }
+
+    &--play {
+      top: calc($button-height * 7 + $button-gap * 4);
+      left: $button-width * 2;
+    }
+
+    &--next {
+      top: calc($button-height * 7 + $button-gap * 4);
+      left: $button-width * 3;
+    }
+
+    &--record {
+      top: calc($button-height * 6 + $button-gap * 4);
+      left: $button-width;
+    }
+
+    // &--guide {
+    //   top: calc($button-height * 6 + $button-gap * 4);
+    //   left: $button-width * 2;
+    // }
+
+    &--stop {
+      top: calc($button-height * 7 + $button-gap * 4);
+      left: $button-width;
+    }
+
+    &--touch-slider {
+      top: -($button-height * 1.2);
+      height: $button-height * 1.2;
+      width: $button-width * 4;
+    }
+  }
+
+  &--v2 {
+    top: 37.825rem;
+    left: 0.5rem;
+    width: calc(100% - 1rem);
+    aspect-ratio: 1 / 1;
+
+    .remote-button-layout {
+      &__item {
+        width: $button-size-v2;
+        height: $button-size-v2;
+
+        &--back {
+          top: 0;
+          left: 0;
+        }
+
+        &--home {
+          top: 0;
+          left: $button-size-v2 * 1;
+          width: $button-size-v2 * 3;
+        }
+
+        &--voice {
+          top: 0;
+          left: $button-size-v2 * 4;
+        }
+
+        &--volume-up {
+          top: $button-size-v2;
+          left: 0;
+        }
+
+        &--volume-down {
+          top: $button-size-v2 * 3;
+          left: 0;
+        }
+
+        &--green {
+          top: $button-size-v2;
+          left: $button-size-v2;
+        }
+
+        &--dpad-up {
+          top: $button-size-v2;
+          left: $button-size-v2 * 2;
+        }
+
+        &--yellow {
+          top: $button-size-v2;
+          left: $button-size-v2 * 3;
+        }
+
+        &--dpad-left {
+          top: $button-size-v2 * 2;
+          left: $button-size-v2;
+        }
+
+        &--dpad-middle {
+          top: $button-size-v2 * 2;
+          left: $button-size-v2 * 2;
+        }
+
+        &--dpad-right {
+          top: $button-size-v2 * 2;
+          left: $button-size-v2 * 3;
+        }
+
+        &--red {
+          top: $button-size-v2 * 3;
+          left: $button-size-v2;
+        }
+
+        &--dpad-down {
+          top: $button-size-v2 * 3;
+          left: $button-size-v2 * 2;
+        }
+
+        &--blue {
+          top: $button-size-v2 * 3;
+          left: $button-size-v2 * 3;
+        }
+
+        &--channel-up {
+          top: $button-size-v2;
+          left: $button-size-v2 * 4;
+        }
+
+        &--channel-down {
+          top: $button-size-v2 * 3;
+          left: $button-size-v2 * 4;
+        }
+
+        &--mute {
+          top: $button-size-v2 * 4;
+          left: 0;
+        }
+
+        &--prev {
+          top: $button-size-v2 * 4;
+          left: $button-size-v2;
+        }
+
+        &--play {
+          top: $button-size-v2 * 4;
+          left: $button-size-v2 * 2;
+        }
+
+        &--next {
+          top: $button-size-v2 * 4;
+          left: $button-size-v2 * 3;
+        }
+
+        &--power {
+          top: $button-size-v2 * 4;
+          left: $button-size-v2 * 4;
+        }
+      }
+    }
+  }
+}

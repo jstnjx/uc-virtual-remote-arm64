@@ -1,0 +1,65 @@
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.custom-remote-modify {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 1.25rem;
+  left: 1.25rem;
+  // width: calc(100% - 1.25rem);
+  width: 100%;
+  height: calc(100% - 1rem);
+  border-radius: 1rem;
+  background: var(--uc-bg-bg-surface-1);
+  padding: 1.12rem 1.25rem;
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    top: 0;
+    height: calc(100vh - 3.75rem);
+    height: calc(100dvh - 3.75rem);
+    width: 100%;
+    z-index: 2;
+    overflow: hidden;
+    // margin-top: 3.75rem;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+
+    span {
+      @include mixins.body-large;
+      color: var(--uc-foreground);
+    }
+  }
+
+  .list-with-filter {
+    position: relative;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      flex: 1;
+      height: calc(100% - 1.5rem);
+    }
+  }
+
+  .lwf-entity-list,
+  .lwf-group-list {
+    &__items {
+      width: calc(100% + 1rem);
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        width: 100%;
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+@include mixins.transition-slide;

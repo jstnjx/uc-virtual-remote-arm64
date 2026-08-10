@@ -1,0 +1,18 @@
+{
+  "version": "2.3.3-unfoldedtools.8",
+  "requirements": {
+    "firmware_version": ">=2.0.0"
+  },
+  "release_date": "2026-08-04",
+  "name": {
+    "en": "Unfolded.Tools Remote Simulator Web Configurator"
+  },
+  "description": {
+    "en": "Unofficial community build for the Unfolded.Tools Remote Simulator with responsive navigation, demo-data, runtime-safety, and licensing-diff fixes."
+  },
+  "developer": {
+    "name": "Unfolded.Tools",
+    "url": "https://unfolded.tools"
+  },
+  "home_page": "https://unfolded.tools/remote-simulator"
+}

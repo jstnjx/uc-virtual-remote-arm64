@@ -1,0 +1,89 @@
+/*
+ * Modified by Justin Jäger for the Unfolded.Tools Remote Simulator.
+ * Modified: 2026-08-03.
+ * GNU GPL v3.0 only; see MODIFICATIONS.md.
+ */
+:root {
+  --vs-dropdown-max-height: 600px;
+
+  --uc-app-max-width: 1920px;
+  --uc-navbar-height: 50px;
+
+  --uc-font-family-poppins: "Poppins", sans-serif;
+  --uc-font-family-space-mono: "Space Mono", monospace;
+  --uc-font-family-icons: "Material Symbols Sharp";
+  --uc-font-size-root: 16px;
+
+  --uc-white: #fff;
+  --uc-black: #000;
+  --uc-vselect-z-index: 2505;
+
+  // Variables of restyling
+  --uc-theme-color-10: #121313;
+  --uc-theme-color-10-0: #12131300;
+  --uc-theme-color-20: #1b1d1d;
+  --uc-theme-color-30: #272b2b;
+  --uc-theme-color-40: #444b4b;
+  --uc-theme-color-50: #707c7c;
+  --uc-theme-color-60: #97a5a5;
+  --uc-theme-color-70: #acbcbc;
+  --uc-theme-color-80: #c4d4d4;
+  --uc-theme-color-90: #e2efef;
+  --uc-theme-accent: #267c8e;
+
+  --uc-success-success: #a2d4bf;
+  --uc-warning-warning: #ffe471;
+  --uc-error-error-30: #ff9f91;
+  --uc-error-error-40: #ff8978;
+  --uc-error-error-60: #c33030;
+  --uc-error-error-80: #9d1616;
+
+  --uc-foreground: #ffffff;
+  --uc-text-text-primary: #ffffff;
+  --uc-text-text-secondary: #acbcbc;
+  --uc-text-text-tertiary: #707c7c;
+
+  --uc-background: #000000;
+  --uc-bg-bg: #000000;
+  --uc-bg-bg-surface-1: #1b1d1d;
+  --uc-bg-bg-surface-1-0: #1b1d1d00;
+  --uc-bg-bg-surface-2: #272b2b;
+  --uc-bg-bg-surface-3: #444b4b;
+
+  --uc-buttons-primary-button-primary-text: #ffffff;
+  --uc-buttons-primary-button-primary-bg: #267c8e;
+  --uc-buttons-primary-button-primary-hover-text: #000000;
+  --uc-buttons-primary-button-primary-hover-bg: #ffffff;
+  --uc-buttons-primary-button-primary-disabled-text: #707c7c;
+  --uc-buttons-primary-button-primary-disabled-bg: #272b2b;
+
+  --uc-buttons-secondary-button-secondary-text: #ffffff;
+  --uc-buttons-secondary-button-secondary-bg: #444b4b;
+  --uc-buttons-secondary-button-secondary-hover-text: #000000;
+  --uc-buttons-secondary-button-secondary-hover-bg: #ffffff;
+  --uc-buttons-secondary-button-secondary-disabled-text: #707c7c;
+  --uc-buttons-secondary-button-secondary-disabled-bg: #272b2b;
+
+  --uc-buttons-tertiary-button-tertiary-text: #acbcbc;
+  --uc-buttons-tertiary-button-tertiary-bg: #444b4b;
+  --uc-buttons-tertiary-button-tertiary-hover-text: #000000;
+  --uc-buttons-tertiary-button-tertiary-hover-bg: #ffffff;
+  --uc-buttons-tertiary-button-tertiary-disabled-text: #707c7c;
+  --uc-buttons-tertiary-button-tertiary-disabled-bg: #272b2b;
+}
+
+/*** Permanents ***/
+
+// Breakpoints
+$bp-laptop: 1200px;
+$bp-tablet: 992px;
+$bp-phone: 600px;
+$bp-laptop-plus: $bp-laptop + 1;
+$bp-tablet-plus: $bp-tablet + 1;
+$bp-phone-plus: $bp-phone + 1;
+
+$bg-login: #dbdbdb;
+$bg-login-v2: #010101;
+$transition-bg-timing: 0.3s;
+$rc-button-mapping-offset: -29rem;
+$rc-button-mapping-offset-v2: -24rem;

@@ -1,0 +1,10 @@
+{
+  "output": "table",
+  "fields": [
+    "name",
+    "licenseType",
+    "link",
+    "installedVersion",
+    "author"
+  ]
+}

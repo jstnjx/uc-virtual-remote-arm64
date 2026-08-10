@@ -1,0 +1,182 @@
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.select-voice-assistant-input-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.select-voice-assistant {
+  &__active-item {
+    display: flex;
+    padding: 0.25rem 0.875rem 0.25rem 1.25rem;
+    align-items: center;
+    gap: 0.625rem;
+    border: 2px solid var(--uc-buttons-tertiary-button-tertiary-bg);
+    color: var(--uc-buttons-tertiary-button-tertiary-text);
+    border-radius: 1.25rem;
+    min-height: 2.5625rem;
+
+    span {
+      @include mixins.body-large;
+      margin-top: 0.125rem;
+    }
+  }
+
+  .button-open {
+    min-height: 2.3125rem;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+}
+
+.voice-assistant-item {
+  display: flex;
+  min-height: 4.125rem;
+  width: 100%;
+  padding: 0.5rem 1.25rem;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 1rem;
+  background: var(--uc-theme-color-20);
+  cursor: pointer;
+  flex-direction: row;
+  gap: 1rem;
+
+  &__main {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.625rem;
+    width: 100%;
+    flex: 1;
+  }
+
+  &__features {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__badge {
+    @include mixins.body-extrasmall;
+    color: var(--uc-theme-color-90);
+    text-align: center;
+    height: 1.25rem;
+    border-radius: 1.25rem;
+    background: var(--uc-theme-color-30);
+    padding: 0.125rem 0.75rem;
+    text-transform: uppercase;
+
+    i {
+      font-size: 0.75rem;
+      color: var(--uc-foreground);
+    }
+  }
+
+  &__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.125rem;
+    color: var(--uc-text-text-secondary);
+    min-width: 1.875rem;
+  }
+
+  @media (pointer: fine) {
+    &:hover {
+      background-color: var(--uc-foreground);
+      color: var(--uc-theme-color-40);
+      transition: all 0.2s;
+
+      .voice-assistant-item__feature {
+        i,
+        span {
+          color: var(--uc-theme-color-40);
+          transition: all 0.2s;
+        }
+      }
+    }
+  }
+
+  &.voice-assistant-item--profile {
+    @media screen and (max-width: variables.$bp-phone) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  &.voice-assistant-item--static {
+    background: var(--uc-background);
+    cursor: default;
+    pointer-events: none;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+
+    &:hover {
+      background: var(--uc-background);
+    }
+  }
+
+  &.voice-assistant-item--inversed {
+    background: var(--uc-foreground);
+    color: var(--uc-background);
+
+    &:hover {
+      background: var(--uc-background);
+      color: var(--uc-background);
+    }
+  }
+}
+
+.modal-select-voice-assistant {
+  .modal-secondary {
+    &__container {
+      min-height: 10rem;
+    }
+
+    &__header {
+      @include mixins.body-large;
+    }
+
+    &__body {
+      hr {
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+  }
+}
+
+.voice-assistant-support-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 1rem;
+
+  i {
+    font-size: 0.9rem;
+    color: var(--uc-text-text-secondary);
+  }
+
+  span {
+    @include mixins.secondary-body-extrasmall;
+    color: var(--uc-text-text-secondary);
+  }
+
+  &:hover {
+    span {
+      text-decoration: underline;
+    }
+  }
+}

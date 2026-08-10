@@ -1,0 +1,107 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+// Moved from SetupSelection.vue's global style block; consumed by
+// ParamSetupSelection.vue's `.text-input` field.
+.text-input {
+  border: 1px solid var(--vt-c-black-mute);
+  min-width: 100px;
+  max-width: 150px;
+  width: 100%;
+}
+
+.param-setup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+
+  .vs__dropdown-toggle {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .v-select__custom-background {
+    left: -1px;
+    top: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+  }
+
+  &--boolean {
+    padding: 0.125rem;
+
+    .form-item--toggle {
+      display: flex;
+      align-items: center;
+
+      &__label {
+        color: var(--uc-white);
+      }
+    }
+  }
+
+  &--enum,
+  &--selection {
+    padding-right: 0;
+  }
+
+  &--regex {
+    padding: 0;
+
+    &--browse-media {
+      position: relative;
+
+      input {
+        padding-right: 3.25rem;
+
+        @media screen and (max-width: variables.$bp-phone) {
+          max-width: 60%;
+        }
+      }
+    }
+  }
+
+  &__selection {
+    width: 100%;
+    max-width: 10rem;
+
+    .v-select {
+      .vs__dropdown-toggle {
+        max-width: 10rem;
+        min-height: 2.75rem;
+      }
+
+      .vs__selected__options {
+        min-height: 1.25rem;
+      }
+    }
+  }
+
+  &__button-browse {
+    position: absolute;
+    right: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-height: 1.75rem;
+
+    i {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &--color-temperature {
+    align-items: center;
+    border-radius: 0.5rem;
+    border: 1px solid var(--uc-theme-color-40);
+    padding: 0.75rem;
+    min-height: 3.75rem;
+
+    .param-setup__label {
+      @include mixins.body-small;
+      color: var(--uc-text-text-secondary);
+    }
+  }
+}

@@ -1,0 +1,58 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.error-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+
+  &--left {
+    justify-content: flex-start;
+  }
+
+  &--width-flex {
+    flex: 1;
+  }
+
+  &--mt {
+    margin-top: 1.875rem;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      margin-top: 1.25rem;
+    }
+  }
+
+  &--mb {
+    margin-bottom: 1.875rem;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      margin-bottom: 1.25rem;
+    }
+  }
+
+  &--bt {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--uc-bg-bg-surface-1);
+  }
+
+  i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: var(--uc-background);
+    background-color: var(--uc-error-error-80);
+  }
+
+  &__text {
+    @include mixins.body-small;
+    display: flex;
+    flex: 1;
+    color: var(--uc-error-error-60);
+  }
+}

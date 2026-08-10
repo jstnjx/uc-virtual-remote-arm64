@@ -1,0 +1,119 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.process-software-update {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(0, 0, 0, 0.9);
+  // z-index: 2500;
+  z-index: var(--uc-vselect-z-index);
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    max-width: 25rem;
+    margin: 0 1rem;
+  }
+
+  &__body {
+    width: 100%;
+  }
+
+  &__success,
+  &__fail,
+  &__progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    text-align: center;
+    width: 100%;
+
+    i {
+      width: 3.75rem;
+      height: 3.75rem;
+      font-size: 2.25rem;
+    }
+
+    p {
+      @include mixins.body-large;
+      color: var(--uc-text-text-primary);
+    }
+
+    span {
+      @include mixins.body-extrasmall;
+      color: var(--uc-text-text-secondary);
+    }
+
+    button {
+      margin-top: 3rem;
+    }
+  }
+
+  &__success {
+    i,
+    p {
+      color: var(--uc-success-success);
+    }
+  }
+
+  &__fail {
+    i,
+    p {
+      color: var(--uc-error-error-60);
+    }
+
+    .button {
+      margin-top: 3rem;
+    }
+  }
+
+  &__progress {
+    .progress-bar {
+      max-width: 100%;
+      margin-top: 1.75rem;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        max-width: 60vw;
+      }
+    }
+  }
+
+  &__warning {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    @include mixins.secondary-body-small;
+    color: var(--uc-error-error-60);
+    text-align: center;
+    margin-top: -3.75rem;
+    padding-bottom: 3.75rem;
+    gap: 1rem;
+
+    i {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      color: var(--uc-background);
+      background-color: var(--uc-error-error-60);
+    }
+
+    span {
+      flex: 1;
+    }
+  }
+}

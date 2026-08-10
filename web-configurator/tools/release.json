@@ -1,0 +1,19 @@
+{
+  "version": "$VERSION",
+  "requirements": {
+    "firmware_version": ">=2.0.0"
+  },
+  "release_date": "$DATE",
+  "name": {
+    "en": "Custom Web-Configurator"
+  },
+  "description": {
+    "en": "Custom Web-Configurator for testing."
+  },
+  "developer": {
+    "name": "Unfolded Circle ApS",
+    "url": "https://www.unfoldedcircle.com",
+    "email": "hello@unfoldedcircle.com"
+  },
+  "home_page": "https://www.unfoldedcircle.com"
+}

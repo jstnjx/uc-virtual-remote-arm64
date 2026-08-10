@@ -1,0 +1,665 @@
+/*
+ * Modified by Justin Jäger for the Unfolded.Tools Remote Simulator.
+ * Modified: 2026-08-03.
+ * GNU GPL v3.0 only; see MODIFICATIONS.md.
+ */
+@use "../../base/mixins";
+@use "../../vars/variables";
+
+.ui-component {
+  height: 100%;
+
+  &--button {
+    border-radius: 0.625rem;
+    background: var(--uc-theme-color-10);
+  }
+
+  &--icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .selected-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    i {
+      font-size: 1.66669rem;
+      color: #fff;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  &--text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      font-size: 0.78rem;
+    }
+
+    &__text {
+      line-height: 1.1;
+      padding-left: 0.125rem;
+      padding-right: 0.125rem;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 2;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &--sensor {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.625rem;
+    background: var(--uc-theme-color-10);
+    padding: 0.125rem 0.625rem;
+    gap: 0.625rem;
+    overflow: hidden;
+
+    &__label {
+      @include mixins.body-small;
+      font-size: 0.75rem;
+      color: var(--uc-theme-color-70);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__data {
+      font-size: 1rem;
+      color: var(--uc-foreground);
+      background: transparent;
+      width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__placeholder {
+      i {
+        font-size: 1.66669rem;
+        color: #fff;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+
+  &--select {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.625rem;
+    background: var(--uc-theme-color-10);
+    padding: 0.125rem 1rem;
+    gap: 0.625rem;
+    overflow: hidden;
+
+    &__main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      flex: 1;
+    }
+
+    &__label {
+      font-size: 1rem;
+      color: var(--uc-foreground);
+      background: transparent;
+      text-align: left;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__data {
+      @include mixins.body-small;
+      font-size: 0.75rem;
+      color: var(--uc-theme-color-70);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__icon {
+      flex: 1;
+      max-width: 1.5rem;
+      height: 1.5rem;
+      margin: 0 auto;
+
+      i {
+        font-size: 1rem;
+        color: #fff;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          font-size: 0.875rem;
+        }
+      }
+
+      &--no-space {
+        opacity: 0;
+      }
+    }
+
+    &--small-width {
+      padding: 0.125rem 0.625rem;
+    }
+
+    &--large-height {
+      .ui-component--select {
+        &__label {
+          -webkit-line-clamp: 2;
+        }
+
+        &__icon {
+          width: 1.5rem;
+        }
+      }
+    }
+  }
+
+  &--media-player {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    border-radius: 0.625rem;
+    background: var(--uc-black);
+
+    &__cover {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 58.75%;
+      margin-bottom: 0.875rem;
+      border-radius: 0.75rem;
+      background: var(--uc-theme-color-20);
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        margin-bottom: 0.6825rem;
+      }
+
+      i {
+        font-size: 1.66669rem;
+        color: var(--uc-theme-color-90);
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          font-size: 1.3rem;
+        }
+      }
+    }
+
+    &__main {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      padding: 0 0.25rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        padding: 0 0.195rem;
+      }
+    }
+
+    &__title {
+      overflow: hidden;
+      color: var(--uc-white);
+      text-overflow: ellipsis;
+      font-family: var(--uc-font-family-poppins);
+      font-size: 1.58331rem;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 100%;
+      margin-bottom: 0.425rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        font-size: 1.235rem;
+        margin-bottom: 0.3315rem;
+      }
+    }
+
+    &__source {
+      color: var(--uc-theme-color-70);
+      font-family: var(--uc-font-family-space-mono);
+      font-size: 1.16669rem;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 100%;
+      margin-bottom: 1.25rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        font-size: 0.91rem;
+        margin-bottom: 0.975rem;
+      }
+    }
+
+    &__progress {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      &__line {
+        width: 100%;
+        height: 0.5rem;
+        border-radius: 0.25rem;
+        background: var(--uc-theme-color-20);
+        margin-bottom: 0.1875rem;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          height: 0.39rem;
+          margin-bottom: 0.14625rem;
+        }
+
+        span {
+          display: block;
+          width: 40%;
+          height: 100%;
+          background: var(--uc-white);
+          border-top-left-radius: 0.25rem;
+          border-bottom-left-radius: 0.25rem;
+        }
+      }
+
+      &__time {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 0.125rem;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          margin-bottom: 0.0975rem;
+        }
+
+        &__value {
+          color: var(--uc-white);
+          font-family: var(--uc-font-family-space-mono);
+          font-size: 0.83331rem;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+
+          @media screen and (max-width: variables.$bp-tablet) {
+            margin-bottom: 0.65rem;
+          }
+        }
+      }
+    }
+
+    &--compact {
+      flex-direction: row;
+      gap: 0.875rem;
+
+      .ui-component--media-player {
+        &__cover {
+          width: 33%;
+          height: 100%;
+        }
+
+        &__main {
+          flex: 1;
+          height: 100%;
+        }
+
+        &__title {
+          font-size: 1.25rem;
+          margin-top: auto;
+        }
+
+        &__source {
+          margin-bottom: auto;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+}
+
+.ui-page {
+  padding: 0.85rem 0.875rem;
+
+  // The one definition of the page grid's spacing. Both the drawn cells
+  // (`&__background`) and the absolutely-positioned empty-cell overlay
+  // (getEmptyItemStyle, which inherits these) are laid out from it, so a
+  // breakpoint cannot move one without the other.
+  --ui-page-grid-gap: 0.5rem;
+  --ui-page-grid-pad: 0.25rem;
+
+  @media screen and (max-width: variables.$bp-phone) {
+    --ui-page-grid-gap: 0.375rem;
+    --ui-page-grid-pad: 0.1875rem;
+  }
+
+  &__head {
+    display: flex;
+    width: 100%;
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    margin-bottom: 1.15rem;
+  }
+
+  &__name {
+    width: 100%;
+    text-align: left;
+    @include mixins.body-large;
+  }
+
+  &__content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    // width: calc(100% + 0.55rem);
+    // margin-left: -0.275rem;
+  }
+
+  &__drag-area {
+    width: 100%;
+    height: 100%;
+
+    &.content-size {
+      &--sm {
+        .ui-component--button-text {
+          font-size: 0.9rem;
+        }
+
+        .ui-component--icon {
+          i {
+            font-size: 1rem;
+          }
+        }
+
+        .ui-page__item {
+          &__edit,
+          &__drag {
+            i {
+              font-size: 1rem;
+            }
+          }
+        }
+      }
+
+      &--xs {
+        .ui-component--button-text {
+          font-size: 0.65rem;
+        }
+
+        .ui-component--icon {
+          i {
+            font-size: 0.75rem;
+          }
+        }
+
+        .ui-page__item {
+          &__edit,
+          &__drag {
+            i {
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+
+      // CSS fix for Grid component JS bug fix
+      &--full-width {
+        .vgl-item {
+          width: 100% !important;
+        }
+      }
+    }
+  }
+
+  &__item {
+    position: relative;
+    height: 100%;
+
+    &__edit,
+    &__select,
+    &__drag,
+    &__test {
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: none;
+      z-index: 1;
+    }
+
+    &__edit,
+    &__select,
+    &__drag {
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid var(--uc-theme-color-50);
+    }
+
+    &__edit,
+    &__drag {
+      i {
+        font-size: 1.5rem;
+      }
+    }
+
+    &__select {
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+
+      .form-item--checkbox-tick {
+        margin-left: 0.625rem;
+        margin-bottom: 0.625rem;
+
+        input + label {
+          background-color: rgba(172, 188, 188, 0.5);
+          border-color: transparent;
+
+          &:before {
+            border-bottom: 1px solid transparent;
+            border-right: 1px solid transparent;
+            border-color: var(--uc-theme-color-80);
+          }
+        }
+
+        input:checked + label {
+          background-color: var(--uc-theme-accent);
+          border-color: var(--uc-theme-accent);
+
+          &:before {
+            border-bottom: 1px solid transparent;
+            border-right: 1px solid transparent;
+            border-color: var(--uc-theme-color-80);
+          }
+        }
+      }
+    }
+
+    &__test {
+      &--disabled {
+        cursor: default;
+      }
+    }
+
+    &--dangling {
+      &::after {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: var(--uc-font-family-icons);
+        font-feature-settings: "liga";
+        font-weight: 500;
+        font-size: 0.9rem;
+        content: "link_off";
+        width: 1.5rem;
+        height: 1.5rem;
+        top: 0;
+        right: 0;
+        color: var(--uc-error-error-60);
+      }
+    }
+
+    &.selected .ui-page__item__select {
+      border: 2px solid var(--uc-theme-accent);
+      display: flex;
+    }
+  }
+
+  &__background {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-page-grid-gap);
+    top: 0;
+    padding: var(--ui-page-grid-pad);
+    width: 100%;
+    height: 100%;
+
+    &__row {
+      display: flex;
+      width: 100%;
+      flex: 1;
+      gap: var(--ui-page-grid-gap);
+    }
+
+    &__item {
+      display: flex;
+      flex: 1;
+      border-radius: 0.625rem;
+      background: var(--uc-bg-bg-surface-1);
+      transition: all 0.3s;
+      cursor: pointer;
+
+      @media (pointer: fine) {
+        &:hover {
+          background: var(--uc-bg-bg-surface-2);
+          transition: all 0.3s;
+        }
+      }
+    }
+  }
+
+  &__empty-list {
+    &__item {
+      position: absolute;
+      background-color: transparent;
+      padding: 0;
+      cursor: pointer;
+      border-radius: 0.625rem;
+      transition: all 0.1s;
+
+      i {
+        font-size: 1.66669rem;
+        color: var(--uc-text-text-primary);
+        opacity: 0;
+        transition: all 0.1s;
+      }
+
+      @media (pointer: fine) {
+        &:hover {
+          background-color: var(--uc-bg-bg-surface-2);
+          transition: all 0.1s;
+
+          i {
+            opacity: 1;
+            transition: all 0.1s;
+          }
+        }
+      }
+    }
+  }
+
+  .vgl-layout {
+    width: 100%;
+    height: 100%;
+  }
+
+  .vgl-item {
+    padding: 4px;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      padding: 3px;
+    }
+
+    .vgl-item__resizer {
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACEAAAAfCAYAAABplKSyAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFJSURBVHgBzZfhccIwDIVfeh2AEbJB6QQwQkdIJ6AblE7Q6wTM0AmSDWADhwmACYR0CQfcQSQHy8d3p/MP+6wXybYUIBNEVLHV1BHYftkmyAU7+6bb1MgBOyppmOoF/pTK/OwZRCCHCJVniMQhh4g3Zb7NIWKqzG9cRcj1hJ4O90h8KPNtURQtPOmf5yFWss4tEvISQk/FPzwxRCGc1rpEQgoW9Cg08IIFTMlGCQ+oq5jBIGAFDyIE7FyiECFAWCI1vOmi/zoLa6SEN5zTuWe0EChVGkY4P3G3kL0qDksepCOWDWboasGYDvmTa8RGXUXXLXlKKlig+y35I8hhnVsFaC35GAJFHEKpHebFRv7Y3mP6BDmYqX7FGrYfdt4gFg7bhOyPzS1qsuZeEfJFcQS2JQ3c/RiKCyEVDwtcd8f73uSOb/uxSd0XHgEdZp0EO3QBvgAAAABJRU5ErkJggg==);
+      background-position: center;
+      background-size: 100%;
+      width: 0.75rem;
+      height: 0.71875rem;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      display: none;
+
+      // hide the library's default border-drawn resize triangle
+      &::before {
+        content: none;
+      }
+    }
+
+    &:hover {
+      .ui-page__item__edit,
+      .ui-page__item__select,
+      .ui-page__item__drag,
+      .ui-page__item__test {
+        display: flex;
+      }
+
+      .vgl-item__resizer {
+        display: block;
+      }
+    }
+
+    &--media-player {
+      background: var(--uc-black);
+    }
+  }
+
+  .vgl-item--placeholder {
+    border-radius: 0.625rem;
+    background-color: var(--uc-theme-color-50) !important;
+  }
+
+  // &--v2 {
+  //   .ui-page {
+  //     &__background {
+  //       padding: 0 0.25rem;
+
+  //       @media screen and (max-width: $bp-phone) {
+  //         padding: 0.1875rem;
+  //       }
+  //     }
+  //   }
+  // }
+}

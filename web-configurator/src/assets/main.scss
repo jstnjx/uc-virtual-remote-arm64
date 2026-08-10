@@ -1,0 +1,103 @@
+/*
+ * Modified by Justin Jäger for the Unfolded.Tools Remote Simulator.
+ * Modified: 2026-08-03.
+ * GNU GPL v3.0 only; see MODIFICATIONS.md.
+ */
+@use "vars/variables";
+
+@use "base/fonts";
+@use "material-symbols";
+
+@use "base/animations";
+@use "base/mixins";
+@use "base/form";
+@use "base/base";
+
+@use "ui/button";
+@use "ui/icon";
+@use "ui/avatar";
+@use "ui/dropdown-menu";
+@use "ui/tab-menu";
+@use "ui/list-loader";
+@use "ui/collapse-container";
+@use "ui/v-overflow-indicator";
+@use "ui/v-select";
+@use "ui/datepicker";
+@use "ui/progress-bar";
+@use "ui/ent-item";
+@use "ui/list-paging";
+@use "ui/info-panel";
+@use "ui/setup-item";
+@use "ui/grid-size";
+@use "ui/table";
+@use "ui/process-software-update";
+@use "ui/databoard";
+@use "ui/error-box";
+@use "ui/countdown-circle";
+@use "ui/info-popup";
+@use "ui/responsive-table";
+
+@use "components/modal";
+@use "components/dialog";
+@use "components/navbar";
+@use "components/entity";
+@use "components/group";
+@use "components/list-with-filter";
+@use "components/notification";
+@use "components/quick-tips";
+@use "components/version-info";
+@use "components/resource-list";
+@use "components/icon-list";
+@use "components/icon-select";
+@use "components/resource";
+@use "components/profiles";
+@use "components/filter-dropdown";
+@use "components/command";
+@use "components/language-dropdown";
+@use "components/vue-picture-cropper";
+@use "components/param-setup";
+@use "components/sequence";
+@use "components/widget";
+@use "components/integration";
+@use "components/dock";
+@use "components/remote-status";
+@use "components/sleep-timeout";
+@use "components/menus/menu-main-desktop";
+@use "components/menus/menu-main-mobile";
+@use "components/menus/menu-profile";
+@use "components/remote/remote-controller";
+@use "components/remote/remote-button-layout";
+@use "components/remote/bluetooth";
+@use "components/remote/ui-page";
+@use "components/remote/ir-code-data-set";
+@use "components/customise-remote/options";
+@use "components/customise-remote/modify";
+@use "components/customise-remote/group" as group2;
+@use "components/page/page-list";
+@use "components/configure-button/button-list";
+@use "components/configure-button/button-press";
+@use "components/settings/software-update";
+@use "components/settings/about-remote";
+@use "components/settings/licenses";
+@use "components/settings/voice-assistant";
+@use "components/entity/base-entity-list";
+@use "components/entity/add-device";
+@use "components/touch-slider";
+@use "components/application-credentials";
+@use "components/browse-element";
+@use "components/media-browse";
+@use "ui/color-picker"; // For rules order
+
+@use "sections/home";
+@use "sections/edit-page";
+@use "sections/customise-remote";
+@use "sections/button-mapping";
+@use "sections/interfaces";
+
+@use "pages/login";
+@use "pages/home" as home2;
+@use "pages/settings";
+@use "pages/activity";
+@use "pages/entities";
+@use "pages/integration" as integration2;
+@use "pages/remote";

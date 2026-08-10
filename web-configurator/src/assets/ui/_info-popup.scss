@@ -1,0 +1,44 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.info-popup {
+  position: relative;
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.625rem;
+    background: var(--uc-theme-color-30);
+    color: var(--uc-text-text-primary);
+    border-radius: 50%;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: var(--uc-vselect-z-index);
+  }
+
+  &__content {
+    position: fixed;
+    z-index: calc(var(--uc-vselect-z-index) + 1);
+    padding-bottom: 1.25rem;
+    width: max-content;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+
+    &--active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

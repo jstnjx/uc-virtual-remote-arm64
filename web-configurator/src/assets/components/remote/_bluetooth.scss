@@ -1,0 +1,27 @@
+@use "../../base/mixins";
+
+.change-device-profile {
+  &__message {
+    @include mixins.secondary-body-small;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-secondary {
+    &__container {
+      min-height: 25rem;
+    }
+
+    &__body {
+      margin-top: 1.25rem;
+    }
+
+    &__footer {
+      margin-top: 1.25rem;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+}

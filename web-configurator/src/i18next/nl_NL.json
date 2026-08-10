@@ -1,0 +1,1799 @@
+{
+  "translation": {
+    "ui": {
+      "menu": "Menu",
+      "more_information": "Meer informatie",
+      "dismiss": "Sluiten",
+      "delete": "Verwijderen",
+      "remove": "Verwijderen",
+      "cancel": "Annuleren",
+      "enter": "Invoeren",
+      "ok": "Oké",
+      "accept": "Accepteren",
+      "toggle": "Schakelen",
+      "press": "Druk",
+      "save": "Opslaan",
+      "next": "Volgende",
+      "edit": "Bewerken",
+      "add": "Toevoegen",
+      "add_all": "Alles toevoegen",
+      "skip": "Overslaan",
+      "new": "Nieuw",
+      "add_new": "Nieuwe toevoegen",
+      "paste": "Plakken",
+      "merge": "Samenvoegen",
+      "copy": "Kopiëren",
+      "search": "Zoeken",
+      "select": "Selecteren",
+      "select_all": "Alles selecteren",
+      "clear_all": "Alles wissen",
+      "reset_all": "Alles opnieuw instellen",
+      "expand": "Uitvouwen",
+      "contract": "Inklappen",
+      "reset": "Opnieuw instellen",
+      "clear": "Wissen",
+      "disable": "Uitschakelen",
+      "move": "Verplaatsen",
+      "default": "Standaard",
+      "reset_to_defaults": "Standaardinstellingen herstellen",
+      "filters": "Filters",
+      "required_field": "Vul dit in.",
+      "loading_more": "Meer laden",
+      "background_images": "Achtergrondafbeeldingen",
+      "restore": "Herstellen",
+      "reboot": "Herstarten",
+      "browse": "Bladeren",
+      "download": "Downloaden",
+      "none": "geen",
+      "not_set": "niet ingesteld",
+      "read_more": "Lees meer",
+      "confirm": "Bevestigen",
+      "confirm_and_reboot": "Bevestig en start opnieuw op",
+      "close": "Sluiten",
+      "install": "Installeren",
+      "back": "Terug",
+      "back_to_edit": "Terug naar bewerken",
+      "done": "Gedaan",
+      "label": "Label",
+      "start_setup": "Installatie starten",
+      "modified": "aangepast",
+      "custom": "aangepast",
+      "select_file_to_upload": "Selecteer bestand om te uploaden",
+      "repeat": "Herhalen",
+      "password": "Wachtwoord",
+      "new_password": "Nieuw wachtwoord",
+      "repeat_new_password": "Herhaal nieuw wachtwoord",
+      "update": "Bijwerken",
+      "factory_reset": "Fabrieksreset",
+      "identify": "Identificeren",
+      "create": "Maken",
+      "version": "Versie",
+      "n_a": "n.b.",
+      "customise": "Aanpassen",
+      "try_again": "Probeer opnieuw",
+      "send": "Verzenden",
+      "upload": "Uploaden",
+      "all": "Alles",
+      "enable": "Inschakelen",
+      "connect": "Verbinden",
+      "disconnect": "Verbreken",
+      "uploading": "Uploaden",
+      "scroll_for_more": "Scroll voor meer",
+      "select_color": "Selecteer kleur",
+      "saving_settings": "Instellingen opslaan",
+      "nothing_was_found": "Niets gevonden.",
+      "extend": "Uitbreiden",
+      "test": "Testen",
+      "reload": "Opnieuw laden",
+      "logout": "Uitloggen",
+      "disabled": "Uitgeschakeld",
+      "enabled": "Ingeschakeld",
+      "feature": "Functie",
+      "volume": "Volume"
+    },
+    "form": {
+      "name": "Naam",
+      "label": "Label",
+      "button": "Knop",
+      "description": "Beschrijving",
+      "manufacturer": "Fabrikant",
+      "option": "Optie",
+      "entity_state": "{{entity}} is {{state}}",
+      "provided_by": "Geleverd door",
+      "password": "Wachtwoord",
+      "repeat_password": "Wachtwoord herhalen",
+      "no_options_found": "Geen opties gevonden.",
+      "successful": "Succesvol",
+      "optional": "Optioneel"
+    },
+    "tab": {
+      "settings": "Instellingen",
+      "sequences": "Reeksen",
+      "user_interface": "Gebruikersinterface",
+      "button_mapping": "Knoptoewijzingen"
+    },
+    "page": {
+      "home": "Start",
+      "customise_remote": "Pas je afstandsbediening aan",
+      "entities": "Entiteiten",
+      "integrations": "Integraties",
+      "activities_macros": "Activiteiten & Macro's",
+      "settings": "Instellingen",
+      "general": "Algemeen",
+      "display": "Scherm",
+      "user_interface": "Gebruikersinterface",
+      "sound_haptic": "Geluid & Tast",
+      "voice_control": "Spraakbesturing",
+      "power_saving": "Energiebesparing",
+      "wifi_bluetooth": "Wifi & bluetooth",
+      "localization": "Lokalisatie",
+      "admin_password": "Admin wachtwoord",
+      "application_credentials": "Inloggegevens voor de app",
+      "development": "Ontwikkeling",
+      "factory_reset": "Fabrieksinstellingen herstellen"
+    },
+    "notification": {
+      "saving_changes": "Wijzigingen opslaan",
+      "changes_saved": "Wijzigingen opgeslagen",
+      "restarting": {
+        "title": "Opnieuw starten"
+      },
+      "reconnecting": {
+        "title": "Opnieuw verbinden",
+        "info1": "Verbinding verbroken. Proberen om opnieuw verbinding te maken met de afstandsbediening.",
+        "info2": "Controleer of de afstandsbediening niet slaapt."
+      },
+      "cancelling": "Annuleren"
+    },
+    "logout": {
+      "title": "Uitloggen",
+      "question": "Weet je zeker dat je je wil afmelden bij Web Configurator?"
+    },
+    "reboot": {
+      "title": "Herstarten",
+      "description": "Herstart de afstandsbediening zodat wijzigingen van kracht worden."
+    },
+    "filter_dropdown": {
+      "integrations": "Integraties",
+      "entity_types": "Typen entiteiten"
+    },
+    "entity": {
+      "title": "Entiteit",
+      "entities": "Entiteiten",
+      "entity_type": {
+        "button": "Knop",
+        "switch": "Schakelaar",
+        "climate": "Klimaat",
+        "cover": "Raambekleding",
+        "light": "Licht",
+        "media_player": "Mediaspeler",
+        "sensor": "Sensor",
+        "activity": "Activiteit",
+        "macro": "Macro",
+        "remote": "Afstandsbediening",
+        "select": "Selecteer"
+      },
+      "state": {
+        "off": "uit",
+        "on": "aan",
+        "available": "beschikbaar",
+        "unavailable": "niet beschikbaar",
+        "heat": "verwarmen",
+        "cool": "koelen",
+        "heat_cool": "verwarmen/koelen",
+        "fan": "ventilator",
+        "auto": "automatisch",
+        "opening": "openen",
+        "open": "open",
+        "closing": "sluiten",
+        "closed": "gesloten",
+        "playing": "afspelen",
+        "paused": "gepauzeerd",
+        "standby": "stand-by",
+        "buffering": "bufferen",
+        "running": "bezig",
+        "completed": "voltooid",
+        "unknown": "onbekend",
+        "error": "Er is iets fout gegaan. Probeer het opnieuw.",
+        "normal": "normaal",
+        "charging": "opladen",
+        "not_charging": "laadt niet op",
+        "detected": "gedetecteerd",
+        "clear": "wissen",
+        "cold": "koud",
+        "wet": "nat",
+        "dry": "droog",
+        "connected": "verbonden",
+        "disconnected": "niet verbonden",
+        "opened": "geopend",
+        "hot": "heet",
+        "light_detected": "licht gedetecteerd",
+        "no_light": "geen licht",
+        "unlocked": "ontgrendeld",
+        "locked": "vergrendeld",
+        "moving": "in beweging",
+        "not_moving": "staat stil",
+        "plugged_in": "aangesloten",
+        "unplugged": "niet verbonden",
+        "home": "thuis",
+        "not_home": "niet thuis",
+        "problem": "probleem",
+        "ok": "oké",
+        "unsafe": "onveilig",
+        "safe": "veilig",
+        "tampering_detected": "sabotage gedetecteerd",
+        "update_detected": "update gevonden",
+        "up_to_date": "bijgewerkt",
+        "not_running": "loopt niet"
+      },
+      "device_class": {
+        "battery": "Batterij",
+        "current": "Huidige",
+        "energy": "Energie",
+        "humidity": "Luchtvochtigheid",
+        "power": "Vermogen",
+        "temperature": "Temperatuur",
+        "voltage": "Spanning"
+      },
+      "label": {
+        "state": "Status",
+        "value": "Waarde",
+        "current_option": "Huidige optie"
+      },
+      "features": {
+        "volume": "Volume",
+        "seek": "Zoek",
+        "dim": "Helderheid",
+        "position": "Positie",
+        "no_features_found": "Geen functies gevonden."
+      },
+      "command": {
+        "press": "Indrukken",
+        "play_pause": "Afspelen/pauzeren",
+        "open": "Open",
+        "close": "Sluiten",
+        "toggle": "Aan/uit-schakelaar",
+        "on_off": "Aan/uit-schakelaar",
+        "on": "Aan",
+        "off": "Uit",
+        "select_next": "Kies 'volgende'"
+      },
+      "non_existent": "Niet-bestaande entiteit",
+      "add_to_page": "Toevoegen aan pagina",
+      "add_first": "Voeg je eerste entiteit toe",
+      "add_first_btn_below": "Voeg je eerste entiteit toe door op de onderstaande knop te klikken.",
+      "no_entity": "Je hebt nog geen entiteiten.",
+      "no_bt": "Je hebt nog geen Bluetooth-entiteiten.",
+      "no_ir": "Je hebt nog geen infrarood-entiteiten.",
+      "no_external": "Je hebt nog geen externe afstandsbedieningen.",
+      "no_entities_found": "Geen entiteiten gevonden.",
+      "included_entities": {
+        "title": "Opgenomen entiteiten"
+      },
+      "configured_entities": {
+        "title": "Geconfigureerde entiteiten"
+      },
+      "delete_entity": {
+        "title": "Entiteit verwijderen",
+        "question": "Weet je zeker dat je de entiteit wil verwijderen?"
+      },
+      "delete_entities": {
+        "title": "Verwijder entiteiten",
+        "question": "Weet je zeker dat je de entiteiten wil verwijderen?"
+      },
+      "remove_entity": {
+        "title": "Verwijder entiteit",
+        "question": "Weet je zeker dat je de entiteit wil verwijderen?"
+      },
+      "remove_entities": {
+        "title": "Verwijder entiteiten",
+        "question": "Weet je zeker dat je de entiteiten wil verwijderen?"
+      },
+      "no_other_settings": "Deze entiteit heeft geen andere instellingen.",
+      "missing_entity": {
+        "title_one": "Ontbrekende entiteit",
+        "title_other": "Ontbrekende entiteiten",
+        "question_page_one": "'**{{ entities }}**' moet aan de activiteit worden toegevoegd voordat de gekopieerde pagina kan worden geplakt. Wil je de entiteit aan deze activiteit toevoegen?",
+        "question_page_other": "'**{{ entities }}**' moeten aan de activiteit worden toegevoegd voordat de gekopieerde pagina kan worden geplakt. Wil je de entiteiten aan deze activiteit toevoegen?",
+        "question_widget_one": "'**{{ entities }}**' moet aan de activiteit worden toegevoegd voordat je de gekopieerde widget kunt plakken. Wil je de entiteit aan deze activiteit toevoegen?",
+        "question_widget_other": "'**{{ entities }}**' moeten aan de activiteit worden toegevoegd voordat je de gekopieerde widget kunt plakken. Wil je de entiteiten aan deze activiteit toevoegen?",
+        "add_one": "Entiteit toevoegen",
+        "add_other": "Entiteiten toevoegen"
+      },
+      "assign": {
+        "title": "Entiteit toewijzen"
+      }
+    },
+    "integration": {
+      "integrations": "Integraties",
+      "status": {
+        "UNKNOWN": "Onbekend",
+        "IDLE": "Inactief",
+        "CONNECTING": "Verbinden",
+        "CONNECTED": "Verbonden",
+        "DISCONNECTED": "Verbinding verbroken",
+        "RECONNECTING": "Opnieuw verbinden",
+        "ACTIVE": "Actief",
+        "ERROR": "Er is iets fout gegaan. Probeer het opnieuw.",
+        "NOT_CONFIGURED": "Niet geconfigureerd",
+        "SERVICE_UNAVAILABLE": "Service niet beschikbaar"
+      },
+      "no_other_settings": "Deze integratie heeft geen andere instellingen.",
+      "manage": {
+        "title": "Integraties beheren"
+      },
+      "install_custom": {
+        "trigger": "Installeer aangepaste",
+        "popup": {
+          "title": "Installeer een aangepaste integratie",
+          "upload": {
+            "label": "Selecteer een bestand om te uploaden",
+            "description": "Maximale bestandsgrootte: 100MB"
+          },
+          "update_installed": "Integratie bijwerken"
+        },
+        "error_status": {
+          "400": "Ongeldig archief, ontbrekende gegevens in archief of opgenomen metadata kan niet worden gelezen.",
+          "403": "Verboden, alleen een administrator account kan aangepaste integraties installeren.",
+          "404": "Er is geen aangepaste integratie gevonden om bij te werken. Er is geen aangepaste integratie met dezelfde identificatiecode geïnstalleerd.",
+          "409": "Aangepaste integratie is niet compatibel met de huidige firmware of het maximale aantal aangepaste integratie-installaties is bereikt.",
+          "413": "Integratie-archief is te groot.",
+          "422": "Integratie is al geïnstalleerd, of de unieke stuurprogramma-identificatie is door een andere integratie gebruikt.",
+          "503": "Er loopt al een installatie of er is een fatale fout opgetreden bij een eerdere installatie en het apparaat moet opnieuw worden opgestart.",
+          "507": "Er is onvoldoende opslagruimte om het installatie-archief te uploaden en te verwerken."
+        }
+      },
+      "add": {
+        "title": "Nieuwe integratie toevoegen",
+        "setting_up": "Bezig met instellen...",
+        "already_configured": {
+          "info": "De integratie is al geconfigureerd.",
+          "options": {
+            "add_entities": {
+              "title": "Beschikbare entiteiten toevoegen",
+              "description": "Voeg entiteiten toe aan de afstandsbediening die beschikbaar zijn gesteld door de integratie."
+            },
+            "start_setup": {
+              "title": "Start configuratie van de integratie",
+              "description": "Wijzig configuratie, voeg apparaten toe of verwijder deze via de integratie-instellingen."
+            }
+          }
+        },
+        "add_elements": {
+          "title": "Selecteer entiteiten"
+        },
+        "success": {
+          "title": "Alles is gereed!",
+          "description": "De integratie is succesvol toegevoegd."
+        },
+        "fail": {
+          "title": "Oeps!",
+          "description": "Er is iets fout gegaan bij het instellen van de integratie."
+        },
+        "label": {
+          "state": "Status",
+          "connection_test": "Verbindingstest",
+          "version": "Versie",
+          "developer": "Ontwikkelaar",
+          "developer_website": "Website van ontwikkelaar"
+        },
+        "connect_external": {
+          "title": "Verbind met externe integratie",
+          "driver_url": "URL stuurprogramma",
+          "access_token": "Toegangstoken",
+          "test_connection": {
+            "title": "Verbinding testen"
+          },
+          "failed": "Verbinding mislukt. Probeer het opnieuw.",
+          "instruction": "Bedien {{name}}-apparaten met Unfolded Circle afstandsbedieningen."
+        }
+      },
+      "delete": {
+        "title": "Integratie verwijderen",
+        "question": "Weet je zeker dat je de integratie wil verwijderen?"
+      },
+      "label": {
+        "state": "Status",
+        "version": "Versie",
+        "developer": "Ontwikkelaar",
+        "developer_website": "Website van ontwikkelaar"
+      },
+      "driver": {
+        "state_active": "actief",
+        "state_inactive": "inactief"
+      },
+      "driver_type": {
+        "local": "lokaal",
+        "external": "extern",
+        "custom": "aangepast"
+      },
+      "driver_connection": {
+        "title": "Verbindingsinstellingen van het stuurprogramma",
+        "token": "Token",
+        "token_not_set": "Token is niet ingesteld.",
+        "token_required": "Token ontbreekt. Voer token in."
+      },
+      "start_integration": "Start de integratie-configuratie opnieuw om de instellingen te wijzigen.",
+      "instruction": "Bedien {{name}}-entiteiten met Unfolded Circle-afstandsbedieningen.",
+      "no_integrations": "Je hebt nog geen integraties.",
+      "new_integration": {
+        "developer": "Stuurprogramma ontwikkeld door {{dev}}",
+        "unknown_developer": "Onbekende ontwikkelaar",
+        "advanced_mode": {
+          "title": "Geavanceerde modus",
+          "description": "Geavanceerde configuratie-opties tijdens de installatie inschakelen. Alleen gebruiken als je weet wat je doet."
+        }
+      }
+    },
+    "dock": {
+      "dock": "Dock",
+      "docks": "Docks",
+      "status": {
+        "IDLE": "Inactief",
+        "CONNECTING": "Verbinden",
+        "CONNECTED": "Verbonden",
+        "RECONNECTING": "Opnieuw verbinden",
+        "AUTHENTICATED": "Geauthenticeerd",
+        "DISCONNECTED": "Verbinding verbroken",
+        "CLOSING": "Sluiten",
+        "ERROR": "Er is iets fout gegaan. Probeer het opnieuw.",
+        "ACTIVE": "Actief",
+        "UNKNOWN": "onbekend"
+      },
+      "label": {
+        "state": "Status",
+        "service_name": "Servicenaam",
+        "led_brightness": "Led helderheid",
+        "microphone": "Microfoon"
+      },
+      "form": {
+        "custom_ip_or_url": "Aangepaste URL"
+      },
+      "change_password": {
+        "trigger": "Wachtwoord wijzigen",
+        "title": "Wachtwoord wijzigen",
+        "pass_not_match": "Wachtwoorden zijn niet hetzelfde",
+        "change_dock_token": "Wijzig ook het wachtwoord dat in de Dock is opgeslagen",
+        "connection_required_hint": "Om wachtwoordwijzigingen op te slaan moet je verbonden zijn met de dock"
+      },
+      "wifi_settings": {
+        "trigger": "Wifi-instellingen",
+        "title": "Wifi-instellingen wijzigen",
+        "disabled_hint": "Opslaan is uitgeschakeld – de dock moet zijn aangesloten"
+      },
+      "port": {
+        "title": "Poort",
+        "mode": {
+          "UNKNOWN": "Onbekend",
+          "NONE": "Geen",
+          "AUTO": "Auto",
+          "MANUAL": "Handmatig",
+          "INFRARED": "Infrarood",
+          "IR_BLASTER": "IR-blaster",
+          "IR_EMITTER_MONO_PLUG": "IR-zender mono-stekker",
+          "IR_EMITTER_STEREO_PLUG": "IR-zender stereo-stekker",
+          "TRIGGER_5V": "Trigger 5V",
+          "ERROR": "Fout"
+        },
+        "labels": {
+          "peripheral": "Randapparaat",
+          "baud_rate": "Baudsnelheid",
+          "data_bits": "Databits",
+          "stop_bits": "Stopbits",
+          "parity": {
+            "title": "Pariteit",
+            "none": "geen",
+            "even": "even",
+            "odd": "oneven"
+          }
+        }
+      },
+      "edit_port": {
+        "mode": "Modus",
+        "warning": "Sluit geen randapparatuur aan terwijl de dock is ingeschakeld. Lees verder."
+      },
+      "delete": {
+        "title": "Dock verwijderen",
+        "question": "Weet je zeker dat je de dock wil verwijderen?"
+      },
+      "factory_reset": {
+        "title": "Geen weg meer terug",
+        "description": "Bevestiging van terugzetten naar fabrieksinstellingen wist alle configuraties en gegevens. Herstellen is niet mogelijk."
+      },
+      "add": {
+        "title": "Voeg nieuwe dock toe",
+        "start": {
+          "instruction1": "Klik op zoeken om naar docks op je netwerk te zoeken of via Bluetooth.",
+          "instruction2": "Als je een nieuwe dock draadloos wil instellen, zorg dan dat deze in de buurt van de afstandsbediening is.",
+          "bluetooth": {
+            "warning": "Bluetooth is uitgeschakeld. Zoeken beperkt tot het netwerk."
+          },
+          "manual_setup": "Handmatige configuratie",
+          "discover": "Zoeken"
+        },
+        "discover": {
+          "discovering": "Zoeken naar docks",
+          "discovered_dock_one": "{{count}} dock gevonden",
+          "discovered_dock_other": "{{count}} docks gevonden",
+          "no_dock_discovered": {
+            "title": "Er is geen dock gevonden",
+            "help": "Probeer de volgende stappen om het probleem op te lossen:\n\n- Start de dock opnieuw op door de USB-C-kabel los te koppelen en weer aan te sluiten.\n- Als je Bluetooth gebruikt, breng de afstandsbediening dan dichter bij de dock of start de dock opnieuw op als meerdere pogingen om in te stellen mislukken.\n- Als je Ethernet gebruikt, zorg er dan voor dat **mDNS** niet is uitgeschakeld in je router, firewall en/of access point.",
+            "support_articles": {
+              "title": "Gerelateerde ondersteuningsartikelen",
+              "article_1": "Dock 3 instellen via Bluetooth LE",
+              "article_2": "Voeg een nieuw Dock toe in de Web Configurator",
+              "article_3": "Voeg handmatig een Dock toe in de Web Configurator"
+            }
+          },
+          "last_seen": "Laatst gezien {{sec}}s geleden",
+          "bt_pre_warn": "Zorg ervoor dat de dock zich dicht bij de afstandsbediening bevindt en de LED amber knippert."
+        },
+        "add_discovered": {
+          "instruction": "Zorg ervoor dat de dock beschikbaar en bereikbaar is op het netwerk."
+        },
+        "add_manually": {
+          "title": "Handmatige configuratie",
+          "instruction": "Zorg ervoor dat de dock beschikbaar en bereikbaar is op het netwerk. Docks kunnen niet via Bluetooth worden ingesteld bij handmatige configuratie."
+        },
+        "form": {
+          "password_description": "Optioneel. Stel een wachtwoord in voor toegang tot de dock. Je hebt dit wachtwoord nodig als je de dock vanaf andere apparaten wil bedienen.",
+          "ip_address": "Dock-URL",
+          "ip_address_description": "Voer de Dock API-URL of een IP-adres / hostnaam in met poortnummer en pad. Voorbeeld voor Dock Two: `ws://$IP:946`, Dock 3: `ws://$IP/ws`.",
+          "setup_wifi": "Wifi instellen",
+          "wifi_ssid": "Wifi-netwerk SSID",
+          "wifi_password": "Wifi-netwerk wachtwoord"
+        },
+        "error": {
+          "title": "Oeps!",
+          "description": "Er is iets misgegaan bij het instellen van de dock."
+        },
+        "success": {
+          "title": "Alles is gereed!",
+          "description1": "De dock is succesvol toegevoegd.",
+          "description2": "{{name}} is klaar om IR-codes te versturen."
+        },
+        "setup_process": {
+          "configuring": "Instellen",
+          "press_control_button": "Druk op de bedieningsknop van de dock wanneer dit wordt aangegeven op het dockscherm",
+          "error": {
+            "NONE": "Geen",
+            "NOT_FOUND": "Niet gevonden",
+            "CONNECTION_REFUSED": "Verbinding geweigerd",
+            "CONNECTION_ERROR": "Kan niet verbinden. Probeer het opnieuw.",
+            "AUTHORIZATION_ERROR": "Toegang geweigerd. Controleer je inloggegevens.",
+            "TIMEOUT": "Time-out",
+            "OTHER": "Er is een onbekende fout opgetreden. Probeer het opnieuw."
+          }
+        }
+      },
+      "update": {
+        "ok": "Je software is bijgewerkt.",
+        "update": "Nieuwe firmwareversie beschikbaar",
+        "disabled": "Controle op online updates uitgeschakeld.",
+        "check": "Controleer op updates",
+        "min_battery_percent_required": "Batterijniveau te laag. Laad je apparaat op en probeer het opnieuw.",
+        "firmware_version": "Firmwareversie",
+        "new_version": "Nieuwe versie",
+        "release_notes": "Versie-opmerkingen",
+        "error_on_check": "Controle op firmware mislukt. Probeer het opnieuw.",
+        "errors": {
+          "prefix": "Het starten van de firmware-update van de dock is mislukt."
+        },
+        "error_status": {
+          "400": "Update is nog niet beschikbaar.",
+          "404": "Firmware-update niet gevonden. Probeer het later nog eens",
+          "409": "Er wordt al een firmware-update voor de dock uitgevoerd.",
+          "503": "De dock is niet verbonden, het batterijniveau van de afstandsbediening is te laag om de update te starten (minimaal 20% vereist), of de updateservice is niet beschikbaar. Probeer het later opnieuw."
+        },
+        "in_progress": "Update bezig",
+        "success": {
+          "title": "Update geslaagd",
+          "description": "De dock is succesvol bijgewerkt."
+        },
+        "error": {
+          "title": "Update kon niet worden voltooid. Probeer het later opnieuw.",
+          "description": "Er is een fout opgetreden tijdens het installeren van de update."
+        },
+        "do_not_turn_off": "Schakel de dock niet uit tijdens het installatieproces!"
+      },
+      "no_docks": "Je hebt nog geen docks."
+    },
+    "widget": {
+      "add_widget": "Widget toevoegen",
+      "edit_widget": "Widget bewerken",
+      "type": {
+        "icon": {
+          "title": "Pictogramknop",
+          "description": "Eenvoudige knop die een daaraan gekoppelde opdracht uitvoert."
+        },
+        "text": {
+          "title": "Tekstknop",
+          "description": "Eenvoudige knop die een daaraan gekoppelde opdracht uitvoert.",
+          "default_text": "TEKST"
+        },
+        "sensor": {
+          "title": "Sensor",
+          "description": "Geeft de waarden van een sensor weer."
+        },
+        "select": {
+          "title": "Selecteer",
+          "description": "Geeft de huidige optie van een keuzelijst weer."
+        },
+        "media": {
+          "title": "Media-widget",
+          "description": "Toont mediahoes, titel en bron en ook de voortgang.",
+          "component": {
+            "media_title": "Mediatitel",
+            "source": "Bron"
+          },
+          "no_space": "Niet genoeg ruimte voor deze widget op de pagina."
+        },
+        "slider": {
+          "title": "Schuifregelaar",
+          "description": "Regel helderheid, volume of andere ondersteunde waarden."
+        },
+        "jump_to_page": {
+          "title": "Spring naar pagina",
+          "description": "Knop die naar de opgegeven pagina springt."
+        }
+      },
+      "popup": {
+        "icon": "Pictogram",
+        "width": "Breedte",
+        "height": "Hoogte",
+        "command": {
+          "color": "Kleur"
+        },
+        "sensor": {
+          "label": "Sensorentiteit",
+          "show_label": "Label weergeven",
+          "show_unit": "Eenheid tonen"
+        },
+        "select": {
+          "label": "Kies een entiteit",
+          "show_entity_name": "Toon de naam van de entiteit"
+        },
+        "error": {
+          "invalid_size": "Knopgrootte is niet geldig. Kies een geldige grootte en probeer het opnieuw."
+        },
+        "convert_to_icon": "Omzetten naar pictogram",
+        "convert_to_text": "Omzetten naar tekst",
+        "delete_widget": {
+          "title_one": "Widget verwijderen",
+          "title_other": "Widgets verwijderen",
+          "question_one": "Weet je zeker dat je de widget wil verwijderen?",
+          "question_other": "Weet je zeker dat je de widgets wil verwijderen?"
+        }
+      },
+      "error": {
+        "no_position": "Geen geschikte positie gevonden voor de nieuwe widget."
+      }
+    },
+    "group": {
+      "delete": {
+        "title": "Groep verwijderen",
+        "question": "Weet je zeker dat je de groep wil verwijderen?"
+      },
+      "add": {
+        "add_new_group": "Nieuwe groep toevoegen",
+        "new_group": "Nieuwe groep",
+        "add_to": "Toevoegen aan",
+        "add_to_description": "Voeg de groep toe aan de pagina nadat deze is gemaakt.",
+        "select_entities": "Selecteer entiteiten om aan de groep toe te voegen",
+        "confirm_empty": {
+          "title": "Groep heeft geen entiteiten",
+          "question": "Weet je zeker dat je een lege groep wil maken?"
+        }
+      },
+      "edit": {
+        "edit_group": "Groep bewerken",
+        "drag_instructions": "Sleep de entiteit eenvoudigweg uit de lijst om deze te verwijderen of selecteer meerdere om te verwijderen.",
+        "add_entities": "Entiteiten toevoegen",
+        "empty": "De groep is leeg."
+      }
+    },
+    "user_interface": {
+      "grid": "Raster",
+      "edit_pages": "Pagina's bewerken",
+      "pages": {
+        "default_name": "Naamloos",
+        "options": {
+          "rename": "Hernoemen",
+          "copy": "Kopiëren",
+          "reset": "Opnieuw instellen",
+          "delete": "Verwijderen"
+        },
+        "reset_page": {
+          "title": "Pagina opnieuw instellen",
+          "question": "Weet je zeker dat je de pagina {{name}} opnieuw wil instellen?"
+        },
+        "reset_ui": {
+          "title": "UI opnieuw instellen",
+          "question": "Weet je zeker dat je de UI opnieuw wil instellen?"
+        },
+        "non_existent_entities": "Niet beschikbaar omdat de entiteiten niet bestaan"
+      },
+      "no_pages": {
+        "title": "Voeg je eerste pagina toe",
+        "description": "Maak pagina's om je gebruikersinterface te organiseren zoals jij dat wil."
+      }
+    },
+    "entities": {
+      "add_new": "Nieuwe toevoegen"
+    },
+    "integrations": {
+      "add_new_dock": "Voeg nieuwe dock toe"
+    },
+    "activity": {
+      "activity": "Activiteit",
+      "activities": "Activiteiten",
+      "add_first": "Voeg je eerste activiteit toe",
+      "no_activities": "Je hebt nog geen activiteiten. Voeg je eerste activiteit toe door op de knop hieronder te klikken.",
+      "button_mapping": {
+        "instruction": "Pas je activiteitenpagina's aan door widgets aan het scherm toe te voegen of de knopconfiguratie te bewerken."
+      },
+      "add": {
+        "add_new_activity": "Nieuwe activiteit toevoegen",
+        "new_activity": "Nieuwe activiteit",
+        "select_entities": "Selecteer entiteiten om aan de activiteit toe te voegen",
+        "prevent_sleep": {
+          "label": "Slaapstand voorkomen",
+          "description": "Zolang de activiteit aanstaat, voorkom dat de afstandsbediening in slaapstand gaat. Let op: batterijduur zal worden verminderd."
+        },
+        "button_mapping": {
+          "title": "Selecteer entiteiten voor knoptoewijzing",
+          "description": "Je kunt de knoptoewijzing aanpassen en de gebruikersinterface op elk moment personaliseren door de activiteit te bewerken."
+        },
+        "volume_control": {
+          "label": "Volumebediening",
+          "description": "Selecteer het apparaat dat je wil gebruiken voor volumebediening."
+        },
+        "navigation": {
+          "label": "Navigatie",
+          "description": "Selecteer het apparaat dat je wil gebruiken voor hoofdnavigatie."
+        }
+      },
+      "clone": {
+        "clone_activity": "Activiteit klonen"
+      },
+      "edit": {
+        "activity_state": "Status: {{state}}",
+        "state": {
+          "on": "aan",
+          "off": "uit",
+          "running": "actief",
+          "error": "fout"
+        },
+        "prevent_sleep": {
+          "label": "Slaapstand voorkomen",
+          "description": "Zolang de activiteit aanstaat, voorkom dat de afstandsbediening in slaapstand gaat. Let op: batterijduur zal worden verminderd."
+        },
+        "ready_check": {
+          "label": "Controle of alles klaar is",
+          "description": "Controleer de status van de entiteiten die in de reeksen zijn opgenomen voordat je een activiteit in- of uitschakelt. Als je deze controle uitschakelt, kan dat foutmeldingen opleveren als de entiteiten niet beschikbaar zijn."
+        },
+        "activity_group": {
+          "label": "Activiteitengroep"
+        },
+        "editing_info": "Het is niet aanbevolen om actieve activiteiten te bewerken.",
+        "entities_no_exist_info": "De activiteit bevat entiteiten die niet meer bestaan.",
+        "add_entities": "Entiteiten toevoegen",
+        "empty": "De activiteit is leeg."
+      },
+      "delete": {
+        "title": "Activiteit verwijderen",
+        "question": "Weet je zeker dat je de activiteit wil verwijderen?"
+      },
+      "user_interface": {
+        "intro": "Pas je activiteitenpagina's aan door widgets aan het scherm toe te voegen of de knopconfiguratie te bewerken."
+      },
+      "voice_assistant": {
+        "override": "Er is een standaard spraakassistent ingesteld. Je kunt hier een andere spraakassistent voor deze activiteit kiezen.",
+        "select": "Er is geen standaard spraakassistent ingesteld. Je kunt hier een spraakassistent voor deze activiteit kiezen."
+      }
+    },
+    "macro": {
+      "macro": "Macro",
+      "macros": "Macro's",
+      "add_first": "Voeg je eerste macro toe",
+      "no_macros": "Je hebt nog geen macro's. Voeg je eerste macro toe door op de knop hieronder te klikken.",
+      "tab": {
+        "settings": "Instellingen",
+        "sequence": "Reeks"
+      },
+      "add": {
+        "add_new_macro": "Nieuwe macro toevoegen",
+        "new_macro": "Nieuwe macro",
+        "select_entities": "Selecteer entiteiten om aan de macro toe te voegen"
+      },
+      "edit": {
+        "empty": "De macro is leeg."
+      },
+      "clone": {
+        "clone_macro": "Macro klonen"
+      },
+      "delete": {
+        "title": "Macro verwijderen",
+        "question": "Weet je zeker dat je de macro wil verwijderen?"
+      }
+    },
+    "activity_group": {
+      "activity_group": "Activiteitengroep",
+      "activity_groups": "Activiteitengroepen",
+      "add_first": "Voeg je eerste activiteitengroep toe",
+      "no_activity_groups": "Je hebt nog geen activiteitengroepen. Voeg je eerste activiteitengroep toe door op de knop hieronder te klikken.",
+      "add": {
+        "add_new_activity_group": "Nieuwe activiteitengroep toevoegen",
+        "new_activity_group": "Nieuwe activiteitengroep",
+        "select_activities": "Selecteer activiteiten om toe te voegen aan de activiteitengroep"
+      },
+      "edit": {
+        "available_activities": "Beschikbare activiteiten",
+        "included_activities": "Opgenomen activiteiten",
+        "add_first": {
+          "title": "Voeg je eerste activiteit toe",
+          "descr": "Er zijn nog geen activiteiten in de activiteitengroep. Voeg je eerste activiteit toe door op de knop hieronder te klikken."
+        }
+      },
+      "delete": {
+        "title": "Activiteitengroep verwijderen",
+        "question": "Weet je zeker dat je de activiteitengroep wilt verwijderen?"
+      },
+      "options": {
+        "remove_turn_on_delays": {
+          "title": "Verwijder vertragingen na inschakelopdrachten",
+          "options": {
+            "previous_cmd_skipped": "Vorige opdracht overgeslagen",
+            "between_skipped_cmds": "Tussen overgeslagen opdrachten",
+            "never": "Nooit"
+          }
+        },
+        "turn_off_unused_entities": {
+          "title": "Schakel ongebruikte entiteiten uit",
+          "options": {
+            "always": "Altijd",
+            "in_off_sequence": "Gebruikt in uitschakelreeks",
+            "run_off_sequence": "Uitvoeren gewijzigde uitschakelreeks",
+            "never": "Nooit"
+          }
+        }
+      }
+    },
+    "sequence": {
+      "on_sequence": {
+        "title": "Aan-reeks",
+        "description": "De aan-reeks wordt uitgevoerd wanneer een activiteit wordt gestart.",
+        "empty": "Er zitten nog geen opdrachten in de aan-reeks."
+      },
+      "off_sequence": {
+        "title": "Uit-reeks",
+        "description": "De uit-reeks wordt uitgevoerd wanneer een activiteit wordt uitgeschakeld.",
+        "empty": "Er zitten nog geen opdrachten in de uit-reeks."
+      },
+      "sequence": {
+        "title": "Reeks",
+        "description": "De reeks wordt uitgevoerd wanneer een macro wordt gestart.",
+        "empty": "Er zitten nog geen opdrachten in de reeks."
+      },
+      "add_first": "Voeg je eerste opdracht toe",
+      "add_first_btn_below": "Voeg je eerste opdracht toe door op de onderstaande knop te klikken.",
+      "add_commands": "Opdrachten toevoegen",
+      "color": "Kleur"
+    },
+    "button_mapping": {
+      "press": {
+        "short_press": "kort indrukken",
+        "double_press": "dubbel indrukken",
+        "long_press": "lang indrukken"
+      },
+      "command": {
+        "title": "Opdracht",
+        "remap": {
+          "title": "Knop opnieuw toewijzen",
+          "question": "Dit is een speciale knop met functionaliteit om door de gebruikersinterface te navigeren. Als je ervoor kiest om een nieuwe functie toe te wijzen, verlies je de oorspronkelijke functie en moet je het aanraakscherm gebruiken om terug te keren naar het hoofdscherm.",
+          "question_voice": "Als er een spraakassistent is ingesteld, worden aangepaste functies van de microfoonknop genegeerd."
+        },
+        "color": "Kleur"
+      },
+      "reset": {
+        "title": "Knop toewijzing herstellen",
+        "question": "Weet je zeker dat je de knoptoewijzing wil herstellen?"
+      },
+      "reset_more": {
+        "title": "Knoptoewijzingen herstellen",
+        "question": "Weet je zeker dat je de knoptoewijzingen wil herstellen?"
+      },
+      "resetAll": {
+        "title": "Alles opnieuw instellen",
+        "question": "Weet je zeker dat je alle knoptoewijzingen wil herstellen?"
+      }
+    },
+    "touch_slider": {
+      "title": "Aanraakschuifregelaar",
+      "reset": {
+        "title": "De instellingen van de aanraakschuifregelaar opnieuw instellen",
+        "question": "Weet je zeker dat je de instellingen van de aanraakschuifregelaar opnieuw wilt instellen?"
+      }
+    },
+    "login": {
+      "enter_pin": "Voer PIN in om te beginnen",
+      "pin": "Pincode",
+      "pin_description": "Je vindt de PIN-code door naar Instellingen op de afstandsbediening te gaan en de Web-configurator in te schakelen.",
+      "api_definitions": {
+        "label": "Op zoek naar API-definities? Klik hier",
+        "items": {
+          "api_rest": "Core-API REST",
+          "api_ws": "Core-API WS",
+          "test_console": "Websocket testconsole",
+          "integration_api_ws": "Integratie-API WS"
+        }
+      },
+      "error": {
+        "NOT_AUTHORIZED": "Onjuiste PIN. Probeer opnieuw.",
+        "VALIDATION_ERROR": "Onjuiste PIN. Probeer opnieuw.",
+        "ERR_NETWORK": "Netwerkprobleem. Controleer je verbinding en probeer het opnieuw.",
+        "ERR_CANCELED": "Netwerkprobleem. Controleer je verbinding en probeer het opnieuw.",
+        "TIMEOUT": "De afstandsbediening reageerde niet — misschien staat hij in de slaapstand. Probeer het nog eens.",
+        "UNKNOWN": "Een onverwachte fout is opgetreden. Probeer het opnieuw."
+      },
+      "connecting": {
+        "title": "Verbinding maken met je Remote…",
+        "description": "De Remote reageert niet — hij staat misschien in de slaapstand of is aan het opstarten. Zodra hij weer bereikbaar is, word je automatisch ingelogd.",
+        "retry": "Probeer het nu nog eens"
+      }
+    },
+    "home": {
+      "welcome": "Welkom terug",
+      "lets_get": "Laten we beginnen",
+      "customise": "Pas je afstandsbediening aan",
+      "add_device": "Nieuw apparaat toevoegen",
+      "add_activity": "Nieuwe activiteit toevoegen",
+      "battery": "batterij",
+      "charged": "opgeladen"
+    },
+    "profile": {
+      "add_profile": "Profiel toevoegen",
+      "edit_profile": "Profiel bewerken",
+      "your_profiles": "Je profielen",
+      "manage_profiles": "Profielen beheren",
+      "delete_profile": {
+        "title": "Profiel verwijderen",
+        "question": "Weet je zeker dat je het profiel {{name}} wil verwijderen?",
+        "active_not_allowed": "Een actief profiel kan niet worden verwijderd"
+      },
+      "already_active": {
+        "title": "Profiel al actief",
+        "info": "Het profiel dat je hebt geselecteerd is al actief. Als je het profiel wil bewerken, klik dan op profielen beheren."
+      },
+      "delete_already_active": {
+        "title": "Profiel is actief",
+        "info": "Kan een actief profiel niet verwijderen."
+      },
+      "enter_admin_pwd": {
+        "title": "Voer het admin-wachtwoord in",
+        "info": "Voer alstublieft het admin-wachtwoord in om verder te gaan."
+      },
+      "select_manage_profile": "Selecteer een profiel of klik op profielen beheren om profielen te bewerken of te verwijderen.",
+      "click_on_the_profile": "Klik op het profiel dat je wil bewerken.",
+      "profile_has_changed": "Huidig profiel is gewijzigd",
+      "name": "Naam",
+      "password": "Wachtwoord",
+      "restricted_profile": "Beperkt profiel",
+      "restricted_profile_description": "Een beperkt profiel heeft geen toegang tot instellingen en configuratie. Gebruik dit type om bijvoorbeeld profielen te maken voor gasten of kinderen.",
+      "switch": {
+        "error_status": {
+          "401": "Onjuiste admin pin.",
+          "404": "Profiel niet gevonden."
+        }
+      },
+      "message": {
+        "adding_profile": "Profiel wordt toegevoegd",
+        "profile_added": "Profiel toegevoegd",
+        "deleting_profile": "Profiel wordt verwijderd",
+        "profile_deleted": "Profiel verwijderd"
+      },
+      "select_an_icon": "Selecteer een pictogram"
+    },
+    "remote": {
+      "infrared": "Infrarood",
+      "external_remotes": "Externe afstandsbedieningen",
+      "bluetooth": {
+        "connection_number": "Verbindingsnummer",
+        "connection": {
+          "connected": "verbonden",
+          "disconnected": "verbinding verbroken"
+        },
+        "device_profile": "Apparaatprofiel",
+        "pair_state": {
+          "paired": "gekoppeld",
+          "unpaired": "ontkoppeld"
+        },
+        "pair": "Koppel",
+        "forget_device": {
+          "title": "Vergeet apparaat",
+          "question": "Zorg ervoor dat je de afstandsbediening verwijdert op het apparaat waarmee het is gekoppeld. Raadpleeg de gebruiksaanwijzing van je apparaat voor de juiste procedure."
+        }
+      },
+      "device_profile": {
+        "default": "Standaard"
+      },
+      "label": {
+        "infrared_output_device": "Infrarood-uitvoerapparaat",
+        "infrared_output_port": "Infrarood-uitgangspoort"
+      },
+      "no_output_device": "Er is geen uitvoerapparaat beschikbaar",
+      "add_device_ir": {
+        "title": "Nieuw infrarood-apparaat toevoegen",
+        "title_short": "Nieuw infrarood toevoegen",
+        "create_blank": {
+          "title": "Lege aanmaken",
+          "description": "Maakt een leeg infraroodapparaat. Je moet zelf de codes toevoegen of leren."
+        },
+        "custom_data_set": {
+          "title": "Maak een aangepaste infrarood-dataset",
+          "description": "Voer een uniek apparaat in voor de IR-dataset. Dit wordt gekoppeld aan de Aangepast-fabrikant.",
+          "input_label": "Apparaatnaam"
+        },
+        "manufacturer": {
+          "title": "Kies een code-dataset",
+          "search": "Zoek naar fabrikant",
+          "instruction": "Voer minstens 2 tekens in",
+          "type": "Typ om te zoeken"
+        },
+        "test": {
+          "title": "Test de infraroodcodes",
+          "description1": "Controleer of de opdrachten werken door een IR-uitvoerapparaat te selecteren en op de opdrachten te klikken die je wil testen.",
+          "description2": "Zorg ervoor dat het infrarood-uitvoerapparaat zichtlijn heeft naar het apparaat dat je wilt bedienen.",
+          "output_device": "Infraroodtest-uitvoerapparaat",
+          "output_port": "Infraroodtest-uitvoerpoort"
+        }
+      },
+      "add_device_bt": {
+        "title": "Nieuw bluetooth-apparaat toevoegen",
+        "title_short": "Nieuw Bluetooth toevoegen",
+        "slots_available_one": "{{available}} van {{count}} plek beschikbaar",
+        "slots_available_other": "{{available}} van {{count}} plekken beschikbaar",
+        "device_profile": {
+          "label": "Apparaat profiel",
+          "default": "standaard",
+          "info": "Als je niet zeker weet welk apparaatprofiel je moet kiezen of je kunt geen profiel vinden voor je apparaat, kies dan standaard.",
+          "learn_more": "Lees meer"
+        },
+        "enable_pairing": "Koppelen inschakelen",
+        "disabled_bt": {
+          "title": "Bluetooth is uitgeschakeld",
+          "description": "Schakel Bluetooth in om een nieuw bluetooth-apparaat toe te voegen."
+        },
+        "no_slot": {
+          "title": "Geen beschikbare slots",
+          "description": "Je hebt alle beschikbare bluetooth-slots gebruikt om apparaten te koppelen. Verwijder een bluetooth-apparaat en probeer het opnieuw."
+        },
+        "waiting": {
+          "title": "Wachten op koppelverzoek",
+          "description": "Zoek de afstandsbediening op het apparaat waarmee je koppelt en kies koppel.",
+          "advertisement_name": "Advertentienaam"
+        },
+        "code_input": {
+          "title": "Koppelverzoek ontvangen",
+          "description": {
+            "code": "Voer de koppelcode in en bevestig het koppelingsverzoek hieronder.",
+            "simple": "Gelieve het koppelingsverzoek te bevestigen om door te gaan."
+          }
+        },
+        "progress": {
+          "title": "Koppelen in uitvoering"
+        },
+        "success": {
+          "title": "Koppeling geslaagd",
+          "description": "Je hebt met succes het bluetooth-apparaat gekoppeld."
+        },
+        "fail": {
+          "title": "Koppelen mislukt",
+          "description": "Wachten op een nieuw koppelverzoek."
+        },
+        "error": {
+          "empty_name": "Naamveld is leeg."
+        },
+        "message": {
+          "SUCCESS": "Succes",
+          "AUTHENTICATION_FAILURE": "Inloggen mislukt. Controleer je inloggegevens en probeer het opnieuw.",
+          "PASSKEY_ENTRY_FAILED": "Kan geen wachtwoord invoeren. Probeer het opnieuw.",
+          "AUTHENTICATION_REQUIREMENTS": "Authenticatievereisten.",
+          "CONFIRM_VALUE_FAILED": "Bevestigen van waarde mislukt.",
+          "PAIRING_NOT_SUPPORTED": "Koppelen niet ondersteund.",
+          "ENCRYPTION_KEY_SIZE": "Sleutelgrootte voor encryptie.",
+          "COMMAND_NOT_SUPPORTED": "Opdracht niet ondersteund.",
+          "UNSPECIFIED_REASON": "Niet gespecificeerde reden.",
+          "REPEATED_ATTEMPTS": "Herhaalde pogingen.",
+          "INVALID_PARAMETERS": "Ongeldige invoer. Controleer en probeer het opnieuw.",
+          "DHKEY_CHECK_FAILED": "DHKEY-controle mislukt.",
+          "NUMERIC_COMPARISON_FAILED": "Numerieke vergelijking mislukt."
+        }
+      },
+      "ir_code": {
+        "title": "Infraroodcode-dataset",
+        "reset": {
+          "title": "Infrarood-code opnieuw instellen",
+          "question": "Weet je zeker dat je de infrarood-code opnieuw wil instellen?"
+        },
+        "delete": {
+          "title": "Verwijder infrarood-code",
+          "question": "Weet je zeker dat je de infrarood-code wilt verwijderen?"
+        },
+        "delete_codes": {
+          "title": "Verwijder infrarood-codes",
+          "question": "Weet je zeker dat je de infrarood-codes wil verwijderen?"
+        },
+        "add": {
+          "add_ir_code": "Voeg nieuwe infraroodcode toe",
+          "edit_ir_code": "Bewerk infraroodcode",
+          "ir_code": "IR-code",
+          "button": "Knop",
+          "new_button_name": {
+            "label": "Nieuwe knopnaam",
+            "description": "Voer een knopnaam in en selecteer een optie hieronder om verder te gaan."
+          },
+          "selector": {
+            "paste_ir_code": "IR-code plakken",
+            "learn_ir_code": "IR-code leren"
+          },
+          "error": {
+            "invalid_cmd_name": "Ongeldige of bestaande opdrachtnaam.",
+            "invalid_code_format": "Code-indeling niet herkend. Zorg ervoor dat de code correct is en probeer het opnieuw.",
+            "VALIDATION_ERROR": "Ongeldige gegevens. Corrigeer deze."
+          },
+          "paste_code_placeholder": "Plak je code hier en kies rechtsboven de juiste indeling. De codes die je hebt geleerd, verschijnen hier ook.",
+          "test_code": "Test code",
+          "test_ok": "Testen code OK",
+          "infrared_learning": {
+            "title": "Infrarood leren",
+            "description": "Richt je oude afstandsbediening op de voorkant van de dock op een kleine afstand en druk op de knop die je wilt leren."
+          },
+          "infrared_device": "Infrarood-apparaat",
+          "select_device": "Selecteer het infrarood-apparaat dat je wilt gebruiken om de codes te leren.",
+          "start_learning": "Leer code",
+          "stop_learning": "Stop met leren",
+          "successful_learning": "Leren was succesvol.",
+          "not_support_learning": "Dit apparaat ondersteunt geen IR-leren.",
+          "emitter_offline": "Dit apparaat is momenteel offline. Controleer de netwerkverbinding en probeer het nog eens."
+        },
+        "import": {
+          "title": "Importeer infraroodcodes",
+          "description": "Upload meerdere IR-codes in een CSV-bestand. De volgorde van de kolomkoppen is niet relevant, extra kolommen worden genegeerd. Standaardformaat: PRONTO.",
+          "file_size": "Maximum bestandsgrootte: 10MB.",
+          "csv_template": "Download CSV-bestandssjabloon.",
+          "delimiter_label": "Scheidingsteken",
+          "delimiter_info": "Optioneel CSV-scheidingsteken",
+          "comment_label": "Opmerking",
+          "comment_info": "Optioneel. Het opmerkingenkarakter aan het begin van een regel om te gebruiken bij het inlezen van een CSV-bestand. Standaard is er geen opmerkingenkarakter ingesteld.",
+          "overwrite_label": "Codes overschrijven",
+          "overwrite_description": "Bestaande IR-codes met dezelfde sleutel overschrijven.",
+          "state": {
+            "success": "Uploaden geslaagd",
+            "error": "Uploaden mislukt"
+          },
+          "upload": "Uploaden",
+          "done": "Gereed"
+        }
+      },
+      "user_interface": {
+        "intro": "Pas je afstandsbedieningspagina's aan door widgets aan het scherm toe te voegen of de knopconfiguratie te bewerken."
+      },
+      "button_mapping": {
+        "instruction": "Pas je afstandsbedieningspagina's aan door widgets aan het scherm toe te voegen of de knopconfiguratie te bewerken."
+      },
+      "change_device_profile": {
+        "title": "Wijzig apparaatprofiel",
+        "message": "Apparaatprofielen hebben standaard knoppentoewijzingen en UI-configuratie. Bij het wijzigen van een apparaatprofiel kun je ervoor kiezen de toewijzing en configuratie opnieuw in te stellen en de configuratie die door het apparaatprofiel wordt geboden te herstellen.",
+        "reset_button_mapping": "Knoptoewijzing herstellen",
+        "reset_ui_configuration": "UI-configuratie opnieuw instellen"
+      },
+      "color": {
+        "d": "Donkergrijs",
+        "s": "Zilver"
+      },
+      "meta_label": {
+        "model_name": "Modelnaam",
+        "model_number": "Modelnummer",
+        "serial_number": "Serienummer",
+        "revision": "Revisie",
+        "color": "Kleur",
+        "system_version": "Systeemversie",
+        "core_version": "Core-versie",
+        "ui_version": "UI-versie",
+        "web_configurator_version": "Web Configurator-versie",
+        "wiFi_address": "Wifi-adres",
+        "bluetooth_address": "Bluetooth-adres"
+      }
+    },
+    "device": {
+      "add_device": {
+        "title": "Nieuw apparaat toevoegen",
+        "discover": {
+          "discovering": "Integraties zoeken",
+          "discovered_integration_one": "{{count}} integratie beschikbaar",
+          "discovered_integration_other": "{{count}} integraties beschikbaar",
+          "no_integration_discovered": "Geen integratie gevonden"
+        },
+        "menu_list": {
+          "infrared": {
+            "title": "Infrarood",
+            "description": "Voeg een IR-dataset toe voor je infraroodapparaat of leer de commando's van je oude afstandsbediening."
+          },
+          "bluetooth": {
+            "description": "Koppel met een Bluetooth-apparaat als toetsenbord/muis."
+          },
+          "dock": {
+            "title": "Dock",
+            "description": "Voeg een Unfolded Circle slimme dock of een compatibel apparaat toe."
+          }
+        }
+      }
+    },
+    "customise_remote": {
+      "tab": {
+        "pages": "Pagina's",
+        "icons": "Pictogrammen",
+        "tv_channels": "TV-kanalen",
+        "backgrounds": "Achtergronden"
+      },
+      "pages": {
+        "add_page_title": "Voeg je eerste pagina toe",
+        "add_page_descr": "Maak pagina's voor elke kamer, apparaattype, of organiseer je apparaten zoals je wilt.",
+        "remote": {
+          "description": "Dit is een voorbeeld van een pagina. Je kunt op de pictogrammen klikken om apparaten in of uit te schakelen."
+        },
+        "your_pages": "Jouw pagina's",
+        "options": {
+          "edit_contents": "Bewerk inhoud",
+          "rename": "Hernoemen",
+          "replace_background": "Achtergrond vervangen",
+          "add_background": "Achtergrond toevoegen",
+          "remove_background": "Achtergrond verwijderen",
+          "duplicate": "Dupliceren",
+          "delete": "Verwijderen"
+        },
+        "delete_page": {
+          "title": "Pagina verwijderen",
+          "question": "Weet je zeker dat je de pagina {{name}} wil verwijderen?"
+        },
+        "delete_item": {
+          "title": "Item verwijderen",
+          "question": "Weet je zeker dat je het item wil verwijderen?"
+        },
+        "remove_background": {
+          "title": "Achtergrond verwijderen",
+          "question": "Weet je zeker dat je de achtergrond wil verwijderen?"
+        },
+        "no_pages": "Je hebt nog geen pagina's.",
+        "paste": {
+          "errors": {
+            "not_fully_completed": "De plakbewerking kon niet helemaal worden voltooid.",
+            "no_available_command": "De plakbewerking kan niet worden voltooid."
+          }
+        },
+        "merge": {
+          "errors": {
+            "not_fully_completed": "De samenvoegactie kon niet helemaal worden voltooid.",
+            "no_available_command": "De samenvoegactie kan niet worden voltooid."
+          }
+        }
+      },
+      "options": {
+        "description": "Pas je pagina aan door entiteiten of groepen aan het scherm toe te voegen of de knopconfiguratie te bewerken.",
+        "description_options": "Kies een van de onderstaande opties om te beginnen.",
+        "rearrange_items": "Je kunt items op een pagina herschikken door ze naar rechts te slepen. Om een item te verwijderen, selecteer verwijder uit opties.",
+        "list": {
+          "add_entities": "Entiteiten toevoegen",
+          "add_groups": "Groepen toevoegen",
+          "configure_buttons": "Knoppen configureren"
+        },
+        "no_items": "Je hebt nog geen items."
+      },
+      "rename_page": "Pagina hernoemen",
+      "add_entities": {
+        "title": "Entiteiten toevoegen"
+      },
+      "add_groups": {
+        "title": "Groepen toevoegen"
+      }
+    },
+    "software_update": {
+      "title": "Software-update",
+      "state": {
+        "up_to_date": "Je software is bijgewerkt.",
+        "available_software": "Nieuwe software is beschikbaar.",
+        "available_softwares": "Nieuwe software is beschikbaar.",
+        "available_dock_firmware": "Nieuwe dock-firmware is beschikbaar.",
+        "check_for_update": "Controleren op updates.",
+        "check_error": "Kon niet controleren op updates. Probeer het later opnieuw."
+      },
+      "check": {
+        "error_status": {
+          "503": "De update-service is op dit moment niet beschikbaar. Probeer het later nogmaals."
+        }
+      },
+      "min_battery": "Het batterijniveau moet minstens 50% zijn voor updates. Laad op en probeer opnieuw.",
+      "up_to_date": {
+        "check_for_update": "Controleer op updates",
+        "system_version": "Systeemversie"
+      },
+      "new_version": {
+        "title": "Nieuwe versie",
+        "system_version": "Systeemversie"
+      },
+      "release_notes": {
+        "title": "Versie-opmerkingen"
+      },
+      "check_updates": {
+        "title": "Controleer op updates",
+        "description": "Automatisch controleren op updates."
+      },
+      "auto_update": {
+        "title": "Automatisch bijwerken",
+        "description": "Werk de afstandsbediening automatisch bij wanneer nieuwe software beschikbaar is."
+      },
+      "beta_updates": {
+        "title": "Bèta-updates",
+        "description": "Installeer en probeer bèta-software. Jouw feedback helpt ons om de stabiliteit en prestaties van toekomstige versies te verbeteren.",
+        "modal": {
+          "title": "Bèta-updates",
+          "disclaimer": "### Disclaimer voor bèta-firmware-updates\n**Let op: je Remote moet opnieuw worden opgestart nadat je bèta-updates hebt in- of uitgeschakeld!**\n\nDoor bèta-firmware-updates in te schakelen, ga je akkoord met het volgende: \n\n1. Gegevensverlies en fabrieksreset.  \n   Beta-firmware-updates kunnen leiden tot gegevensverlies en maken het nodig om je toestel terug te zetten naar de fabrieksinstellingen.\n   We raden je aan een back-up te maken van alle belangrijke gegevens voordat je doorgaat met de installatie van de beta-firmware.\n\n2. Gebruik op eigen risico.  \n   Beta-firmware-updates kunnen bugs bevatten en onvoltooide of onstabiele functies hebben.\n   We raden je af om bètasoftware te installeren op apparaten die je dagelijks gebruikt.\n\n3. Ondersteuning &amp; feedback.  \n   We kunnen geen ondersteuning bieden voor bètasoftware. Hoewel de ondersteuning beperkt kan zijn, moedigen we gebruikers aan om feedback te geven,\n   bugs te melden en hun ervaringen met bèta-firmware-updates te delen.\n   Jouw input helpt ons de stabiliteit en prestaties van toekomstige releases te verbeteren.\n\nLet op: je kunt alleen een issue openen op GitHub met de juiste tags, waarbij je aangeeft dat het om een bèta-issue gaat en het nummer van de bètaversie vermeldt.\nZo zorgen we ervoor dat feedback en bugrapporten naar de juiste kanalen worden doorgestuurd voor het testen van de bètaversie.\n\nDoor door te gaan met de installatie van bèta-firmware-updates ga je akkoord met de voorwaarden die in deze disclaimer staan.\nWe waarderen je begrip en medewerking om ons te helpen onze producten en diensten te verbeteren.",
+          "disabling": "Remote moet opnieuw worden opgestart nadat je de bèta-updates hebt uitgeschakeld!"
+        }
+      },
+      "status": {
+        "DOWNLOAD": "Downloaden",
+        "DOWNLOADING": "Downloaden",
+        "DOWNLOADED": "Gedownload",
+        "START": "Start",
+        "PENDING": "In behandeling"
+      },
+      "success": {
+        "title": "Update geslaagd",
+        "description": "De afstandsbediening start zo meteen opnieuw op."
+      },
+      "fail": {
+        "title": "Update kon niet worden voltooid. Probeer het later opnieuw.",
+        "description": "Er was een fout tijdens het installeren van de update."
+      },
+      "progress": {
+        "title": "Update bezig",
+        "step": "Stap {{current}} / {{total}}",
+        "do_not_turn_off": "Schakel de afstandsbediening niet uit tijdens het installatieproces!"
+      },
+      "reload": {
+        "title": "Je systeem is bijgewerkt",
+        "description": "Je afstandsbediening is bijgewerkt naar versie {{version}}. De Web Configurator moet opnieuw worden geladen. Klik hieronder op de knop ‘Opnieuw laden’ of ververs je webbrowser."
+      }
+    },
+    "language_text": {
+      "popup_delete": {
+        "title": "Taaltekst verwijderen",
+        "question": "Weet je zeker dat je de taaltekst wil verwijderen?"
+      }
+    },
+    "battery_status": {
+      "value": {
+        "FULL": "opgeladen",
+        "CHARGING": "opladen",
+        "NOT_CHARGING": "laadt niet op",
+        "DISCHARGING": "ontladen",
+        "LOW_BATTERY": "batterij bijna leeg",
+        "undefined": "onbekend"
+      }
+    },
+    "quick_tips": {
+      "tip1": {
+        "headline": "Integraties",
+        "body": "Entiteiten worden niet automatisch geconfigureerd nadat je een nieuwe integratie hebt toegevoegd. Klik op het integratiescherm op de +-knop boven de lijst met geconfigureerde entiteiten en kies welke van de beschikbare entiteiten je wil toevoegen."
+      },
+      "tip2": {
+        "headline": "Vertalingen",
+        "body": "De Web Configurator is vertaald naar het Deens, Nederlands, Frans, Duits en Zwitsers-Duits, Hongaars en Italiaans. Er worden momenteel meer vertalingen voorbereid op SimpleLocalize en deze zullen binnenkort beschikbaar zijn."
+      },
+      "tip3": {
+        "headline": "Aangepaste integraties",
+        "body": "Via de knop ‘Nieuw toevoegen’ op het scherm ‘Integraties’ kun je maximaal 10 aangepaste integraties uploaden. Dit is momenteel een preview-functie en aangepaste integraties worden niet meegenomen in back-ups."
+      },
+      "tip4": {
+        "headline": "Een aangepaste integratie bijwerken",
+        "body": "Aangepaste integraties die je al hebt geïnstalleerd, kun je nu in het uploadvenster bijwerken door het selectievakje ‘Bijwerken’ aan te vinken. Bestaande entiteiten worden niet meer uit de UI-pagina’s verwijderd. Als een aangepaste integratie nog niet kan worden bijgewerkt, neem dan contact op met de ontwikkelaar van die integratie."
+      },
+      "tip5": {
+        "headline": "Back-ups",
+        "body": "Back-uparchieven bevatten alleen configuratie-instellingen. Let op: de archieven zijn niet versleuteld en kunnen gevoelige informatie bevatten. Aangepaste integraties worden niet meegenomen in de back-ups."
+      },
+      "tip6": {
+        "headline": "Nieuw toegevoegde functies",
+        "body": "2.9.3 Aangepaste integraties bijwerken | 2.9.0 Media doorbladeren, zoeken en afspelen | 2.8.3 Keuzelijst-entiteit | 2.8.2 Spraakopdrachten voor Android TV | 2.8.1 Initiële ondersteuning voor Home Assistant-spraakopdrachten"
+      }
+    },
+    "icons": {
+      "title": "Pictogrammen",
+      "default": "Standaard",
+      "custom": "Aangepast",
+      "tv_channels": "TV-kanalen"
+    },
+    "resource": {
+      "tap_to": "Tik om te uploaden",
+      "drag_image": "Sleep een afbeelding hierheen",
+      "or": "of",
+      "browse": "Bladeren",
+      "uploading": "Uploaden...",
+      "invalid_formats": "Sommige bestanden worden niet ondersteund. Controleer deze.",
+      "invalid_dimensions": "Onjuiste afmetingen van de afbeelding. Upload afbeeldingen met een afmeting van {{width}}x{{height}}px.",
+      "delete_items": {
+        "title_one": "Item verwijderen",
+        "title_other": "Items verwijderen",
+        "question_one": "Weet je zeker dat je het item wil verwijderen?",
+        "question_other": "Weet je zeker dat je de items wil verwijderen?"
+      },
+      "upload": {
+        "error_status": {
+          "507": "Er is onvoldoende opslagruimte om de afbeelding op te slaan."
+        }
+      }
+    },
+    "tv_channels": {
+      "title": "TV-kanalen"
+    },
+    "edit": {
+      "entity": "Entiteit bewerken"
+    },
+    "error": {
+      "session_expired": "Sessie verlopen.",
+      "unknown_error": "Er is iets misgegaan.",
+      "chunk_load_failed": "Een deel van de app kon niet worden geladen. Controleer de verbinding en laad de pagina opnieuw.",
+      "not_available": "Niet beschikbaar",
+      "NOT_FOUND": "Niet gevonden.",
+      "UNAUTHORIZED": "Niet geautoriseerd.",
+      "FORBIDDEN": "Verboden.",
+      "BAD_REQUEST": "Ongeldig verzoek.",
+      "BAD_RESPONSE": "Ongeldige reactie.",
+      "SERVICE_UNAVAILABLE": "Service niet beschikbaar.",
+      "ERR_NETWORK": "Netwerkfout.",
+      "ERR_BAD_REQUEST": "Ongeldig verzoek.",
+      "ERR_BAD_RESPONSE": "Ongeldige reactie.",
+      "ERR_UNAUTHORIZED": "Niet geautoriseerd.",
+      "ERR_NOT_FOUND": "Niet gevonden.",
+      "ERR_INTERNAL_SERVER_ERROR": "Interne serverfout. Probeer het later opnieuw.",
+      "ERR_SERVICE_UNAVAILABLE": "Service niet beschikbaar.",
+      "ERR_CANCELED": "Netwerkprobleem. Controleer je verbinding en probeer het opnieuw.",
+      "VALIDATION_ERROR": "Ongeldige gegevens. Corrigeer deze.",
+      "INVALID_FORMAT": "Niet ondersteund formaat. Gebruik een ondersteund formaat en probeer het opnieuw.",
+      "TIMEOUT": "Time-out.",
+      "HAS_TIMEOUT": "Er is een time-out opgetreden.",
+      "NOT_IMPLEMENTED": "Niet geïmplementeerd.",
+      "ALREADY_EXISTS": "Bestaat al."
+    },
+    "api_errors": {
+      "error_status": {
+        "400": "Ongeldig verzoek. Controleer je invoer.",
+        "401": "Niet geverifieerd.",
+        "403": "Toegangsrechten ontbreken.",
+        "404": "Bron niet gevonden.",
+        "408": "Er is een time-out opgetreden.",
+        "409": "Conflict, de bewerking is momenteel niet toegestaan.",
+        "413": "Inhoud is te groot en wordt niet ondersteund.",
+        "415": "Niet ondersteund media type.",
+        "422": "Gegevens bestaan al.",
+        "429": "Te veel verzoeken, probeer later opnieuw.",
+        "500": "Interne serverfout.",
+        "503": "Service is momenteel niet beschikbaar, probeer later opnieuw.",
+        "507": "Niet genoeg schijfruimte beschikbaar."
+      },
+      "generic_error": "Er is een onbekende fout opgetreden: "
+    },
+    "settings": {
+      "general": {
+        "remote_name": {
+          "label": "Naam afstandsbediening"
+        },
+        "about": {
+          "label": "Over",
+          "description": "Informatie over je apparaat",
+          "licenses": {
+            "label": "Licentie-informatie",
+            "title": "Licentie-informatie",
+            "error": "De licentie-informatie kon niet worden geladen."
+          }
+        },
+        "software_update": {
+          "label": "Software-update",
+          "status": {
+            "up_to_date": "Je software is bijgewerkt.",
+            "available_software": "Nieuwe software is beschikbaar."
+          }
+        },
+        "backup": {
+          "label": "Back-up",
+          "description": "Download en herstel back-ups van je configuratie."
+        },
+        "ir_dataset": {
+          "label": "IR-dataset",
+          "description": "Download je aangepaste IR-datasets."
+        },
+        "download": {
+          "description": "Klik op de downloadknop om een back-up van je huidige configuratie te downloaden. Van aangepaste integraties wordt geen back-up gemaakt."
+        },
+        "restore": {
+          "label": "Herstellen",
+          "description": "Selecteer een back-up om te herstellen.",
+          "dialog": {
+            "title": "Back-up herstellen",
+            "question": "Weet je zeker dat je een back-up wilt herstellen? Deze handeling overschrijft je huidige configuratie."
+          },
+          "message": {
+            "restoring_backup": "Back-up wordt hersteld"
+          },
+          "error_status": {
+            "400": "Het backup-archief is ongeldig of beschadigd. Controleer de logboeken voor meer details.",
+            "403": "Verboden, alleen een beheerdersaccount mag een back-up herstellen.",
+            "409": "Er wordt al een back-up- of herstelproces uitgevoerd.",
+            "500": "Interne serverfout, het backup-archief kon niet worden verwerkt. Controleer de logboeken voor meer details.",
+            "507": "Niet genoeg schijfruimte beschikbaar."
+          }
+        },
+        "reboot": {
+          "dialog": {
+            "title": "Herstart apparaat",
+            "question": "Herstart het apparaat om de herstelde configuratie te laden!"
+          }
+        }
+      },
+      "display": {
+        "auto_brightness": "Automatische helderheid",
+        "auto_brightness_description": "Pas de beeldschermhelderheid automatisch aan op basis van omgevingslichtomstandigheden.",
+        "display_brightness": "Helderheid van het scherm",
+        "button_backlight": "Achtergrondverlichting knoppen",
+        "button_backlight_color": {
+          "label": "Kleur achtergrondverlichting knoppen",
+          "dialog": {
+            "title": "Kleur opnieuw instellen",
+            "question": "Kleur van achtergrondverlichting knop opnieuw instellen naar wit?"
+          }
+        },
+        "button_backlight_description": "Indien aan, gaat de achtergrondverlichting van knoppen automatisch aan in een donkere kamer.",
+        "button_brightness": "Helderheid van de achtergrondverlichting van knoppen"
+      },
+      "sound_haptic": {
+        "sound_effects": "Geluidseffecten",
+        "sound_effects_description": "Geluidseffecten inschakelen",
+        "sound_effects_volume": "Volume geluidseffecten",
+        "haptic_feedback": "Tastbare feedback",
+        "haptic_feedback_description": "Tastbare feedback inschakelen"
+      },
+      "voice_control": {
+        "voice_control": "Spraakbesturing",
+        "voice_control_description": "Door spraakbesturing uit te schakelen, kunt u de dicteerfunctie voor integraties blijven gebruiken.",
+        "microphone": "Microfoon",
+        "microphone_description": "Als je de microfoon uitschakelt, wordt ook de spraakassistent uitgeschakeld.",
+        "voice_assistant": {
+          "title": "Spraakassistent",
+          "select": "Kies een spraakassistent",
+          "description": {
+            "base": "Kies een spraakassistent die de spraakopdrachten op de afstandsbediening verwerkt.",
+            "no_items": "Er zijn geen spraakassistenten beschikbaar"
+          },
+          "support_link": "Spraakassistenten gebruiken",
+          "profile": {
+            "title": "Profiel van de spraakassistent",
+            "select": "Kies een profiel voor de spraakassistent"
+          }
+        }
+      },
+      "wifi_bluetooth": {
+        "bluetooth": {
+          "current_version": "Huidige versie",
+          "advertisement_name": "Advertentienaam",
+          "peripheral_connections": {
+            "label": "Verbindingen met randapparatuur",
+            "description": "Aantal gelijktijdige bluetooth-verbindingen."
+          },
+          "hci_logs": {
+            "label": "HCI-logboeken activeren",
+            "description": "Host Controller Interface-logboeken."
+          }
+        },
+        "wifi": "Wifi",
+        "wifi_scanning": {
+          "label": "Actief scannen naar wifi-netwerken",
+          "description": "Zoek actief naar wifi-netwerken in de buurt met het ingestelde interval."
+        },
+        "wifi_band": {
+          "label": "Wifi-band",
+          "option": {
+            "auto": "Auto"
+          }
+        }
+      },
+      "admin_password": {
+        "description": "Het beheerderswachtwoord wordt gebruikt om over te schakelen van beperkte profielen.",
+        "pass_not_match": "De wachtwoorden komen niet overeen."
+      },
+      "development": {
+        "logs": {
+          "label": "Logboeken",
+          "description": "Logboeken voor integraties en het systeem downloaden.",
+          "services": {
+            "label": "Services",
+            "description": "Selecteer een service om de logboeken voor te downloaden."
+          },
+          "priority": {
+            "label": "Prioriteit",
+            "description": "Selecteer het prioriteitsniveau van het logboek. Debug geeft alles weer, terwijl Crit alleen kritieke fouten toont."
+          },
+          "boot_id": {
+            "label": "Opstart-ID",
+            "description": "Laat leeg als je niet weet wat dit is."
+          },
+          "date_range": {
+            "label": "Datumbereik",
+            "description": "Selecteer een specifiek datumbereik om logboekvermeldingen te filteren."
+          },
+          "log_entries": {
+            "label": "Aantal logboekvermeldingen",
+            "description": "Beperk het aantal logboekvermeldingen."
+          },
+          "search_string": {
+            "label": "Zoekterm",
+            "description": "Voer een zoekterm in om in de logboeken te zoeken."
+          }
+        },
+        "preview_features": {
+          "label": "Preview-functies",
+          "description": "Preview-functies inschakelen die momenteel worden getest of nog niet volledig zijn ontwikkeld."
+        },
+        "restart_remote": {
+          "label": "Herstart afstandsbediening",
+          "description": "De afstandsbediening moet opnieuw worden opgestart na het wijzigen van een preview-functie."
+        }
+      },
+      "localization": {
+        "language": "Taal",
+        "country": "Land",
+        "timezone": "Tijdzone",
+        "time_format": "24-uurs tijd",
+        "unit_system": "Eenhedensysteem"
+      },
+      "logs": {
+        "name": "Logboeken"
+      },
+      "power_saving": {
+        "wake_on_wlan": {
+          "label": "Houd wifi verbonden in stand-by",
+          "description": "Houdt wifi altijd verbonden, zelfs als het apparaat in slaapstand is. Hiermee verbindt de afstandsbediening sneller opnieuw na het ontwaken. Houd er rekening mee dat het inschakelen van deze functie de levensduur van de batterij enigszins verkort."
+        },
+        "wakeup_sensitivity": {
+          "label": "Wekgevoeligheid",
+          "description": "Hoeveelheid beweging die nodig is om de afstandsbediening wakker te maken.",
+          "level": {
+            "off": "uit",
+            "low": "laag",
+            "medium": "gemiddeld",
+            "high": "hoog"
+          }
+        },
+        "display_timeout": {
+          "label": "Scherm time-out",
+          "description": "Tijd nadat het scherm uitschakelt."
+        },
+        "sleep_timeout": {
+          "label": "Slaap time-out",
+          "description": "Tijd nadat de afstandsbediening in energiebesparingsmodus gaat."
+        }
+      },
+      "factory_reset": {
+        "description": "Het opnieuw instellen verwijdert alle instellingen, configuraties en opgeslagen informatie op de afstandsbediening. Gegevens kunnen niet worden hersteld. Doorgaan?",
+        "button": "Alles wissen",
+        "config": {
+          "title": "Geen weg terug",
+          "description": "Bevestiging van het herstellen van de fabrieksinstellingen wist alle configuraties en gegevens. Herstellen is niet mogelijk."
+        }
+      },
+      "application_credentials": {
+        "description": "OAuth wordt gebruikt om de Remote veilige, gedelegeerde toegang te verlenen tot informatie op andere websites, zonder dat je je persoonlijke inloggegevens hoeft prijs te geven."
+      }
+    },
+    "ent_list": {
+      "paging": {
+        "showing": "Toont {{items}} van {{total}}",
+        "items_total": "{{items}} van {{total}}",
+        "items_per_page": "Aantal items per pagina:"
+      }
+    },
+    "command": {
+      "delay": "Vertraging",
+      "remove": "Verwijderen",
+      "assign": {
+        "title": "Opdracht toewijzen",
+        "showing_all_commands": "Toont alle opdrachten",
+        "select_an_entity": "Kies een entiteit om de bijbehorende opdrachten te zien."
+      }
+    },
+    "remote_status": {
+      "extend_timeout": {
+        "title": "Je afstandsbediening gaat in de slaapstand",
+        "question": "De afstandsbediening gaat over {{seconds}} seconden in de slaapstand. Als je de Web Configurator wil blijven gebruiken, kun je de time-out verlengen door op ‘Verlengen’ te klikken."
+      }
+    },
+    "sleep_timeout": {
+      "title": "Time-out slaapstand",
+      "info_prevent": "Je kunt voorkomen dat de afstandsbediening in de slaapstand gaat door op ‘Slaapstand voorkomen’ te klikken, of de time-out uitschakelen door op het verwijderpictogram te klikken.",
+      "info_charging": "De afstandsbediening is aangesloten op een stroombron en gaat niet in de slaapstand.",
+      "prevent_sleep_for": {
+        "label": "Voorkom slaapstand voor",
+        "unit": "min",
+        "action": "Voorkom slaapstand voor {{minutes}} minuten"
+      },
+      "going_to_sleep": "Gaat in slaapstand in",
+      "dialog": {
+        "delete_inhibitor": {
+          "title": "Verwijder de stand-by-blokkering",
+          "question": "Weet je zeker dat je de stand-by-blokkering wil verwijderen?"
+        }
+      }
+    },
+    "application_credentials": {
+      "add": {
+        "title": "Inloggegevens voor de applicatie toevoegen",
+        "description": "OAuth wordt gebruikt om de afstandsbediening veilige, gedelegeerde toegang te verlenen tot informatie op andere websites, zonder dat je je persoonlijke inloggegevens hoeft prijs te geven.",
+        "learn_more": "Klik hier voor meer informatie.",
+        "integration": "Integratie",
+        "name": "Naam",
+        "client_id": {
+          "label": "OAuth-client-ID",
+          "description": "Openbare identificatiecode van de OAuth-app"
+        },
+        "client_secret": {
+          "label": "OAuth-clientsecret",
+          "description": "Geheime token van de OAuth-app"
+        }
+      },
+      "list": {
+        "name": "Naam",
+        "integration": "Integratie",
+        "client_id": "OAuth-client-ID"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Inloggegevens van de app verwijderen",
+          "question": "Weet je zeker dat je de inloggegevens van de applicatie wil verwijderen?"
+        }
+      }
+    },
+    "no_results": {
+      "title": "Er zijn geen resultaten gevonden",
+      "instruction": "Probeer iets anders"
+    },
+    "media_browse": {
+      "error_status": {
+        "400": "Bladeren door media is mislukt.",
+        "409": "Bladeren door media is mislukt.",
+        "503": "Bladeren door media is niet beschikbaar."
+      }
+    },
+    "media_class": {
+      "album": "Album",
+      "app": "App",
+      "artist": "Artiest",
+      "channel": "Kanaal",
+      "composer": "Componist",
+      "directory": "Map",
+      "episode": "Aflevering",
+      "game": "Spel",
+      "genre": "Genre",
+      "image": "Afbeelding",
+      "movie": "Film",
+      "music": "Muziek",
+      "playlist": "Afspeellijst",
+      "podcast": "Podcast",
+      "radio": "Radio",
+      "season": "Seizoen",
+      "track": "Nummer",
+      "tv_show": "Serie",
+      "video": "Video"
+    }
+  }
+}

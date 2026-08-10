@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="ucvr-build" content="0.12.5">
+  <title>UC Virtual Remote</title>
+  <link rel="stylesheet" href="/styles.css?v=0.12.5">
+  <link rel="stylesheet" href="/integrations-management.css?v=0.12.5">
+  <link rel="stylesheet" href="/management-navigation.css?v=0.12.5">
+</head>
+<body>
+  <div class="app-frame">
+    <header class="navbar">
+      <a class="navbar-brand" href="/" aria-label="UC Virtual Remote management">
+        <span class="brand-symbol" aria-hidden="true"><i></i><i></i></span>
+        <span class="brand-copy">
+          <strong>UC Virtual Remote</strong>
+          <small>Management</small>
+        </span>
+      </a>
+
+      <nav class="navbar-section" aria-label="Current section">
+        <span class="navbar-item active">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
+          System
+        </span>
+      </nav>
+
+      <div class="navbar-actions">
+        <span class="status-pill pending" id="connection-status"><i></i><b>Checking</b></span>
+        <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh status" title="Refresh status">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M6.1 9a7 7 0 0 1 11.7-2.6L20 9M4 15l2.2 2.6A7 7 0 0 0 17.9 15"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <div class="breadcrumbs" aria-label="Breadcrumb">
+        <span>Settings</span><i>/</i><strong>System</strong>
+      </div>
+
+      <section class="page-heading">
+        <div>
+          <p class="overline">VIRTUAL REMOTE CORE</p>
+          <h1 id="platform-name">Virtual Remote 3</h1>
+          <p class="page-description">Monitor the platform and open the bundled unofficial community Web Configurator. Runtime bundle uploads are not supported.</p>
+        </div>
+        <a class="button button-primary disabled" id="open-configurator" href="/configurator/" aria-disabled="true">
+          Open configurator
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M10 14 19 5M19 14v5H5V5h5"/></svg>
+        </a>
+      </section>
+
+      <nav class="management-tabs" aria-label="Management sections" role="tablist">
+        <button class="management-tab active" type="button" role="tab" aria-selected="true" tabindex="0" data-management-tab="overview">Overview</button>
+        <button class="management-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-management-tab="hardware">Hardware</button>
+        <button class="management-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-management-tab="integrations">Integrations</button>
+        <button class="management-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-management-tab="diagnostics">Diagnostics</button>
+        <button class="management-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-management-tab="updates">Updates</button>
+      </nav>
+
+      <section class="content-section" data-management-panel="overview" aria-labelledby="health-heading">
+        <div class="section-heading">
+          <div>
+            <p class="overline">HEALTH</p>
+            <h2 id="health-heading">Platform status</h2>
+          </div>
+          <small id="last-updated">Not updated yet</small>
+        </div>
+
+        <div class="metrics" id="health-metrics" aria-live="polite">
+          <article class="metric skeleton"></article>
+          <article class="metric skeleton"></article>
+          <article class="metric skeleton"></article>
+          <article class="metric skeleton"></article>
+        </div>
+      </section>
+
+      <section class="details-grid content-section" data-management-panel="overview" aria-label="System details">
+        <article class="surface-card">
+          <div class="card-heading">
+            <span class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h4"/></svg>
+            </span>
+            <div>
+              <p class="overline">CORE</p>
+              <h2>Runtime</h2>
+            </div>
+          </div>
+          <dl class="detail-list" id="runtime-details"></dl>
+        </article>
+
+        <article class="surface-card">
+          <div class="card-heading">
+            <span class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9c-3-3-4-6-4-9s1-6 4-9Z"/></svg>
+            </span>
+            <div>
+              <p class="overline">NETWORK</p>
+              <h2>Endpoints</h2>
+            </div>
+          </div>
+          <dl class="detail-list" id="endpoint-details"></dl>
+        </article>
+      </section>
+
+      <section class="surface-card configurator-card content-section" data-management-panel="overview" aria-labelledby="configurator-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 13v6h14v-6"/></svg>
+            </span>
+            <div>
+              <p class="overline">COMMUNITY CONFIGURATOR</p>
+              <h2 id="configurator-heading">Bundled Web Configurator</h2>
+              <p id="configurator-description">Checking bundled community build…</p>
+            </div>
+          </div>
+          <span class="status-pill pending" id="configurator-status"><i></i><b>Checking</b></span>
+        </div>
+
+        <div class="configurator-meta" id="configurator-meta"></div>
+
+        <div class="configurator-community-notice">
+          <div>
+            <strong>Unofficial community build</strong>
+            <p>This bundled build is compiled from the only public Unfolded Circle Web Configurator source release, version 2.3.3. It may differ from the current proprietary official Web Configurator.</p>
+            <p>UC Virtual Remote is not affiliated with, endorsed by, operated by, or supported by Unfolded Circle ApS.</p>
+          </div>
+          <div class="button-row">
+            <a class="button button-secondary" href="https://unfolded.tools/remote-simulator/licensing/licenses" target="_blank" rel="noopener">Licenses</a>
+            <a class="button button-secondary" href="https://unfolded.tools/remote-simulator/licensing/source/" target="_blank" rel="noopener">Corresponding source</a>
+            <a class="button button-secondary" href="https://unfolded.tools/remote-simulator/licensing/modifications" target="_blank" rel="noopener">Modifications</a>
+            <a class="button button-secondary" href="https://unfolded.tools/remote-simulator/licensing/artwork" target="_blank" rel="noopener">Artwork</a>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="surface-card hardware-card content-section" data-management-panel="hardware" aria-labelledby="hardware-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/><path d="M9 3v4m6-4v4M9 17v4m6-4v4M3 9h4m10 0h4M3 15h4m10 0h4"/></svg>
+            </span>
+            <div>
+              <p class="overline">HOST HARDWARE</p>
+              <h2 id="hardware-heading">Bluetooth &amp; Wi-Fi adapters</h2>
+              <p>Select a built-in or USB adapter exposed by the Linux host. Bluetooth requires BlueZ; Wi-Fi management requires NetworkManager.</p>
+            </div>
+          </div>
+          <button class="button button-secondary" id="hardware-refresh" type="button">Rescan adapters</button>
+        </div>
+
+        <div class="hardware-grid">
+          <form class="hardware-panel" id="adapter-form">
+            <h3>Adapter selection</h3>
+            <label class="field"><span>Bluetooth adapter</span><select id="bluetooth-adapter"><option value="">Automatic / unavailable</option></select></label>
+            <label class="field"><span>Wi-Fi adapter</span><select id="wifi-adapter"><option value="">Automatic / unavailable</option></select></label>
+            <div class="button-row">
+              <button class="button button-primary" type="submit">Save selection</button>
+              <button class="button button-secondary" id="bluetooth-power" type="button">Power on Bluetooth</button>
+            </div>
+            <span class="upload-result" id="hardware-result" role="status" aria-live="polite"></span>
+          </form>
+
+          <form class="hardware-panel" id="wifi-form">
+            <h3>Connect Wi-Fi</h3>
+            <div class="button-row"><button class="button button-secondary" id="wifi-scan" type="button">Scan networks</button><span id="wifi-state" class="hardware-state">Not scanned</span></div>
+            <label class="field"><span>Network</span><select id="wifi-network"><option value="">Select a network</option></select></label>
+            <label class="field"><span>SSID override</span><input id="wifi-ssid" type="text" autocomplete="off" placeholder="Optional hidden network"></label>
+            <label class="field"><span>Password</span><input id="wifi-password" type="password" autocomplete="new-password"></label>
+            <label class="check-field"><input id="wifi-hidden" type="checkbox"><span>Hidden network</span></label>
+            <button class="button button-primary" type="submit">Connect</button>
+            <span class="upload-result" id="wifi-result" role="status" aria-live="polite"></span>
+          </form>
+        </div>
+
+        <div class="hardware-current-grid" aria-label="Current wireless connections">
+          <article class="hardware-current-panel">
+            <div class="hardware-current-heading"><h3>Current Wi-Fi connection</h3><span class="hardware-state" id="wifi-current-state">Checking…</span></div>
+            <dl class="hardware-current-list" id="wifi-current-details"><div><dt>Network</dt><dd>—</dd></div><div><dt>MAC address</dt><dd>—</dd></div><div><dt>IP address</dt><dd>—</dd></div></dl>
+          </article>
+          <article class="hardware-current-panel">
+            <div class="hardware-current-heading"><h3>Paired Bluetooth devices</h3><span class="hardware-state" id="bluetooth-paired-state">Checking…</span></div>
+            <div class="bluetooth-device-list" id="bluetooth-paired-devices"><p class="hardware-empty">No paired devices reported.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="surface-card integration-sources-card content-section" data-management-panel="integrations" aria-labelledby="integration-sources-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
+            </span>
+            <div>
+              <p class="overline">INTEGRATIONS</p>
+              <h2 id="integration-sources-heading">Integration sources</h2>
+              <p>Use one or more compatible registry files. Entries with the same driver ID are shown only once, in registry order.</p>
+            </div>
+          </div>
+          <button class="button button-secondary" id="integration-sources-refresh" type="button">Refresh registries</button>
+        </div>
+
+        <div class="integration-source-grid">
+          <form class="hardware-panel" id="registry-form">
+            <h3>Registry URLs</h3>
+            <label class="field"><span>One registry URL per line</span><textarea id="registry-urls" rows="6" spellcheck="false" placeholder="https://example.org/registry.json"></textarea><small>The first registry wins when duplicate driver IDs are found.</small></label>
+            <button class="button button-primary" type="submit">Save registries</button>
+          </form>
+
+          <form class="hardware-panel" id="ghcr-form">
+            <h3>Pull a GHCR integration</h3>
+            <label class="field"><span>Container image</span><input id="ghcr-image" type="text" required spellcheck="false" placeholder="ghcr.io/owner/integration:latest"></label>
+            <div class="compact-field-grid">
+              <label class="field"><span>Driver ID</span><input id="ghcr-driver-id" type="text" required spellcheck="false" placeholder="my_integration"></label>
+              <label class="field"><span>Name</span><input id="ghcr-name" type="text" placeholder="My integration"></label>
+              <label class="field"><span>Version/tag</span><input id="ghcr-version" type="text" value="latest" spellcheck="false"></label>
+              <label class="field"><span>WebSocket path</span><input id="ghcr-websocket-path" type="text" value="/intg" spellcheck="false"></label>
+            </div>
+            <label class="check-field"><input id="ghcr-pull" type="checkbox" checked><span>Pull and start the container now</span></label>
+            <button class="button button-primary" id="ghcr-submit" type="submit">Add GHCR integration</button>
+          </form>
+        </div>
+        <div class="integration-source-summary" id="integration-source-summary"></div>
+        <div class="integration-source-list" id="integration-source-list"></div>
+        <span class="upload-result" id="integration-sources-result" role="status" aria-live="polite"></span>
+      </section>
+
+      <section class="surface-card installed-integrations-card content-section" data-management-panel="integrations" aria-labelledby="installed-integrations-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 3h8v5H8zM5 11h14v10H5z"/><path d="M9 15h6M9 18h4"/></svg>
+            </span>
+            <div>
+              <p class="overline">INTEGRATIONS</p>
+              <h2 id="installed-integrations-heading">Installed integrations</h2>
+              <p>Inspect every installed integration and manage its connection or sibling container directly from the Virtual Remote.</p>
+            </div>
+          </div>
+          <button class="button button-secondary" id="installed-integrations-refresh" type="button">Refresh integrations</button>
+        </div>
+        <div class="installed-integrations-summary" id="installed-integrations-summary"></div>
+        <div class="installed-integrations-list" id="installed-integrations-list" aria-live="polite">
+          <p class="installed-integrations-empty">Loading installed integrations…</p>
+        </div>
+        <span class="upload-result" id="installed-integrations-result" role="status" aria-live="polite"></span>
+      </section>
+
+      <section class="surface-card logs-card content-section" data-management-panel="diagnostics" aria-labelledby="logs-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            </span>
+            <div>
+              <p class="overline">DIAGNOSTICS</p>
+              <h2 id="logs-heading">Live logs</h2>
+              <p>View and download logs from the Virtual Remote Core, managed integrations, Bluetooth HCI capture, and the selected Wi-Fi adapter.</p>
+            </div>
+          </div>
+          <span class="status-pill online" id="logs-live-status"><i></i><b>Live</b></span>
+        </div>
+
+        <div class="logs-toolbar">
+          <label class="field logs-source-field">
+            <span>Log source</span>
+            <select id="logs-source"><option value="core">Virtual Remote Core</option></select>
+          </label>
+          <label class="check-field logs-live-toggle"><input id="logs-live" type="checkbox" checked><span>Live refresh</span></label>
+          <div class="button-row logs-actions">
+            <button class="button button-secondary" id="logs-refresh" type="button">Refresh</button>
+            <button class="button button-secondary" id="logs-download" type="button">Download log</button>
+            <button class="button button-secondary hidden" id="hci-toggle" type="button">Start HCI capture</button>
+            <button class="button button-secondary hidden" id="hci-download" type="button">Download raw HCI</button>
+          </div>
+        </div>
+        <pre class="logs-output" id="logs-output" tabindex="0" aria-live="polite">Loading logs…</pre>
+        <span class="upload-result" id="logs-result" role="status" aria-live="polite"></span>
+      </section>
+
+      <section class="surface-card update-card content-section" data-management-panel="updates" aria-labelledby="update-heading">
+        <div class="configurator-header">
+          <div class="configurator-title">
+            <span class="card-icon large" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 19h14"/></svg>
+            </span>
+            <div>
+              <p class="overline">SOFTWARE</p>
+              <h2 id="update-heading">Software update</h2>
+              <p>Check for a new UC Virtual Remote release, download it, and activate it without replacing the persistent configuration.</p>
+            </div>
+          </div>
+          <span class="status-pill pending" id="update-status"><i></i><b>Checking</b></span>
+        </div>
+
+        <div class="update-summary">
+          <div><span>Installed</span><strong id="update-installed">Unknown</strong></div>
+          <div><span>Channel</span><strong id="update-channel">Stable</strong></div>
+          <div><span>Last checked</span><strong id="update-checked">Never</strong></div>
+        </div>
+
+        <article class="update-release hidden" id="update-release">
+          <div>
+            <p class="overline">AVAILABLE RELEASE</p>
+            <h3 id="update-title">Update available</h3>
+            <p id="update-description"></p>
+            <small id="update-meta"></small>
+          </div>
+        </article>
+
+        <div class="update-progress hidden" id="update-progress" aria-live="polite">
+          <div><span id="update-progress-label">Preparing update…</span><b id="update-progress-value">0%</b></div>
+          <progress id="update-progress-bar" max="100" value="0"></progress>
+        </div>
+
+        <div class="button-row update-actions">
+          <button class="button button-secondary" id="update-check" type="button">Check for updates</button>
+          <button class="button button-primary hidden" id="update-action" type="button">Download update</button>
+          <span class="upload-result" id="update-result" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <footer>
+        <span id="footer-version">UC Virtual Remote</span>
+        <span>Configuration is handled by the bundled unofficial community Web Configurator.</span>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module" src="/management-navigation.js?v=0.12.5"></script>
+  <script type="module" src="/app.js?v=0.12.5"></script>
+  <script type="module" src="/integrations-management.js?v=0.12.5"></script>
+</body>
+</html>

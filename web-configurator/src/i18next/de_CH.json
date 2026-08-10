@@ -1,0 +1,1798 @@
+{
+  "translation": {
+    "ui": {
+      "menu": "Menü",
+      "more_information": "Meh Infos",
+      "dismiss": "Verwärfe",
+      "delete": "Lösche",
+      "remove": "Entferne",
+      "cancel": "Abbräche",
+      "enter": "Iigä",
+      "ok": "Ok",
+      "accept": "Akzeptiere",
+      "toggle": "Umschalte",
+      "press": "Drücke",
+      "save": "Spichere",
+      "next": "Wyter",
+      "edit": "Bearbeite",
+      "add": "Hinzuefüege",
+      "add_all": "Alli hinzuefüege",
+      "skip": "Überspringä",
+      "new": "Nöi",
+      "add_new": "Hinzuefüege",
+      "paste": "Iifüege",
+      "merge": "Zämefüege",
+      "copy": "Kopiere",
+      "search": "Sueche",
+      "select": "Uswähle",
+      "select_all": "Alli uswähle",
+      "clear_all": "Alli lösche",
+      "reset_all": "Alli zrüggsetze",
+      "expand": "Usklappe",
+      "contract": "Zueklappe",
+      "reset": "Zrüggsetze",
+      "clear": "Lösche",
+      "disable": "Deaktiviere",
+      "move": "Verschiebe",
+      "default": "Standard",
+      "reset_to_defaults": "Uf Standardystellige zrüggsetze",
+      "filters": "Filter",
+      "required_field": "Bitte füll das us.",
+      "loading_more": "Meh lade",
+      "background_images": "Hintergrundbilder",
+      "restore": "Widerhersteue",
+      "reboot": "Neustart",
+      "browse": "Datei uswähle",
+      "download": "Abelade",
+      "none": "keni",
+      "not_set": "nid gsetzt",
+      "read_more": "Meh erfahre",
+      "confirm": "Bestätige",
+      "confirm_and_reboot": "Bestätige & Neustart",
+      "close": "Zue",
+      "install": "Installiere",
+      "back": "Zrügg",
+      "back_to_edit": "Zrügg zum Bearbeite",
+      "done": "Fertig",
+      "label": "Beschrybig",
+      "start_setup": "Setup starte",
+      "modified": "gänderet",
+      "custom": "benutzerdefiniert",
+      "select_file_to_upload": "Wähl en Datei zum Ufelade",
+      "repeat": "Wiederhole",
+      "password": "Passwort",
+      "new_password": "Nöis Passwort",
+      "repeat_new_password": "Widerhou z nöie Passwort",
+      "update": "Aktualisiere",
+      "factory_reset": "Werksystellige",
+      "identify": "Identifiziere",
+      "create": "Erstelle",
+      "version": "Version",
+      "n_a": "Nid verfüegbar",
+      "customise": "Apasse",
+      "try_again": "Probier no eis",
+      "send": "Sände",
+      "upload": "Ufelade",
+      "all": "Alli",
+      "enable": "Aktiviere",
+      "connect": "Verbinde",
+      "disconnect": "Trenne",
+      "uploading": "Am ufelade",
+      "scroll_for_more": "Scrolle für meh",
+      "select_color": "Farb uswähle",
+      "saving_settings": "Yschtelligä spichärä",
+      "nothing_was_found": "Nüt gfunde.",
+      "extend": "Verlängere",
+      "test": "Teschte",
+      "reload": "Nöi lade",
+      "logout": "Abmälde",
+      "disabled": "Deaktiviert",
+      "enabled": "Aktiviert",
+      "feature": "Funktion",
+      "volume": "Lutstärchi"
+    },
+    "form": {
+      "name": "Name",
+      "label": "Beschrybig",
+      "button": "Taschte",
+      "description": "Beschrybig",
+      "manufacturer": "Hersteller",
+      "option": "Option",
+      "entity_state": "{{entity}} isch {{state}}",
+      "provided_by": "Bereitgstellt vo",
+      "password": "Passwort",
+      "repeat_password": "Widerhou z nöie Passwort",
+      "no_options_found": "Keni Optione gfunde.",
+      "successful": "Erfolgrich",
+      "optional": "Optional"
+    },
+    "tab": {
+      "settings": "Ystellige",
+      "sequences": "Sequänze",
+      "user_interface": "Benutzeroberflächi",
+      "button_mapping": "Taschte Zueordnig"
+    },
+    "page": {
+      "customise_remote": "Fernbedienig personalisiere",
+      "entities": "Entitäte",
+      "integrations": "Integratione",
+      "activities_macros": "Aktivitäte & Makros",
+      "settings": "Ystellige",
+      "general": "Allgemein",
+      "display": "Biudschirm",
+      "user_interface": "Benutzeroberflächi",
+      "sound_haptic": "Ton & Haptik",
+      "voice_control": "Sprachstürig",
+      "power_saving": "Energiespare",
+      "wifi_bluetooth": "WiFi & Bluetooth",
+      "localization": "Lokalisierig",
+      "admin_password": "Admin-Passwort",
+      "application_credentials": "OAuth-Ameldedate",
+      "development": "Entwicklig",
+      "factory_reset": "Werksystellige"
+    },
+    "notification": {
+      "saving_changes": "Änderige spichärä",
+      "changes_saved": "Änderige gspichärät",
+      "restarting": {
+        "title": "Wird nöi gstartet"
+      },
+      "reconnecting": {
+        "title": "Widerverbindä",
+        "info1": "Verbindig verlore. Versueche d'Verbindig zur Fernbedienig wiederhärzstelle.",
+        "info2": "Bitte überprüef öb d Fernbedienig nid im Ruehzuestand isch."
+      },
+      "cancelling": "Abbräche"
+    },
+    "logout": {
+      "title": "Abmälde",
+      "question": "Bisch sicher dass di vom Web Konfigurator wotsch abmelde?"
+    },
+    "reboot": {
+      "title": "Neustart",
+      "description": "Start d Fernbedienig nöi, damit d Änderige würksam wärde."
+    },
+    "filter_dropdown": {
+      "integrations": "Integratione",
+      "entity_types": "Entitäts-Typen"
+    },
+    "entity": {
+      "title": "Entität",
+      "entities": "Entitäte",
+      "entity_type": {
+        "button": "Taschte",
+        "switch": "Schalter",
+        "climate": "Klima",
+        "cover": "Abdeckig",
+        "light": "Liecht",
+        "media_player": "Medienwiedergabe",
+        "sensor": "Sensor",
+        "activity": "Aktivität",
+        "macro": "Makro",
+        "remote": "Fernbedienig",
+        "select": "Uswahl"
+      },
+      "state": {
+        "off": "aus",
+        "on": "an",
+        "available": "verfüegbar",
+        "unavailable": "nid verfüegbar",
+        "heat": "wärme",
+        "cool": "chüele",
+        "heat_cool": "wärme/chüele",
+        "fan": "Ventilator",
+        "auto": "automatisch",
+        "opening": "öffnet",
+        "open": "offe",
+        "closing": "schliesst",
+        "closed": "zue",
+        "playing": "spielt",
+        "paused": "pausiert",
+        "standby": "am rueä",
+        "buffering": "puffert",
+        "running": "louft",
+        "completed": "abgschlosse",
+        "unknown": "unbekannt",
+        "error": "Öppis isch schiefgloffe. Bitte versuechs nomal.",
+        "normal": "normal",
+        "charging": "wird glade",
+        "not_charging": "wird nid glade",
+        "detected": "erkannt",
+        "clear": "frei",
+        "cold": "chalt",
+        "wet": "nass",
+        "dry": "troche",
+        "connected": "verbunde",
+        "disconnected": "trennt",
+        "opened": "göffnet",
+        "hot": "heiss",
+        "light_detected": "Liecht erkannt",
+        "no_light": "kes Liecht",
+        "unlocked": "ufgschlosse",
+        "locked": "abgschlosse",
+        "moving": "bewegt sech",
+        "not_moving": "bewegt sech nid",
+        "plugged_in": "iigsteckt",
+        "unplugged": "usgsteckt",
+        "home": "dehei",
+        "not_home": "abwäsend",
+        "problem": "Problem",
+        "ok": "Ok",
+        "unsafe": "unsicher",
+        "safe": "sicher",
+        "tampering_detected": "Manipulation erkennt",
+        "update_detected": "Update verfüegbar",
+        "up_to_date": "aktuell",
+        "not_running": "usser Betrieb"
+      },
+      "device_class": {
+        "battery": "Batterie",
+        "current": "Stromstärchi",
+        "energy": "Energie",
+        "humidity": "Füechtigkeit",
+        "power": "Leischtig",
+        "temperature": "Temperatur",
+        "voltage": "Spannig"
+      },
+      "label": {
+        "state": "Status",
+        "value": "Wärt",
+        "current_option": "Aktuelli Option"
+      },
+      "features": {
+        "volume": "Lutstärchi",
+        "seek": "Sueche",
+        "dim": "Helligkeit",
+        "position": "Position",
+        "no_features_found": "Keni Funktione gfunde."
+      },
+      "command": {
+        "press": "Drücke",
+        "play_pause": "Play/Pause",
+        "open": "Öffne",
+        "close": "Zue",
+        "toggle": "Power-Schalter",
+        "on_off": "Power-Schalter",
+        "on": "Ein",
+        "off": "Aus",
+        "select_next": "Nächschts uswähle"
+      },
+      "non_existent": "Nid existierendi Entität",
+      "add_to_page": "Zur Syte hinzuefüege",
+      "add_first": "Füeg dini erschti Entität hinzue",
+      "add_first_btn_below": "Füeg dini erschti Entität dezue indem du uf d Schaltflächi unde klicksch.",
+      "no_entity": "Du hesch no keni Entitäte.",
+      "no_bt": "Du hesch no keni Bluetooth-Entitäte.",
+      "no_ir": "Du hesch no keni Infrarot-Gröt.",
+      "no_external": "Du hesch no keni externe Fernbedienige.",
+      "no_entities_found": "Keni Entitäte gfunde.",
+      "included_entities": {
+        "title": "Erfassti Entitäte"
+      },
+      "configured_entities": {
+        "title": "Konfigurierti Entitäte"
+      },
+      "delete_entity": {
+        "title": "Entität lösche",
+        "question": "Bisch sicher, dass du di Entität wosch lösche?"
+      },
+      "delete_entities": {
+        "title": "Entitäte lösche",
+        "question": "Bisch sicher, dass du di Entität wosch lösche?"
+      },
+      "remove_entity": {
+        "title": "Entität entferne",
+        "question": "Bisch sicher, dass du di Entität wosch entferne?"
+      },
+      "remove_entities": {
+        "title": "Entitäte entferne",
+        "question": "Bisch sicher, dass du di Entitäte wosch entferne?"
+      },
+      "no_other_settings": "Die Entität het ke anderi Ystellige.",
+      "missing_entity": {
+        "title_one": "Fählendi Entität",
+        "title_other": "Fählendi Entitäte",
+        "question_page_one": "'**{{ entities }}**' mues zur Aktivität hinzuegfüegt werde, bevor die kopierti Siite igfüegt werde cha. Möchtisch ds Element zur Aktivität hinzuefüege?",
+        "question_page_other": "'**{{ entities }}**' müesse zur Aktivität hinzuegfüegt werde, bevor die kopierti Siite igfüegt werde cha. Möchtisch d Element zur Aktivität hinzuefüege?",
+        "question_widget_one": "'**{{ entities }}**' mues zur Aktivität hinzuegfüegt werde, bevor das kopierti Bedienelement igfüegt werde cha. Möchtisch ds Element zur Aktivität hinzuefüege?",
+        "question_widget_other": "'**{{ entities }}**' müesse zur Aktivität hinzuegfüegt werde, bevor das kopierti Bedienelement igfüegt werde cha. Möchtisch d Element zur Aktivität hinzuefüege?",
+        "add_one": "Entität hinzuefüege",
+        "add_other": "Entitäte hinzuefüege"
+      },
+      "assign": {
+        "title": "Entität zuewise"
+      }
+    },
+    "integration": {
+      "integrations": "Integratione",
+      "status": {
+        "UNKNOWN": "Unbekannt",
+        "IDLE": "Inaktiv",
+        "CONNECTING": "Am verbinde",
+        "CONNECTED": "Verbunde",
+        "DISCONNECTED": "Ke Verbindig",
+        "RECONNECTING": "Widerverbindä",
+        "ACTIVE": "Aktiv",
+        "ERROR": "Öppis isch schiefgloffe. Bitte versuechs nomal.",
+        "NOT_CONFIGURED": "Nid konfiguriert",
+        "SERVICE_UNAVAILABLE": "Dienst nid verfüegbar"
+      },
+      "no_other_settings": "Die Integration het ke anderi Ystellige.",
+      "manage": {
+        "title": "Integratione verwalte"
+      },
+      "install_custom": {
+        "trigger": "Eigeni installiere",
+        "popup": {
+          "title": "Installier en eigeni Integration",
+          "upload": {
+            "label": "Wähl en Datei zum Ufelade",
+            "description": "Maximale Dateigrössi: 100MB"
+          },
+          "update_installed": "Installierti Integration aktualisiere"
+        },
+        "error_status": {
+          "400": "Ungültigs Archiv, fählendi Date im Archiv oder enthalteni Metadatene chöi nid gläse werde.",
+          "403": "Nid erlaubt, nume es Administrator-Konto darf benutzzerdefinierti Integratione installiere.",
+          "404": "Benutzerdefinierti Integration für d Aktualisierid nid gfunde. Es git keni installierti benutzerdefinierti Integration mitem gliche Bezeichner.",
+          "409": "Benutzzerdefinierti Integration isch mit dr aktuelle Firmware nid kompatibel oder di maximali Azahl a benutzzerdefinierte Integrationsinstallatione isch erreicht worde.",
+          "413": "Ds Integrationsarchiv isch z gross.",
+          "422": "Integration isch scho installiert oder die eidütigi Triberkennig isch vonere andere Integration verwendet worde.",
+          "503": "E Installation louft bereits oder es isch e fatale Fähler binere vorherige Installation uftrete und s Grät muess nöi gstartet wärde.",
+          "507": "Es git nid gnue Speicherplatz zum ds Installationsarchiv ufezlade und ds verarbeite."
+        }
+      },
+      "add": {
+        "title": "Integration hinzuefüegä",
+        "setting_up": "Irichte ...",
+        "already_configured": {
+          "info": "D Integration isch scho konfiguriert worde.",
+          "options": {
+            "add_entities": {
+              "title": "Verfüegbari Entitäte hinzuefüege",
+              "description": "Füge Entitäte zur Fernbedienig hinzue, wo vor Integration bereitgstellt wärde."
+            },
+            "start_setup": {
+              "title": "Integrations-Setup starte",
+              "description": "D Konfiguration ändere, Grät hinzuefüege oder entfärne via Integrationsystellige."
+            }
+          }
+        },
+        "add_elements": {
+          "title": "Entitäte uswähle"
+        },
+        "success": {
+          "title": "Es isch aues parat!",
+          "description": "D Integration isch erfolgrich dezue gfüehrt worde."
+        },
+        "fail": {
+          "title": "Hoppla!",
+          "description": "Bim Yrichte vor Integration isch öppis schief gloffe."
+        },
+        "label": {
+          "state": "Status",
+          "connection_test": "Verbindigstescht",
+          "version": "Version",
+          "developer": "Entwickler",
+          "developer_website": "Entwickler-Website"
+        },
+        "connect_external": {
+          "title": "Mit externe Integration verbinde",
+          "driver_url": "Triber URL",
+          "access_token": "Zuegangs-Token",
+          "test_connection": {
+            "title": "Verbindig teschte"
+          },
+          "failed": "Verbindig fehlgschlage. Versuechs nomal.",
+          "instruction": "Stüür {{name}} Grät mit Unfolded Circle Fernbedienige."
+        }
+      },
+      "delete": {
+        "title": "Integration lösche",
+        "question": "Bisch sicher, dass du di Integration wosch lösche?"
+      },
+      "label": {
+        "state": "Status",
+        "version": "Version",
+        "developer": "Entwickler",
+        "developer_website": "Entwickler-Website"
+      },
+      "driver": {
+        "state_active": "aktiv",
+        "state_inactive": "inaktiv"
+      },
+      "driver_type": {
+        "local": "lokal",
+        "external": "extern",
+        "custom": "benutzerdefiniert"
+      },
+      "driver_connection": {
+        "title": "Triber-Verbindigs-Iistellige",
+        "token": "Token",
+        "token_not_set": "Token isch nid vorhande.",
+        "token_required": "Token fehlt. Bitte gibs ah."
+      },
+      "start_integration": "Starte d Integrationsirichtig nomal zum Konfiguration z ändere.",
+      "instruction": "Stüür {{name}} Sache mit Unfolded Circle Fernbedienige.",
+      "no_integrations": "Du hesch no keni Integratione.",
+      "new_integration": {
+        "developer": "Triber entwicklet vo {{dev}}",
+        "unknown_developer": "Unbekannte Entwickler",
+        "advanced_mode": {
+          "title": "Erwyterete Modus",
+          "description": "Erwitereti Konfigurationsoptione während dr Irichtig aktiviere. Nume verwände wennd weisch was d machsch."
+        }
+      }
+    },
+    "dock": {
+      "dock": "Dock",
+      "docks": "Docks",
+      "status": {
+        "IDLE": "Inaktiv",
+        "CONNECTING": "Am verbinde",
+        "CONNECTED": "Verbunde",
+        "RECONNECTING": "Widerverbindä",
+        "AUTHENTICATED": "Authentifiziert",
+        "DISCONNECTED": "Ke Verbindig",
+        "CLOSING": "Schliesst",
+        "ERROR": "Öppis isch schiefgloffe. Bitte versuechs nomal.",
+        "ACTIVE": "Aktiv",
+        "UNKNOWN": "unbekannt"
+      },
+      "label": {
+        "state": "Status",
+        "service_name": "Dienst-Name",
+        "led_brightness": "LED-Helligkeit",
+        "microphone": "Mikrofon"
+      },
+      "form": {
+        "custom_ip_or_url": "Benutzerdefinierti URL"
+      },
+      "change_password": {
+        "trigger": "Passwort ändere",
+        "title": "Passwort ändere",
+        "pass_not_match": "Passwörter stimme nid überi",
+        "change_dock_token": "Ändere ou das im Dock gspicheret Passwort",
+        "connection_required_hint": "Zum Spichere vom Dock-Passwort isch e Verbindig zum Dock erforderlich"
+      },
+      "wifi_settings": {
+        "trigger": "WiFi-Yschtelligä",
+        "title": "WiFi-Ystellige ändere",
+        "disabled_hint": "Spichärä deaktiviert - Dock muess verbunde sii"
+      },
+      "port": {
+        "title": "Port",
+        "mode": {
+          "UNKNOWN": "Unbekannt",
+          "NONE": "Keni",
+          "AUTO": "Automatisch",
+          "MANUAL": "Manuell",
+          "INFRARED": "Infrarot",
+          "IR_BLASTER": "IR-Blaster",
+          "IR_EMITTER_MONO_PLUG": "IR-Sänder Mono-Stecker",
+          "IR_EMITTER_STEREO_PLUG": "IR-Sänder Stereo-Stecker",
+          "TRIGGER_5V": "Trigger 5V",
+          "ERROR": "Fähler"
+        },
+        "labels": {
+          "peripheral": "Peripheriegrät",
+          "baud_rate": "Baudrate",
+          "data_bits": "Daten-Bits",
+          "stop_bits": "Stop-Bits",
+          "parity": {
+            "title": "Parität",
+            "none": "keni",
+            "even": "grad",
+            "odd": "ungrad"
+          }
+        }
+      },
+      "edit_port": {
+        "mode": "Modus",
+        "warning": "Schliess ke Peripheriegrät ah während ds Dock igschalte isch. Meh lese."
+      },
+      "delete": {
+        "title": "Dock lösche",
+        "question": "Bisch sicher, dass du das Dock wosch lösche?"
+      },
+      "factory_reset": {
+        "title": "Ab hie gits kes zrügg me",
+        "description": "D Bestätigung vor Werksrückstellig löscht alli Konfiguratione und persönlichi Date. Es cha nüt wieder hergstellt wärde."
+      },
+      "add": {
+        "title": "Nöis Dock hinzuefüege",
+        "start": {
+          "instruction1": "Klick uf Sueche, um nach Docks i dim Netzwerk oder via Bluetooth ds sueche.",
+          "instruction2": "Wed es nöis Dock drahtlos yrichte möchtsch, vergwüssere di, dass es ir Nächi vor Fernbedienig isch.",
+          "bluetooth": {
+            "warning": "Bluetooth isch deaktiviert. Erkennig beschränkt uf Netzwerk."
+          },
+          "manual_setup": "Manuells Setup",
+          "discover": "Sueche"
+        },
+        "discover": {
+          "discovering": "Docks sueche",
+          "discovered_dock_one": "{{count}} Dock gfunde",
+          "discovered_dock_other": "{{count}} Docks gfunde",
+          "no_dock_discovered": {
+            "title": "Kes Dock gfunde",
+            "help": "Bitte versuech di folgende Schritt zur Fählerbehebig:\n\n- Start s'Dock nöi indem du's USB-C-Kabel entfernsch und wieder iistecksch.\n- We du Bluetooth-Setup verwändisch, beweg d Fernbedienig nöcher a ds Dock oder start ds Dock nöi we mehreri Setup-Versüech fählschla.\n- We du Ethernet verwendisch, stell sicher, dass **mDNS** nid i dim Router, Firewall und/oder Access Point deaktiviert isch.",
+            "support_articles": {
+              "title": "Zueghörigi Support-Artikel",
+              "article_1": "Dock 3 Bluetooth LE-Irichtig",
+              "article_2": "Es nöis Dock im Web-Konfigurator hinzufüege",
+              "article_3": "Es Dock manuell im Web-Konfigurator hinzufüege"
+            }
+          },
+          "last_seen": "Zletscht vor {{sec}}s gseh",
+          "bt_pre_warn": "Vergwüssere di, dass sech ds Dock ir Nächi vor Fernbedienig befindet und d Azeige-LED blinkt."
+        },
+        "add_discovered": {
+          "instruction": "Stell sicher, dass ds Dock igschalte isch und im Netzwerk erreichbar isch."
+        },
+        "add_manually": {
+          "title": "Manuells Setup",
+          "instruction": "Stell sicher dass das Dock verfüegbar und im Netzwerk erreichbar isch. Docks chöi nid über Bluetooth iigrichtet wärde wenn di manuelli Irichtig verwändet wird."
+        },
+        "form": {
+          "password_description": "Optional. Gib es Passwort für de Zuegriff uf das Dock ii. Du bruchsch das Passwort wenn wotsch dr Dock vo anderne Grät stüüre.",
+          "ip_address": "Dock-URL",
+          "ip_address_description": "Gib d Dock-API-URL oder e IP-Adresse / Hostname mit Portnummer und Pfad yy. Biispil für Dock Two: `ws://$IP:946`, Dock 3: `ws://$IP/ws`.",
+          "setup_wifi": "WiFi iirichte",
+          "wifi_ssid": "WiFi Netzwerk SSID",
+          "wifi_password": "WiFi Netzwerk Passwort"
+        },
+        "error": {
+          "title": "Hoppla!",
+          "description": "Bim Yrichte vom Dock isch öppis schief gloffe."
+        },
+        "success": {
+          "title": "Es isch aues parat!",
+          "description1": "Das Dock isch erfolgrich hinzuegfüegt worde.",
+          "description2": "{{name}} isch parat zum sände vo IR Codes."
+        },
+        "setup_process": {
+          "configuring": "Irichte",
+          "press_control_button": "Bitte drück d Stüürtaste vom Dock we ufem Dock-Bildschirm derzue ufgforderet wird",
+          "error": {
+            "NONE": "Keni",
+            "NOT_FOUND": "Nid gfunde",
+            "CONNECTION_REFUSED": "Verbindig abglehnt",
+            "CONNECTION_ERROR": "Verbindig nid möglich. Versuechs nomal.",
+            "AUTHORIZATION_ERROR": "Zuegriff verweigeret. Bitte überprüef dini Zugangsdate.",
+            "TIMEOUT": "Zytüberschritig",
+            "OTHER": "Es isch es unbekannts Problem uftrete. Bitte versuechs nomal."
+          }
+        }
+      },
+      "update": {
+        "ok": "Dini Software isch ufem nöischte Stand.",
+        "update": "Nöii Firmware Version isch verfüegbar",
+        "disabled": "Online Update Überprüefig deaktiviert.",
+        "check": "Nach Update sueche",
+        "min_battery_percent_required": "Dr Akku isch z schwach. Lad dis Grät uf u versuechs nomal.",
+        "firmware_version": "Firmware-Version",
+        "new_version": "Nöii Version",
+        "release_notes": "Release Hiwys",
+        "error_on_check": "Firmware-Überprüefig fehlgschlage. Bitte versuechs nomal.",
+        "errors": {
+          "prefix": "Fähler bim Starte vom Dock-Firmware-Update."
+        },
+        "error_status": {
+          "400": "Update isch no nid verfüegbar.",
+          "404": "Firmware-Update nid gfunde. Bitte versuechs nomal",
+          "409": "Es Dock-Firmware-Update louft scho.",
+          "503": "Das Dock isch nid verbunde, d Fernbedienig het nid gnue Akku zum ds Update starte (min. 20% Batterie erforderlich), oder der Update-Service isch nid verfüegbar. Bitte versuechs später nomal."
+        },
+        "in_progress": "Aktualisierig lauft",
+        "success": {
+          "title": "Aktualisierig erfolgrich",
+          "description": "Ds Dock isch erfolgrich konfiguriert worde."
+        },
+        "error": {
+          "title": "Das Update het nid chönne abgschlosse werde. Bitte versuechs später nomal.",
+          "description": "Bir Installation vom Update isch en Fähler ufträte."
+        },
+        "do_not_turn_off": "Schalt ds Dock während em Installationsprozess nid us!"
+      },
+      "no_docks": "Du hesch no keni Docks."
+    },
+    "widget": {
+      "add_widget": "Bedienelement hinzuefüege",
+      "edit_widget": "Bedienelement bearbeite",
+      "type": {
+        "icon": {
+          "title": "Symbol Schaltflächi",
+          "description": "Eifachi Schautflächi wo en verbundene Befähl usfüert."
+        },
+        "text": {
+          "title": "Text Schaltflächi",
+          "description": "Eifachi Schautflächi wo en verbundene Befähl usfüert.",
+          "default_text": "TEXT"
+        },
+        "sensor": {
+          "title": "Sensor",
+          "description": "Zeigt d Wert vomene Sensor ah."
+        },
+        "select": {
+          "title": "Uswahl",
+          "description": "Zeigt di aktuelli Option vonere Uswahl a."
+        },
+        "media": {
+          "title": "Medie-Bedienelement",
+          "description": "Zeigt Mediegrafik, Titel u Quelle sowie dr Fortschritt a.",
+          "component": {
+            "media_title": "Medientitel",
+            "source": "Quellä"
+          },
+          "no_space": "Nid gnue Platz für das Bedienelement uf dr Syte."
+        },
+        "slider": {
+          "title": "Schieberegler",
+          "description": "Helligkeit, Lutstärchi oder anderi unterstützti Wert stüüre."
+        },
+        "jump_to_page": {
+          "title": "Zur Syte springe",
+          "description": "Schautflächi, wo zur agäbene Site gumpet."
+        }
+      },
+      "popup": {
+        "icon": "Symbol",
+        "width": "Breiti",
+        "height": "Höhi",
+        "command": {
+          "color": "Farb"
+        },
+        "sensor": {
+          "label": "Sensor Entität",
+          "show_label": "Name azeige",
+          "show_unit": "Einheit azeige"
+        },
+        "select": {
+          "label": "Uswahl Entität",
+          "show_entity_name": "Entitätsname aazeige"
+        },
+        "error": {
+          "invalid_size": "Schaltflächegrössi isch ungültig. Bitte wähl e gültigi Grössi und versuechs nomau."
+        },
+        "convert_to_icon": "Ines Symbol umwandle",
+        "convert_to_text": "In Text umwandle",
+        "delete_widget": {
+          "title_one": "Bedienelement lösche",
+          "title_other": "Bedienelement lösche",
+          "question_one": "Bisch sicher, dass du das Bedienelement wosch lösche?",
+          "question_other": "Bisch sicher, dass du di Widgets wosch lösche?"
+        }
+      },
+      "error": {
+        "no_position": "Ke geigneti Position für ds nöi Bedienelement gfunge."
+      }
+    },
+    "group": {
+      "delete": {
+        "title": "Gruppe lösche",
+        "question": "Bisch sicher, dass du die Gruppe wosch lösche?"
+      },
+      "add": {
+        "add_new_group": "Nöii Gruppe hinzuefüege",
+        "new_group": "Nöii Gruppe",
+        "add_to": "Hinzuefüge zu",
+        "add_to_description": "Fügt d Gruppe zur Site hinzue, nachdem si erstellt worde isch.",
+        "select_entities": "Entitäte uswähle wo zur Gruppe sötte härefüegt wärde",
+        "confirm_empty": {
+          "title": "Gruppe het keni Entitäte",
+          "question": "Bisch sicher, dass e läri Gruppe wotsch erstelle?"
+        }
+      },
+      "edit": {
+        "edit_group": "Gruppe bearbeite",
+        "drag_instructions": "Zieh d Entität us dr Liste zum se entferne, oder wähle mehreri zur Löschig us.",
+        "add_entities": "Entitäte hinzuefüge",
+        "empty": "D Gruppe isch läär."
+      }
+    },
+    "user_interface": {
+      "grid": "Gitter",
+      "edit_pages": "Syte bearbeite",
+      "pages": {
+        "default_name": "Ohni Name",
+        "options": {
+          "rename": "Umbenenne",
+          "copy": "Kopiere",
+          "reset": "Zrüggsetze",
+          "delete": "Lösche"
+        },
+        "reset_page": {
+          "title": "Syte zrüggsetze",
+          "question": "Bisch sicher, dass du ds Syte {{name}} wosch zrüggsetze?"
+        },
+        "reset_ui": {
+          "title": "UI zrüggsetze",
+          "question": "Bisch sicher, dass alli UI Syte wotsch zrüggsetze?"
+        },
+        "non_existent_entities": "Nid verfüegbar wäg nid vorhandene Entitäte"
+      },
+      "no_pages": {
+        "title": "Füeg dini erschti Syte hinzue",
+        "description": "Ersteu Syte um d Benutzeroberflächi nach dine Wünsch z organisiere."
+      }
+    },
+    "entities": {
+      "add_new": "Hinzuefüege"
+    },
+    "integrations": {
+      "add_new_dock": "Nöis Dock hinzuefüege"
+    },
+    "activity": {
+      "activity": "Aktivität",
+      "activities": "Aktivitäte",
+      "add_first": "Füeg dini erschti Aktivität hinzue",
+      "no_activities": "Du hesch no ke Aktivitäte. Füeg di erst Aktivitätä drzue indem du uf d Schautflächi unne klicksch.",
+      "button_mapping": {
+        "instruction": "Pass dini Aktivitätssite ah indem du Bedienelemente zum Bildschirm hinzuefüegsch oder d Schaltflächikonfiguration bearbeitisch."
+      },
+      "add": {
+        "add_new_activity": "E nöii Aktivität hinzuefüege",
+        "new_activity": "Nöii Aktivität",
+        "select_entities": "Entitäte uswähle wo zur Aktivität hinzuegfüegt werde söue",
+        "prevent_sleep": {
+          "label": "Ruhezustand verhindere",
+          "description": "Während d Aktivität aktiv isch, wird verhinderet, dass d Fernbedienig i Ruhezuestand gaht. Hiwiis: Dadurch wird d Akkkulaufzit reduziert."
+        },
+        "button_mapping": {
+          "title": "Entitäte für Taschtebelegig uswähle",
+          "description": "Du chasch d Tastebelegig jederzit apasse und Benutzeroberflächi personalisiere indem du d Aktivität bearbeitisch."
+        },
+        "volume_control": {
+          "label": "Luutstärcheregelig",
+          "description": "Wähle ds Grät us wod für d Luutstärcheregelig wotsch verwände."
+        },
+        "navigation": {
+          "label": "Navigation",
+          "description": "Wähle ds Grät us wo für d Houptnavigation sött verwändet wärde."
+        }
+      },
+      "clone": {
+        "clone_activity": "Aktivität dupliziere"
+      },
+      "edit": {
+        "activity_state": "Status: {{state}}",
+        "state": {
+          "on": "an",
+          "off": "aus",
+          "running": "louft",
+          "error": "Fähler"
+        },
+        "prevent_sleep": {
+          "label": "Ruhezustand verhindere",
+          "description": "Während d Aktivität aktiv isch, wird verhinderet, dass d Fernbedienig i Ruhezuestand gaht. Hiwiis: Dadurch wird d Akkkulaufzit reduziert."
+        },
+        "ready_check": {
+          "label": "Bereitschaft prüefe",
+          "description": "Überprüeft dr Zuestand vo dä i dä Sequänz enthaltänä Entitäte, bevor ä Aktivität i- oder usgschaltet wird. D Deaktivierig vor Prüefig cha zu Fählermäldige füehre, we d Entitäte nid verfüegbar si."
+        },
+        "activity_group": {
+          "label": "Aktivitätsgruppe"
+        },
+        "editing_info": "Ds Bearbeite laufender Aktivitäte wird nid empfohle.",
+        "entities_no_exist_info": "D Aktivität enthaltet Entitäte wo nümme existiered.",
+        "add_entities": "Entitäte hinzuefüge",
+        "empty": "D Aktivität isch läär."
+      },
+      "delete": {
+        "title": "Aktivität lösche",
+        "question": "Bisch sicher, dass du di Aktivität wosch lösche?"
+      },
+      "user_interface": {
+        "intro": "Pass dini Aktivitätssite ah indem du Bedienelemente zum Bildschirm hinzuefüegsch oder d Schaltflächikonfiguration bearbeitisch."
+      },
+      "voice_assistant": {
+        "override": "E globale Sprachassischtänt isch konfiguriert. Du chasch hie en andere Sprachassischtänt für die Aktivität uswähle.",
+        "select": "Es isch ke globale Sprachassischtänt konfiguriert. Du chasch hie e Sprachassischtänt für die Aktivität uswähle."
+      }
+    },
+    "macro": {
+      "macro": "Makro",
+      "macros": "Makros",
+      "add_first": "Füeg dis erschte Makro hinzue",
+      "no_macros": "Du hesch no ke Makros. Erstell dis erschte Makro indem du uf di underi Schautflächi klicksch.",
+      "tab": {
+        "settings": "Ystellige",
+        "sequence": "Sequänz"
+      },
+      "add": {
+        "add_new_macro": "Nöiis Makro hinzuefüege",
+        "new_macro": "Nöiis Makro",
+        "select_entities": "Entitäte uswähle wo zum Makro hinzuegfüegt werde söue"
+      },
+      "edit": {
+        "empty": "Ds Makro isch läär."
+      },
+      "clone": {
+        "clone_macro": "Makro dupliziere"
+      },
+      "delete": {
+        "title": "Makro lösche",
+        "question": "Bisch sicher, dass du das Makro wosch lösche?"
+      }
+    },
+    "activity_group": {
+      "activity_group": "Aktivitätsgruppe",
+      "activity_groups": "Aktivitätsgruppe",
+      "add_first": "Füeg dini erschti Aktivitätsgruppe hinzue",
+      "no_activity_groups": "Du hesch no keni Aktivitätsgruppe. Erstell dini erschte Gruppe indem du uf di underi Schautflächi klicksch.",
+      "add": {
+        "add_new_activity_group": "Aktivitätsgruppe hinzuefüege",
+        "new_activity_group": "Nöii Aktivitätsgruppe",
+        "select_activities": "Aktivitäte uswähle wo zur Aktivitätsgruppe hinzuegfüegt wärde sölle"
+      },
+      "edit": {
+        "available_activities": "Verfüegbari Aktivitäte",
+        "included_activities": "Erfassti Aktivitäte",
+        "add_first": {
+          "title": "Füeg dini erschti Aktivität hinzue",
+          "descr": "Es het no keni Aktivitäte ir Gruppe. Füeg di erschti Aktivität hinzue indem du uf di underi Schautflächi klicksch."
+        }
+      },
+      "delete": {
+        "title": "Aktivitätsgruppe lösche",
+        "question": "Bisch sicher, dass du di Aktivitätsgruppe wosch lösche?"
+      },
+      "options": {
+        "remove_turn_on_delays": {
+          "title": "Verzögerige nach Einschalt-Kommandos entferne",
+          "options": {
+            "previous_cmd_skipped": "Vorherigs Kommando übersprunge",
+            "between_skipped_cmds": "Zwüsche übersprungnige Kommandos",
+            "never": "Nie"
+          }
+        },
+        "turn_off_unused_entities": {
+          "title": "Unbenutzti Entitäte usschalte",
+          "options": {
+            "always": "Immer",
+            "in_off_sequence": "In Usschalt-Sequenz verwändet",
+            "run_off_sequence": "Modifizierti Usschalt-Squenz usfüere",
+            "never": "Nie"
+          }
+        }
+      }
+    },
+    "sequence": {
+      "on_sequence": {
+        "title": "Ischalt-Sequänz",
+        "description": "D Ischalt-Sequänz wird usgführt we e Aktivität igschalte wird.",
+        "empty": "Es git no ke Befähl ir Ischalt-Sequänz."
+      },
+      "off_sequence": {
+        "title": "Usschalt-Sequänz",
+        "description": "D Usschalt-Sequänz wird usgführt we e Aktivität usgschalte wird.",
+        "empty": "Es git no ke Befähl ir Uschalt-Sequänz."
+      },
+      "sequence": {
+        "title": "Sequänz",
+        "description": "D Sequänz wird usgführt we es Makro gstartet wird.",
+        "empty": "Es git no ke Befähl ir Sequänz."
+      },
+      "add_first": "Füeg din erscht Befähl hinzue",
+      "add_first_btn_below": "Füeg din erscht Befähl dezue indem du uf d Schaltflächi unde klicksch.",
+      "add_commands": "Befähl hinzuefüege",
+      "color": "Farb"
+    },
+    "button_mapping": {
+      "press": {
+        "short_press": "churzes Drücke",
+        "double_press": "Doppelklick",
+        "long_press": "langs Drücke"
+      },
+      "command": {
+        "title": "Befähl",
+        "remap": {
+          "title": "Taschte zueordne",
+          "question": "Das isch en spezielli Taschte um ir Benutzeroberflächi ds navigiere. Wed en nöii Funktion zuewysisch, de verliersch d Originalfunktionalität und muesch der Touchscreen bruche um zrügg zum Hauptbildschirm ds cho.",
+          "question_voice": "Wenn e Sprachassischtänt konfiguriert isch, werde benutzerdefinierti Mikrofon-Taschtefunktione ignoriert."
+        },
+        "color": "Farb"
+      },
+      "reset": {
+        "title": "Taschtezuordnig zrüggsetze",
+        "question": "Bisch sicher, dass du di Taschte-Verknüpfig wotsch zrüggsetze?"
+      },
+      "reset_more": {
+        "title": "Taschtezuordnige zrüggsetze",
+        "question": "Bisch sicher, dass alli Taschte-Verknüpfige wotsch zrüggsetze?"
+      },
+      "resetAll": {
+        "title": "Alli zrüggsetze",
+        "question": "Bisch sicher, dass alli Taschte-Verknüpfige wotsch zrüggsetze?"
+      }
+    },
+    "touch_slider": {
+      "title": "Touch-Slider",
+      "reset": {
+        "title": "Touch-Slider-Iistellige zrüggsetze",
+        "question": "Bisch sicher, dass d Touch-Slider-Iistellige wosch zrüggsetze?"
+      }
+    },
+    "login": {
+      "enter_pin": "Bitte Pin ygä",
+      "pin": "Pin",
+      "pin_description": "Du chasch dr PIN-Code finde indem du i d Iistellige uf dr Fernbedienig geisch und dr Web-Configurator aktiviersch.",
+      "api_definitions": {
+        "label": "Uf dr Suechi nach API-Definitione? Hie klicke",
+        "items": {
+          "api_rest": "Core-API REST",
+          "api_ws": "Core-API WS",
+          "test_console": "Websocket-Testkonsole",
+          "integration_api_ws": "Integrations-API WS"
+        }
+      },
+      "error": {
+        "NOT_AUTHORIZED": "Falsche PIN. Bitte nomal versueche.",
+        "VALIDATION_ERROR": "Falsche PIN. Bitte nomal versueche.",
+        "ERR_NETWORK": "Netzwerkproblem. Bitte überprüefe d Verbindig und versuechs nomal.",
+        "ERR_CANCELED": "Netzwerkproblem. Bitte überprüefe d Verbindig und versuechs nomal.",
+        "TIMEOUT": "D Fernbedienig het nid reagiert – möglecherwiis befindet si sech im Ruhemodus. Bitte versuechs nomau.",
+        "UNKNOWN": "Es isch es unbekannts Problem uftrete. Bitte versuechs nomal."
+      },
+      "connecting": {
+        "title": "Verbindig zu dire Fernbedienig herstelle…",
+        "description": "D Fernbedienig reagiert nid – möglecherwiis befindet si sech im Ruhemodus oder wird grad aktiviert. Sobald si erreichbar isch, wirsch automatisch agmäldet.",
+        "retry": "Jitz wider probiere"
+      }
+    },
+    "home": {
+      "welcome": "Willkomme zrügg",
+      "lets_get": "Los geits",
+      "customise": "Fernbedienig personalisiere",
+      "add_device": "Es nöis Grät hinzuefüege",
+      "add_activity": "E nöii Aktivität hinzuefüege",
+      "battery": "Batterie",
+      "charged": "ufglade"
+    },
+    "profile": {
+      "add_profile": "Profil hinzuefüege",
+      "edit_profile": "Profil bearbeite",
+      "your_profiles": "Dini Profil",
+      "manage_profiles": "Profil verwalte",
+      "delete_profile": {
+        "title": "Profil lösche",
+        "question": "Bisch sicher, dass du ds Profil {{name}} wosch lösche?",
+        "active_not_allowed": "Es aktivs Profiu cha nid glöscht wärde"
+      },
+      "already_active": {
+        "title": "Profil scho aktiv",
+        "info": "Ds usgwählte Profil isch scho aktiv. Wetsch ds Profil bearbeite, klick uf Profil verwalte."
+      },
+      "delete_already_active": {
+        "title": "Profil isch aktiv",
+        "info": "Es aktivs Profil cha nid glöscht wärde."
+      },
+      "enter_admin_pwd": {
+        "title": "Admin-Passwort iigäh",
+        "info": "Bitte gib ds Admin-Passwort ih zum wyterfahre."
+      },
+      "select_manage_profile": "Wähle es Profil us oder klick uf Profil verwalte um Profil z bearbeite oder zlösche.",
+      "click_on_the_profile": "Klick ufs Profil wod wotsch bearbeite.",
+      "profile_has_changed": "Aktuells Profil het sech gänderet",
+      "name": "Name",
+      "password": "Passwort",
+      "restricted_profile": "Iigschränkts Profil",
+      "restricted_profile_description": "Es igschränkts Profil het ke Zuegriff uf Iistellige und Konfiguration. Z.B. es Profil für Gäst oder Chind.",
+      "switch": {
+        "error_status": {
+          "401": "Falsche Admin-PIN.",
+          "404": "Profil nid gfunde."
+        }
+      },
+      "message": {
+        "adding_profile": "Profil hinzuefüege",
+        "profile_added": "Profil hinzuegfüegt",
+        "deleting_profile": "Profil lösche",
+        "profile_deleted": "Profil glöscht"
+      },
+      "select_an_icon": "Symbol uswähle"
+    },
+    "remote": {
+      "infrared": "Infrarot",
+      "external_remotes": "Externi Fernbedienige",
+      "bluetooth": {
+        "connection_number": "Verbindigsnummer",
+        "connection": {
+          "connected": "verbunde",
+          "disconnected": "ke Verbindig"
+        },
+        "device_profile": "Gräteprofil",
+        "pair_state": {
+          "paired": "kopplet",
+          "unpaired": "nid kopplet"
+        },
+        "pair": "Kopple",
+        "forget_device": {
+          "title": "Grät vergässe",
+          "question": "Stell sicher, dass d Fernbedienig uf em Grät entfernsch wo si kopplet isch. Bitte lueg i de Bedienigsaleitig vom Grät nache, wie Bluetooth-Koppelige chöi entfärnt wärde."
+        }
+      },
+      "device_profile": {
+        "default": "Standard"
+      },
+      "label": {
+        "infrared_output_device": "Infrarot Sändegrät",
+        "infrared_output_port": "Infrarot Uusgab"
+      },
+      "no_output_device": "Kes Usgabegrät verfüegbar",
+      "add_device_ir": {
+        "title": "Nöis Infrarot-Grät hinzuefüege",
+        "title_short": "Nöis Infrarot-Grät",
+        "create_blank": {
+          "title": "Nöii erstelle",
+          "description": "Erstellt en nöii läri IR-Fernbedienig. D IR Codes muesch säuber hinzuefüege oder lehre."
+        },
+        "custom_data_set": {
+          "title": "Erstell en eigete Infrarot-Datensatz",
+          "description": "Gib en eidütige Grätename für de IR-Datesatz ii. Das wird mit em benutzzerdefinierte Hersteller verchnüpft.",
+          "input_label": "Grätname"
+        },
+        "manufacturer": {
+          "title": "Wähl en IR Datensatz",
+          "search": "Hersteller sueche",
+          "instruction": "Mindischtens 2 Zeiche iigä",
+          "type": "Tippe zum Sueche"
+        },
+        "test": {
+          "title": "Infrarot-Codes teschte",
+          "description1": "Bitte überprüef, ob d Befehl funktioniere, indem du ds IR-Usgabegrät uswählsch und uf d Befähl klicksch wod wetsch teste.",
+          "description2": "Steu sicher, dass ds Infrarot-Usgabegrät Sichtverbindig zu däm Grät het, wot wosch stüüre.",
+          "output_device": "Infrarot Grät zum teschte",
+          "output_port": "Infrarot Uusgab zum teschte"
+        }
+      },
+      "add_device_bt": {
+        "title": "Nöis Bluetooth-Grät hinzuefüge",
+        "title_short": "Nöis Bluetooth-Grät",
+        "slots_available_one": "{{available}} vo {{count}} Platz frei",
+        "slots_available_other": "{{available}} vo {{count}} Plätz frei",
+        "device_profile": {
+          "label": "Gräteprofil",
+          "default": "Standard",
+          "info": "Wenn du unsicher bisch, welles Grätprofil uszwähle isch oder du kes Profil für dis Grät chasch finde, wähl Standard.",
+          "learn_more": "Meh erfahre"
+        },
+        "enable_pairing": "Kopplig aktiviere",
+        "disabled_bt": {
+          "title": "Bluetooth isch usgschaltet",
+          "description": "Aktivier Bluetooth zum es nöis Bluetooth-Grät chönne derzuezfüege."
+        },
+        "no_slot": {
+          "title": "Ke Slots verfüegbar",
+          "description": "Du hesch alli verfüegbare Bluetooth-Slots gnutzt zum mit Grät kopple. Bitte entfern es Bluetooth-Grät u versuechs no mal."
+        },
+        "waiting": {
+          "title": "Warte uf Koppligs-Aafrag",
+          "description": "Suech d Fernbedienig uf em Grät wod kopplisch u wähl Kopple us.",
+          "advertisement_name": "Aazeigname"
+        },
+        "code_input": {
+          "title": "Koppligsahfrag empfange",
+          "description": {
+            "code": "Gib de Koppligs-Code ii u bestätig Koppligsafrag unde.",
+            "simple": "Bitte bestätige d Koppligsafrag zum wyterfahre."
+          }
+        },
+        "progress": {
+          "title": "Kopplig lauft"
+        },
+        "success": {
+          "title": "Kopplig erfolgrich",
+          "description": "S Bluetooth-Grät isch erfolgrich kopplet worde."
+        },
+        "fail": {
+          "title": "Kopplig isch fählgschlage",
+          "description": "Warte uf Koppligs-Aafrag."
+        },
+        "error": {
+          "empty_name": "Namensfeld isch leer."
+        },
+        "message": {
+          "SUCCESS": "Erfolgrich",
+          "AUTHENTICATION_FAILURE": "Ameldig fehlgschlage. Bitte überprüef dini Ahmeldeinformatione u versuechs ernöit.",
+          "PASSKEY_ENTRY_FAILED": "Igabe vom Passcod nid müglech. Bitte versuechs nomal.",
+          "AUTHENTICATION_REQUIREMENTS": "Authentifizierigsaforderigä.",
+          "CONFIRM_VALUE_FAILED": "Wert bestätige fehlgschlage.",
+          "PAIRING_NOT_SUPPORTED": "Kopple nid unterstützt.",
+          "ENCRYPTION_KEY_SIZE": "Grössi vom Verschlüsseligsschlüssu.",
+          "COMMAND_NOT_SUPPORTED": "Befehl nid unterstützt.",
+          "UNSPECIFIED_REASON": "Unbekannte Grund.",
+          "REPEATED_ATTEMPTS": "Wiederholti Versuech.",
+          "INVALID_PARAMETERS": "Ungültigi Igabe. Bitte überprüefe und ernöit versueche.",
+          "DHKEY_CHECK_FAILED": "DHKEY Überprüefig fehlgschlage.",
+          "NUMERIC_COMPARISON_FAILED": "Zahlevergliich fehlgschlage."
+        }
+      },
+      "ir_code": {
+        "title": "Infrarot-Code-Datensatz",
+        "reset": {
+          "title": "Infrarot-Code zrüggsetze",
+          "question": "Bisch sicher, dass du dä Infrarot-Code wosch zrüggsetze?"
+        },
+        "delete": {
+          "title": "Infrarot-Code lösche",
+          "question": "Bisch sicher, dass du dä Infrarot-Code wosch lösche?"
+        },
+        "delete_codes": {
+          "title": "Infrarot-Codes lösche",
+          "question": "Bisch sicher, dass du di Infrarot-Codes wosch lösche?"
+        },
+        "add": {
+          "add_ir_code": "Nöiie Infrarot-Code hinzuefüege",
+          "edit_ir_code": "Infrarot-Code bearbeite",
+          "ir_code": "IR-Code",
+          "button": "Taschte",
+          "new_button_name": {
+            "label": "Nöie Taschtename",
+            "description": "Gib e Schautflächename i und wähl e Option unde zum wyterfahre."
+          },
+          "selector": {
+            "paste_ir_code": "IR-Code iifüege",
+            "learn_ir_code": "IR-Code lere"
+          },
+          "error": {
+            "invalid_cmd_name": "Ungültiger oder bereits vorhandene Befehlsname.",
+            "invalid_code_format": "Unbekannts Codeformat. Steu sicher, dass dr Code korrekt isch, und versuechs nomau.",
+            "VALIDATION_ERROR": "Ungültigi Date. Bitte korrigiere."
+          },
+          "paste_code_placeholder": "Füeg di Code hie i u wähl z richtige Format ir rächte obere Egge. Glernti Codes werde ou hie aazeigt.",
+          "test_code": "Code teschte",
+          "test_ok": "Code Tescht OK",
+          "infrared_learning": {
+            "title": "Infrarot lere",
+            "description": "Richti dini auti Fernbedienig nah ar Vordersyte vom Docks us und drücke di Taste wo du wosch lere."
+          },
+          "infrared_device": "Infrarot-Grät",
+          "select_device": "Wähle ds Infrarot-Grät us wod zum Lerne vo Codes wosch verwände.",
+          "start_learning": "Code lerne",
+          "stop_learning": "Ufhöre lehre",
+          "successful_learning": "Lerne isch erfolgriich gsi.",
+          "not_support_learning": "Das Grät unterstützt kes IR-Lerne.",
+          "emitter_offline": "Das Grät isch derzit offline. Überprüef d Netzwerkverbindig und versuechs namal."
+        },
+        "import": {
+          "title": "Infrarot-Codes importiere",
+          "description": "Lad mehreri IR-Codes vore CSV-Datei. D Reihefolg vo de Chopfzeile isch irrelevant, zuesätzlichi Spalte wärde ignoriert. Standardformat: PRONTO.",
+          "file_size": "Maximale Dateigrössi: 10MB.",
+          "csv_template": "CSV-Dateivorlag abelade.",
+          "delimiter_label": "Trennzeiche",
+          "delimiter_info": "Optionals CSV-Trennzeiche",
+          "comment_label": "Kommentar",
+          "comment_info": "Optional. Ds Kommentarzeiche am Afang vonere Ziile, wo bim Parse vo CSV söll verwendet werde. Standardmässig isch kes Kommentarzeiche gsetzt.",
+          "overwrite_label": "Codes überschribä",
+          "overwrite_description": "Bestehendi IR-Codes mit der gliiche Taschte überschribe.",
+          "state": {
+            "success": "Ufelade erfolgrich",
+            "error": "Ufelade het nid funktioniert"
+          },
+          "upload": "Ufelade",
+          "done": "Fertig"
+        }
+      },
+      "user_interface": {
+        "intro": "Pass dini Fernbedienigs-Syte ah indem du Bedienelement zum Biudschirm hinzuefüegsch oder d Taschte konfiguriersch."
+      },
+      "button_mapping": {
+        "instruction": "Pass dini Fernbedienigs-Syte ah indem du Bedienelement zum Biudschirm hinzuefüegsch oder d Taschte konfiguriersch."
+      },
+      "change_device_profile": {
+        "title": "Grätprofil ändere",
+        "message": "Grätprofil hei Standardmässigi Schautflächezordnige und UI-Konfiguration. We es Grätprofil änderisch chasch ds Mapping u Konfiguration zrüggsetze u die vom Grätprofil bereitgstellti Konfiguration widerhärstelle.",
+        "reset_button_mapping": "Tastezuordnig zrüggsetze",
+        "reset_ui_configuration": "UI-Konfiguration zrüggsetze"
+      },
+      "color": {
+        "d": "Dunkelgrau",
+        "s": "Silber"
+      },
+      "meta_label": {
+        "model_name": "Modellname",
+        "model_number": "Modellnummer",
+        "serial_number": "Serienummer",
+        "revision": "Revision",
+        "color": "Farb",
+        "system_version": "Systemversion",
+        "core_version": "Core Version",
+        "ui_version": "UI Version",
+        "web_configurator_version": "Web-Konfigurator Version",
+        "wiFi_address": "WiFi-Adresse",
+        "bluetooth_address": "Bluetooth-Adresse"
+      }
+    },
+    "device": {
+      "add_device": {
+        "title": "Es nöis Grät hinzuefüege",
+        "discover": {
+          "discovering": "Sueche Integratione",
+          "discovered_integration_one": "{{count}} Integration verfüegbar",
+          "discovered_integration_other": "{{count}} Integratione verfüegbar",
+          "no_integration_discovered": "Ke Integration gefunde"
+        },
+        "menu_list": {
+          "infrared": {
+            "title": "Infrarot",
+            "description": "Füeg en IR-Datesatz für dis Infrarotgrät derzue oder lern d Befähl vo dire alte Fernbedienig."
+          },
+          "bluetooth": {
+            "description": "Kopplig mit emene Bluetooth-Grät als Taschtatur/Muus."
+          },
+          "dock": {
+            "title": "Dock",
+            "description": "Füeg es Unfolded Circle Smart Dock oder es kompatibls Grät derzue."
+          }
+        }
+      }
+    },
+    "customise_remote": {
+      "tab": {
+        "pages": "Syte",
+        "icons": "Symbol",
+        "tv_channels": "TV-Kanäl",
+        "backgrounds": "Hintergründ"
+      },
+      "pages": {
+        "add_page_title": "Füeg dini erschti Syte hinzue",
+        "add_page_descr": "Ersteu Syte für jede Ruum, Grätetyp oder organisier dini Grät so wies wotsch.",
+        "remote": {
+          "description": "Das isch e Sytevorschau. Chasch uf d'Symbol klicke zum grät ii- oder usschalte."
+        },
+        "your_pages": "Dini Syte",
+        "options": {
+          "edit_contents": "Inhalte bearbeite",
+          "rename": "Umbenenne",
+          "replace_background": "Hintergrund ersetze",
+          "add_background": "Hintergrund hinzuefüege",
+          "remove_background": "Hintergrund entferne",
+          "duplicate": "Dupliziere",
+          "delete": "Lösche"
+        },
+        "delete_page": {
+          "title": "Syte lösche",
+          "question": "Bisch sicher, dass du ds Syte {{name}} wosch lösche?"
+        },
+        "delete_item": {
+          "title": "Element lösche",
+          "question": "Bisch sicher, dass du das Element wosch lösche?"
+        },
+        "remove_background": {
+          "title": "Hintergrund entferne",
+          "question": "Bisch sicher, dass du der Hintergrund wosch entferne?"
+        },
+        "no_pages": "Du hesch no keni Syte.",
+        "paste": {
+          "errors": {
+            "not_fully_completed": "Iifüegevorgang het nid vollständig chönne abgschlosse wärde.",
+            "no_available_command": "Iifüegevorgang cha nid abgschlosse werde."
+          }
+        },
+        "merge": {
+          "errors": {
+            "not_fully_completed": "Ds Zämefüege het nid vollständig chönne abgschlosse wärde.",
+            "no_available_command": "Zämefüege cha nid abgschlosse werde."
+          }
+        }
+      },
+      "options": {
+        "description": "Pass dini Syte ah indem du Entitäte oder Gruppe zum Bildschirm hinzuefüegsch oder d Taschte konfiguriersch.",
+        "description_options": "Wähle eini vo de ungere Optione zum afa.",
+        "rearrange_items": "Chasch Elemänt ufere Syte dür Ziehe und Ablege rächts nöi aordne. Um es Elemänt z entferne wähle im Optionsmenü Lösche.",
+        "list": {
+          "add_entities": "Entitäte hinzuefüge",
+          "add_groups": "Gruppe hinzuefüege",
+          "configure_buttons": "Taschte konfiguriere"
+        },
+        "no_items": "Du hesch no keni Element."
+      },
+      "rename_page": "Syte umbenenne",
+      "add_entities": {
+        "title": "Entitäte hinzuefüge"
+      },
+      "add_groups": {
+        "title": "Gruppe hinzuefüege"
+      }
+    },
+    "software_update": {
+      "title": "Software-Update",
+      "state": {
+        "up_to_date": "Dini Software isch ufem nöischte Stand.",
+        "available_software": "Neui Software isch verfüegbar.",
+        "available_softwares": "Neui Software isch verfüegbar.",
+        "available_dock_firmware": "Neui Dock-Firmware isch verfüegbar.",
+        "check_for_update": "Nach Update sueche.",
+        "check_error": "Ha nid nach Aktualisierige chöne sueche. Bitte versuechs später no eis."
+      },
+      "check": {
+        "error_status": {
+          "401": "Ungültigi Authentifizierig für de konfiguriert Softwareaktualisierigskanal.",
+          "503": "Online-Update-Service isch derzit nid verfüegbar. Versuechs när nomau."
+        }
+      },
+      "min_battery": "De Akku mues für Aktualisierige mindestens zu 50% glade si. Bitte uflade und wieder versueche.",
+      "up_to_date": {
+        "check_for_update": "Nach Update sueche",
+        "system_version": "System Version"
+      },
+      "new_version": {
+        "title": "Nöii Version",
+        "system_version": "System Version"
+      },
+      "release_notes": {
+        "title": "Release Hiwys"
+      },
+      "check_updates": {
+        "title": "Nach Updates sueche",
+        "description": "Automatisch nach Updates sueche."
+      },
+      "auto_update": {
+        "title": "Automatischi Aktualisierig",
+        "description": "Automatischi Aktualisierig vor Färnbedienig, we nöii Software verfüegbar isch."
+      },
+      "beta_updates": {
+        "title": "Beta-Updates",
+        "description": "Installiere u teschte d Vorabversion vor Software. Dis Feedback hilft üs, d Stabilität u Leischtig zuekünftige Veröffentlechige z verbessere.",
+        "modal": {
+          "title": "Beta-Updates",
+          "disabling": "D'Fernbedienig mues nach em Deaktiviere vo Beta-Updates neu gstartet werde!"
+        }
+      },
+      "status": {
+        "DOWNLOAD": "Abelade",
+        "DOWNLOADING": "Am abelade",
+        "DOWNLOADED": "Abeglade",
+        "START": "Start",
+        "PENDING": "Usstehend"
+      },
+      "success": {
+        "title": "Aktualisierig erfolgrich",
+        "description": "D Fernbedienig startet grad nöi."
+      },
+      "fail": {
+        "title": "Das Update het nid chönne abgschlosse werde. Bitte versuechs später nomal.",
+        "description": "Bir Installation vom Update isch en Fähler ufträte."
+      },
+      "progress": {
+        "title": "Aktualisierig lauft",
+        "step": "Schritt {{current}} / {{total}}",
+        "do_not_turn_off": "Schalt Fernbedienig während em Installationsprozess nid us!"
+      },
+      "reload": {
+        "title": "Dis System isch aktualisiert worde",
+        "description": "Dini Fernbedienig isch uf Version {{version}} aktualisiert worde. Der Web-Konfigurator mues neu glade wärde. Bitte klick uf dä Reload-Button unde oder aktualisiere d Site im Webbrowser."
+      }
+    },
+    "language_text": {
+      "popup_delete": {
+        "title": "Sprachtext lösche",
+        "question": "Bisch sicher, dass du dä Sprachtext wosch lösche?"
+      }
+    },
+    "battery_status": {
+      "value": {
+        "FULL": "ufglade",
+        "CHARGING": "lade",
+        "NOT_CHARGING": "ladet nid",
+        "DISCHARGING": "entlade",
+        "LOW_BATTERY": "schwachi Batterie",
+        "undefined": "unbekannt"
+      }
+    },
+    "quick_tips": {
+      "tip1": {
+        "headline": "Integratione",
+        "body": "Entitäten werden nach dem Hinzufügen einer neuen Integration nicht automatisch konfiguriert. Klicke auf der Integrationsseite auf das Plus-Symbol über der Liste der konfigurierten Entitäten und wähle aus, welche der verfügbaren Entitäten hinzugefügt werden sollen."
+      },
+      "tip2": {
+        "headline": "Übersetzige",
+        "body": "Dr Web-Konfigurator isch uf Dänisch, Französisch, Dütsch und Schwiizerdütsch, Holländisch, Ungarisch und Italienisch übersetzt. Meh Übersetzige wärde i SimpleLocalize vorbereitet u si bald verfüegbar."
+      },
+      "tip3": {
+        "headline": "Eigeni Integratione",
+        "body": "Mittels \"Neu hinzufügen\" auf dem Integrationsbildschirm können bis zu 10 benutzerdefinierte Integrationen hochgeladen werden. Dies ist derzeit eine Vorschaufunktion, und benutzerdefinierte Integrationen sind nicht in Backups enthalten."
+      },
+      "tip4": {
+        "headline": "Eigeni Integration aktualisiere",
+        "body": "Installierte benutzerdefinierte Integrationen können jetzt im Upload-Dialog mit der Option \"Aktualisieren\" aktualisiert werden. Vorhandene Entitäten werden nicht mehr von den UI-Seiten entfernt. Wenn eine benutzerdefinierte Integration noch nicht aktualisiert werden kann, wende dich bitte an den Entwickler der Integration."
+      },
+      "tip5": {
+        "headline": "Backups",
+        "body": "Backuparchive enthalten nur Konfigurationseinstellungen. Bitte beachte, dass die Archive nicht verschlüsselt sind und sensible Informationen enthalten können. Benutzerdefinierte Integrationen sind nicht in den Sicherungen enthalten."
+      },
+      "tip6": {
+        "headline": "Kürzlich hinzuegfüegti Funktione",
+        "body": "2.9.3 Aktualisieren von benutzerdefinierten Integrationen | 2.9.0 Durchsuchen, Suchen und Wiedergeben von Medien | 2.8.3 Select-Entität | 2.8.2 Sprachbefehle für Android TV | 2.8.1 Erste Unterstützung für Sprachbefehle in Home Assistant"
+      }
+    },
+    "icons": {
+      "title": "Symbol",
+      "default": "Standard",
+      "custom": "Benutzerdefiniert",
+      "tv_channels": "TV-Kanäl"
+    },
+    "resource": {
+      "tap_to": "Tippe zum Ufelade",
+      "drag_image": "Biud hie häre zieh",
+      "or": "oder",
+      "browse": "Datei uswähle",
+      "uploading": "Ufelade...",
+      "invalid_formats": "Einigi Dateie wärde nid ungerstützt. Bitte überprüefe.",
+      "invalid_dimensions": "Ungültigi Bildmasse. Bitte lad Bilder mit ere Grössi vo {{width}}x{{height}}px ufe.",
+      "delete_items": {
+        "title_one": "Element entferne",
+        "title_other": "Element entferne",
+        "question_one": "Bisch sicher, dass du das Element wosch lösche?",
+        "question_other": "Bisch sicher, dass du di Element wosch lösche?"
+      },
+      "upload": {
+        "error_status": {
+          "507": "Unzuereichende Speicherplatz zum d Ressource spiichere."
+        }
+      }
+    },
+    "tv_channels": {
+      "title": "TV-Kanäl"
+    },
+    "edit": {
+      "entity": "Entität bearbeite"
+    },
+    "error": {
+      "session_expired": "Sitzig abgloffe.",
+      "unknown_error": "Irgendöppis stimmt nid.",
+      "chunk_load_failed": "En Teil vo de App het nid chönne glade wärde. Bitte überprüefe d Verbindig u lad d Site nomau.",
+      "not_available": "Nid verfüegbar",
+      "NOT_FOUND": "Nid gfunde.",
+      "UNAUTHORIZED": "Unberechtigt.",
+      "FORBIDDEN": "Verbote.",
+      "BAD_REQUEST": "Ungültigi Afrag.",
+      "BAD_RESPONSE": "Ungültigi Antwort.",
+      "SERVICE_UNAVAILABLE": "Dienst nid verfüegbar.",
+      "ERR_NETWORK": "Netzwerkfehler.",
+      "ERR_BAD_REQUEST": "Ungültigi Afrag.",
+      "ERR_BAD_RESPONSE": "Ungültigi Antwort.",
+      "ERR_UNAUTHORIZED": "Unberechtigt.",
+      "ERR_NOT_FOUND": "Nid gfunde.",
+      "ERR_INTERNAL_SERVER_ERROR": "Internes Serverproblem. Bitte später versueche.",
+      "ERR_SERVICE_UNAVAILABLE": "Dienst nid verfüegbar.",
+      "ERR_CANCELED": "Netzwerkproblem. Bitte überprüefe d Verbindig und versuechs nomal.",
+      "VALIDATION_ERROR": "Ungültigi Date. Bitte korrigiere.",
+      "INVALID_FORMAT": "Nid ungerstützts Format. Bitte es unterstützts Format verwände und wieder versueche.",
+      "TIMEOUT": "Zytüberschritig.",
+      "HAS_TIMEOUT": "Es het es Timeout gä.",
+      "NOT_IMPLEMENTED": "Nid implementiert.",
+      "ALREADY_EXISTS": "Date si scho vorhande."
+    },
+    "api_errors": {
+      "error_status": {
+        "400": "Ungültigi Afrag. Überprüef dini Igabe.",
+        "401": "Nid authentifiziert.",
+        "403": "Fählendi Zuegriffsrächt.",
+        "404": "Ressource nid gefunde.",
+        "408": "Es het es Timeout gä.",
+        "409": "Konflikt, dr Vorgang isch derzyt nid erloubt.",
+        "413": "D Aforderig oder Igabe isch zgross und wird nid unterstützt.",
+        "415": "Nid ungerstützte Mediäntyp.",
+        "422": "Date si scho vorhande.",
+        "429": "Zviel Afrage, bitte versuechs när nomau.",
+        "500": "Interne Serverfähler.",
+        "503": "Dienst isch derzit nid verfüegbar, bitte versuechs när nomau.",
+        "507": "Nid gnueg Spiicherplatz verfüegbar."
+      },
+      "generic_error": "En unbekannte Fähler isch ufträte: "
+    },
+    "settings": {
+      "general": {
+        "remote_name": {
+          "label": "Fernbedienigsname"
+        },
+        "about": {
+          "label": "Über",
+          "description": "Informatione zu dim Grät",
+          "licenses": {
+            "label": "Lizänzinformatione",
+            "title": "Lizänzinformatione",
+            "error": "D’Lizänzinformatione hei nid chönne glade wärde."
+          }
+        },
+        "software_update": {
+          "label": "Software-Update",
+          "status": {
+            "up_to_date": "Ds Software isch ufem nöischte Stand.",
+            "available_software": "Neui Software isch verfüegbar."
+          }
+        },
+        "backup": {
+          "label": "Sicherig",
+          "description": "Backups vor Konfiguration abelade und wiederhärstelle."
+        },
+        "ir_dataset": {
+          "label": "IR-Datensatz",
+          "description": "Alli eigete IR Datesätz abelade."
+        },
+        "download": {
+          "description": "Klick uf d Schautflächi Download um es Backup vor aktuelle Konfiguration abezlade. Benutzerdefinierti Integratione wärde nid gsicheret."
+        },
+        "restore": {
+          "label": "Widerhersteue",
+          "description": "Wähle e Sicherigsdatei zur Wiederherstellig uus. Nume Dateie mit .backup Erwyterig si ungerstützt.",
+          "dialog": {
+            "title": "Widerhersteue",
+            "question": "Bisch sicher dass e Sicherig wiederherstelle wosch? Das wird dini vorhandeni Konfiguration lösche."
+          },
+          "message": {
+            "restoring_backup": "Sicherig widerhersteue"
+          },
+          "error_status": {
+            "400": "Backup-Archiv isch ungültig oder beschädigt. Überprüef d Protokoll für witeri Details.",
+            "403": "Nid erloubt, nume es Administratorkonto darf es Backup widerhärstelle.",
+            "409": "Es Sicherigs- oder Wiederherstelligsprozess louft bereits.",
+            "500": "Interne Serverfähler, wo Backup-Archiv het nid chönne verarbeitet wärde. Überprüef d Protokoll für witeri Details.",
+            "507": "Nid gnueg Spiicherplatz verfüegbar."
+          }
+        },
+        "reboot": {
+          "dialog": {
+            "title": "Grät nöi starte",
+            "question": "Bitte starte ds Grät neu, um di widerhärgschtellti Konfiguration z lade!"
+          }
+        }
+      },
+      "display": {
+        "auto_brightness": "Automatische Helligkeit",
+        "auto_brightness_description": "Automatisch d Helligkeit vom Display je nach Umgebigsbelüchtig aapasse.",
+        "display_brightness": "Helligkeit azeige",
+        "button_backlight": "Taschtebelüchtig",
+        "button_backlight_color": {
+          "label": "Taschtebelüchtigsfarb",
+          "dialog": {
+            "title": "Farb zrüggsetze",
+            "question": "Taschtebeleuchtigsfarb uf wiis zrüggsetze?"
+          }
+        },
+        "button_backlight_description": "Wenn aktiviert, schaltet sech d Taschtebelüchtig automatisch imne dunkle Ruum i.",
+        "button_brightness": "Helligkeit der Taschtebelüchtig"
+      },
+      "sound_haptic": {
+        "sound_effects": "Toneffekt",
+        "sound_effects_description": "Toneffekt aktiviere",
+        "sound_effects_volume": "Toneffekt Lutstärchi",
+        "haptic_feedback": "Haptischi Rückmäldig",
+        "haptic_feedback_description": "Haptischi Rückmäldig aktiviere"
+      },
+      "voice_control": {
+        "voice_control": "Sprachstürig",
+        "voice_control_description": "Bi Deaktivierig vo de Sprachstürig, cha d Dikttierfunktion für Integratione witer gnutzt wärde.",
+        "microphone": "Mikrofon",
+        "microphone_description": "Ds Deaktiviere vom Mikrofon deaktiviert o de Sprachassischtänt.",
+        "voice_assistant": {
+          "title": "Sprachassischtänt",
+          "select": "Sprachassischtänt wähle",
+          "description": {
+            "base": "Wähl en Sprachassischtänt für d Sprachbefähl uf der Fernbedienig us.",
+            "no_items": "Keni Sprachassischtänte verfüegbar"
+          },
+          "support_link": "Sprachassischtänt verwände",
+          "profile": {
+            "title": "Sprachassischtänt-Profil",
+            "select": "Sprachassischtänt-Profil wähle"
+          }
+        }
+      },
+      "wifi_bluetooth": {
+        "bluetooth": {
+          "current_version": "Aktuelli Version",
+          "advertisement_name": "Aazeigname",
+          "peripheral_connections": {
+            "label": "Peripheriegrät-Verbindige",
+            "description": "Azau vode glichzitig mögliche Bluetooth-Verbindige."
+          },
+          "hci_logs": {
+            "label": "HCI-Logs aktiviere",
+            "description": "Host Controller Interface Protokollierig."
+          }
+        },
+        "wifi": "WiFi",
+        "wifi_scanning": {
+          "label": "Aktivi WiFi-Suechi",
+          "description": "Scanne aktiv nach WiFi-Netzwerk im konfigurierte Intervall."
+        },
+        "wifi_band": {
+          "label": "WiFi-Band",
+          "option": {
+            "auto": "Auto"
+          }
+        }
+      },
+      "admin_password": {
+        "description": "Ds Administratorpasswort wird verwändet, um vo igschränkte Profil z wächsle.",
+        "pass_not_match": "Passwörter stimme nid überi."
+      },
+      "development": {
+        "logs": {
+          "label": "Protokoll",
+          "description": "Protokoll für Integratione u ds System abelade.",
+          "services": {
+            "label": "Dienschte",
+            "description": "Wähle e Dienscht us zum d Protokoll abezlade."
+          },
+          "priority": {
+            "label": "Priorität",
+            "description": "Wähle d Prioritätsstufe vom Protokoll us. Debug lieferet alli Informatione, während Crit nume kritischi Fehler azeigt."
+          },
+          "boot_id": {
+            "label": "Boot-ID",
+            "description": "Leer lah we nid bekannt."
+          },
+          "date_range": {
+            "label": "Datumsbereich",
+            "description": "Wähle e bestimmte Datumsbereich us zum Protokolliträg z filtere."
+          },
+          "log_entries": {
+            "label": "Azahl Protokolliträg",
+            "description": "Azahl Logiiträg begränze."
+          },
+          "search_string": {
+            "label": "Suechbegriff",
+            "description": "Gib en suechbegriff ih, um i de Protokoll zsueche."
+          }
+        },
+        "preview_features": {
+          "label": "Vorschau-Funktione",
+          "description": "Aktivier Vorschaufunktione, wo derzit teschtet wärde oder no nid vollständig entwicklet si."
+        },
+        "restart_remote": {
+          "label": "Fernbedienig nöi starte",
+          "description": "D Fernbedienig mues nachem Ändere vonere Vorschaufunktion nöi gstartet wärde."
+        }
+      },
+      "localization": {
+        "language": "Sprach",
+        "country": "Land",
+        "timezone": "Zytzone",
+        "time_format": "24-Stunde Zyt",
+        "unit_system": "Einheite"
+      },
+      "logs": {
+        "name": "Protokoll"
+      },
+      "power_saving": {
+        "wake_on_wlan": {
+          "label": "WiFi im Ruhezuestand verbunde halte",
+          "description": "Halt WiFi immer verbunde, o we ds Grät schlaft. Ermöglicht es schnällers Wiederverbindä nachem Ufewachä. Bitte beachtä, dass ds Aktivierä därä Funktion d Akkulaufziit liecht verchürzt."
+        },
+        "wakeup_sensitivity": {
+          "label": "Ufwach-Empfindlichkeit",
+          "description": "Bewegig, wo brucht wird, um d Fernbedienig ufzwecke.",
+          "level": {
+            "off": "aus",
+            "low": "tief",
+            "medium": "mittu",
+            "high": "höch"
+          }
+        },
+        "display_timeout": {
+          "label": "Biudschirm Timeout",
+          "description": "Zyt nach däm sech dr Biudschirm usschautet."
+        },
+        "sleep_timeout": {
+          "label": "Ruhezustand nach",
+          "description": "Zyt nach dere d Fernbedienig i Energiesparmodus wächslet."
+        }
+      },
+      "factory_reset": {
+        "description": "Bim Zrücksetze wärde aui Ystellig, Konfiguratione u aui gspicherete Informatione glöscht. Date chöi nid widerhärgschteut wärde. Fortfahre?",
+        "button": "Alles lösche",
+        "config": {
+          "title": "Ab hie gits kes zrügg me",
+          "description": "D Bestätigung vor Werksrückstellig löscht alli Konfiguratione und persönlichi Date. Es cha nüt wieder hergstellt wärde."
+        }
+      },
+      "application_credentials": {
+        "description": "OAuth wird verwändet, um der Fernbedienig sichere delegierte Zuegriff uf Informatione uf anderi Websites zgwährle, ohni dini persönliche Aameldedate priis zgeh."
+      }
+    },
+    "ent_list": {
+      "paging": {
+        "showing": "{{items}} vo {{total}} aazeige",
+        "items_total": "{{items}} vo {{total}}",
+        "items_per_page": "Element pro Syte:"
+      }
+    },
+    "command": {
+      "delay": "Verzögerig",
+      "remove": "Entferne",
+      "assign": {
+        "title": "Befähl zuewise",
+        "showing_all_commands": "Aui Befähl azeige",
+        "select_an_entity": "Wähl en Entität us, um d Befehl z gseh."
+      }
+    },
+    "remote_status": {
+      "extend_timeout": {
+        "title": "Dini Fernbedienig geit i Ruehzuestand",
+        "question": "D Fernbedienig wächslet i {{seconds}} Sekunde i Ruhezustand. We dr Web-Konfigurator witerhin wottsch bruuche, chaschs Timeout verlängere."
+      }
+    },
+    "sleep_timeout": {
+      "title": "Ruhezustand",
+      "info_prevent": "Du chasch verhindere, dass d Fernbedienig i Ruehzuestand wächslet, indem du auf Ruhezustand verhindern klicksch oder ds Timeout mit em Löschsymbol entfernsch.",
+      "info_charging": "D Fernbedienig isch are Stromquelle agschlosse und geit nid i Ruehzuestand.",
+      "prevent_sleep_for": {
+        "label": "Ruehzuestand verhindere für",
+        "unit": "Min",
+        "action": "Ruhezustand für {{minutes}} Minute verhindere"
+      },
+      "going_to_sleep": "Ruhezustand i",
+      "dialog": {
+        "delete_inhibitor": {
+          "title": "Ruhezustand-Blocker entferne",
+          "question": "Bisch sicher dass dr Ruhezustand Blocker wotsch entferne?"
+        }
+      }
+    },
+    "application_credentials": {
+      "add": {
+        "title": "OAuth-Ameldedate hinzuefüege",
+        "description": "OAuth wird verwändet, um der Fernbedienig sichere delegierte Zuegriff uf Informatione uf anderi Websites zgwährle, ohni dini persönliche Aameldedate priis zgeh.",
+        "learn_more": "Klick hie um me z erfahre.",
+        "integration": "Integration",
+        "name": "Name",
+        "client_id": {
+          "label": "OAuth-Client-ID",
+          "description": "Öffentlichi Kennig vor OAuth-Awendig"
+        },
+        "client_secret": {
+          "label": "OAuth-Client-Gheimnis",
+          "description": "Gheimnis vor OAuth-Awändig"
+        }
+      },
+      "list": {
+        "name": "Name",
+        "integration": "Integration",
+        "client_id": "OAuth-Client-ID"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Lösch OAuth-Ameldedate",
+          "question": "Bisch sicher, dass du die OAuth-Ameldedate wosch lösche?"
+        }
+      }
+    },
+    "no_results": {
+      "title": "Ke Ergebnis gfunde",
+      "instruction": "Versuech öppis anders"
+    },
+    "media_browse": {
+      "error_status": {
+        "400": "Mediensuechi fählgschlage.",
+        "409": "Mediensuechi fählgschlage.",
+        "503": "Mediensuechi isch nid verfüegbar."
+      }
+    },
+    "media_class": {
+      "album": "Album",
+      "app": "App",
+      "artist": "Künstler",
+      "channel": "Kanal",
+      "composer": "Komponist",
+      "directory": "Verzeichnis",
+      "episode": "Episode",
+      "game": "Spiel",
+      "genre": "Genre",
+      "image": "Bild",
+      "movie": "Film",
+      "music": "Musig",
+      "playlist": "Playlist",
+      "podcast": "Podcast",
+      "radio": "Radio",
+      "season": "Saison",
+      "track": "Titel",
+      "tv_show": "Fernsehsändig",
+      "video": "Video"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.page-edit-integration {
+  height: 100%;
+
+  &__main {
+    height: 100%;
+    overflow: hidden;
+    @include mixins.card-minimal;
+  }
+
+  .ep-settings {
+    &__form {
+      &__wrapper {
+        @media screen and (max-width: variables.$bp-tablet) {
+          border-bottom: 1px solid var(--uc-theme-color-20);
+        }
+      }
+
+      &__meta {
+        width: 50%;
+      }
+
+      &__footer {
+        &__row {
+          &--description-text {
+            @include mixins.body-small;
+            color: var(--uc-theme-color-70);
+          }
+        }
+      }
+    }
+
+    &__configured-entities-wrapper {
+      .list-with-filter {
+        flex: 1;
+        overflow: hidden;
+
+        &__items {
+          @media screen and (max-width: variables.$bp-tablet) {
+            width: 100%;
+            padding-right: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+          }
+        }
+      }
+    }
+
+    &__available-entities {
+      @media screen and (max-width: variables.$bp-tablet) {
+        top: var(--uc-navbar-height);
+        height: calc(100% - var(--uc-navbar-height));
+      }
+
+      .list-with-filter {
+        @media screen and (max-width: variables.$bp-tablet) {
+          overflow: visible;
+        }
+      }
+    }
+  }
+}

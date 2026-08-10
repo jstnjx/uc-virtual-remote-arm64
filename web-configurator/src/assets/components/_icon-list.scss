@@ -1,0 +1,275 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.icon-list {
+  position: relative;
+  display: flex;
+  max-height: 100%;
+  width: 100%;
+  flex: 1;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    @include mixins.heading-4;
+
+    & {
+      color: var(--uc-foreground);
+    }
+  }
+
+  &__button-placeholder {
+    width: 2.5rem;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: none;
+    }
+  }
+
+  &--empty-list {
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    .list-with-filter {
+      width: 100%;
+
+      &__items {
+        display: flex !important;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    .resource-upload {
+      width: 100%;
+
+      &__drop-area {
+        height: 5.625rem;
+      }
+    }
+  }
+
+  .list-with-filter {
+    height: 100%;
+    width: 100%;
+
+    &__form {
+      flex-direction: row;
+      justify-content: space-between;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .button-group {
+        @media screen and (max-width: variables.$bp-phone) {
+          width: 100%;
+        }
+
+        .button {
+          @media screen and (max-width: variables.$bp-tablet) {
+            flex: 1;
+          }
+        }
+      }
+
+      &__tools {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        justify-content: center;
+        flex: 1;
+        gap: 1.25rem;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          flex-direction: column;
+          width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        @media screen and (max-width: variables.$bp-phone) {
+          align-items: flex-start;
+        }
+
+        &__col-right {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+
+          @media screen and (max-width: variables.$bp-tablet) {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    &__search {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      max-width: 26.25rem;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        max-width: 100%;
+      }
+
+      input {
+        width: 100%;
+      }
+    }
+
+    &__items-wrapper {
+      height: calc(100% - 4.8rem);
+
+      @media screen and (max-width: variables.$bp-phone) {
+        height: calc(100% - 9.2rem);
+      }
+    }
+
+    &__items {
+      display: block;
+      max-height: 100%;
+      // display: flex;
+      // flex-direction: row;
+      // flex-wrap: wrap;
+      // flex: none;
+      // gap: 1.12rem;
+      // max-height: calc(100% - 3.75rem);
+      overflow-x: hidden;
+      overflow-y: scroll;
+      margin-left: -0.625rem;
+      margin-right: -0.625rem;
+      @include mixins.scrollbar;
+
+      & {
+        min-height: 7.5rem;
+      }
+    }
+  }
+
+  &__item {
+    position: relative;
+    float: left;
+    width: 6.125rem;
+    max-height: 9rem;
+    max-height: 144px;
+    background-color: transparent;
+    padding: 0.3125rem 0.25rem 0.5rem;
+    margin: 0 0.625rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      width: 5.5rem;
+      margin: 0 0.625rem;
+    }
+
+    @media screen and (max-width: 400px) {
+      width: 5.125rem;
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        background-color: var(--uc-bg-bg-surface-1);
+        transition: all 0.2s;
+      }
+
+      .icon-list__item__assign {
+        display: inline-flex;
+      }
+    }
+
+    &--assigned {
+      background-color: var(--uc-theme-accent);
+
+      .icon-list__item__label {
+        color: var(--uc-white);
+      }
+
+      .icon-list__item__assign {
+        display: inline-flex;
+        background: var(--uc-theme-accent);
+        color: var(--uc-white);
+      }
+    }
+
+    &__icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 2.25rem;
+      width: 100%;
+      height: 5.625rem;
+      padding: 0.25rem;
+    }
+
+    &__image-wrapper {
+      position: relative;
+      display: flex;
+      margin-bottom: 0.25rem;
+    }
+
+    &__image {
+      width: 100%;
+      border-radius: 0.25rem;
+    }
+
+    &__label {
+      display: inline-block;
+      display: -webkit-box;
+      @include mixins.secondary-body-extrasmall;
+      width: 100%;
+      color: var(--uc-theme-color-40);
+      text-align: center;
+      overflow: hidden;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+    }
+
+    &__assign {
+      display: none;
+      position: absolute;
+      left: 0.5rem;
+      top: 3rem;
+      color: var(--uc-black);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      width: 1.625rem;
+      height: 1.625rem;
+
+      i {
+        font-size: 1rem;
+      }
+
+      @media (pointer: coarse) {
+        display: inline-flex;
+      }
+    }
+  }
+
+  .resource-upload {
+    float: left;
+    margin: 0 0.625rem;
+    max-width: 5.8rem;
+    aspect-ratio: 20 / 24;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      max-width: 5.5rem;
+    }
+
+    @media screen and (max-width: variables.$bp-phone) {
+      aspect-ratio: 20 / 23;
+    }
+  }
+
+  .list-paging {
+    padding: 0.625rem 0;
+  }
+}

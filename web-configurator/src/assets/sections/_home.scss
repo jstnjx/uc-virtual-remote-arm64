@@ -1,0 +1,391 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.section-home {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 14.4rem;
+
+  @media only screen and (max-width: 1370px) {
+    padding-top: 9rem;
+  }
+
+  @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 900px) {
+    padding-top: 11.4rem;
+    height: 50.4375rem;
+  }
+
+  @media screen and (min-width: variables.$bp-tablet-plus) and (max-height: 700px) {
+    padding-top: 6rem;
+    height: 44.4375rem;
+  }
+
+  @media screen and (max-width: variables.$bp-tablet) {
+    padding-top: 0;
+  }
+
+  &--inactive {
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: none;
+    }
+  }
+
+  .icon-container {
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.75rem 0.5625rem 0.75rem 0.625rem;
+    }
+  }
+
+  &__welcome {
+    position: relative;
+    height: 14rem;
+    opacity: 1;
+    transition: 0.1s all;
+
+    @media only screen and (max-width: 1370px) {
+      height: 9rem;
+    }
+
+    @media only screen and (max-width: 1250px),
+      only screen and (max-height: 700px) {
+      height: 6rem;
+      padding-top: 3.25rem;
+      width: max-content;
+    }
+
+    @media screen and (min-width: variables.$bp-tablet-plus) {
+      position: absolute;
+      top: 0;
+      width: 95vw;
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 0;
+      height: unset;
+      height: auto;
+      width: 100%;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      margin-top: 1.65rem;
+      margin-bottom: 1.5rem;
+
+      @media only screen and (max-width: 1370px) {
+        margin-top: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      @media only screen and (max-width: 1250px),
+        only screen and (max-height: 700px) {
+        position: absolute;
+        top: 0;
+        font-size: 2.5rem;
+        white-space: nowrap;
+        margin-top: 0rem;
+        margin-bottom: 0.25rem;
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        position: relative;
+        white-space: unset;
+        white-space: normal;
+        font-size: 2.5rem;
+      }
+
+      @media screen and (max-width: variables.$bp-phone) {
+        font-size: 2.5rem;
+        margin-top: 1.65rem;
+        margin-bottom: 1.5rem;
+      }
+
+      span {
+        display: block;
+
+        @media only screen and (max-width: 1370px),
+          only screen and (max-height: 900px) {
+          display: inline-block;
+        }
+
+        // @media only screen and (max-width: 1370px) {
+        //   display: inline-block;
+        // }
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          display: block;
+        }
+      }
+    }
+
+    p {
+      @include mixins.heading-3;
+
+      & {
+        color: var(--uc-text-text-secondary);
+      }
+
+      @media only screen and (max-width: 1250px),
+        only screen and (max-height: 700px) {
+        font-size: 1.25rem;
+      }
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        font-size: 1.625rem;
+      }
+    }
+
+    &--hidden {
+      opacity: 0;
+      transition: 0.1s all;
+    }
+  }
+
+  &__options {
+    display: grid;
+    grid-template-rows: 1fr 9rem;
+    max-width: calc(50vw - 1.25rem);
+    height: calc(100% - 14.4rem);
+    gap: 0.625rem;
+    flex: 1;
+
+    @media only screen and (max-width: 1370px) {
+      height: calc(100% - 9rem);
+    }
+
+    @media only screen and (max-width: 1250px),
+      only screen and (max-height: 700px) {
+      height: calc(100% - 6rem);
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      grid-template-rows: 1fr;
+      max-width: calc(100vw - 1.25rem);
+    }
+
+    &__group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 50%));
+      grid-template-rows: 1fr 1fr;
+      gap: 0.625rem;
+
+      & > .dropdown-menu {
+        height: 100%;
+        width: 100%;
+
+        .dropdown-menu__trigger {
+          height: 100%;
+          width: 100%;
+
+          & > div {
+            height: 100%;
+            width: 100%;
+
+            & > div {
+              height: 100%;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &__option {
+    @include mixins.card;
+
+    & {
+      display: grid;
+      gap: 0.5rem;
+      padding: 1.88rem;
+      text-decoration: none;
+      grid-template-rows: 3rem 1fr;
+      overflow: hidden;
+      color: var(--uc-text-text-primary);
+    }
+
+    @media only screen and (max-width: 1250px) {
+      padding: 1.25rem;
+    }
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      padding: 1.25rem;
+    }
+
+    h2 {
+      display: flex;
+      align-items: flex-end;
+      @include mixins.heading-4;
+
+      @media only screen and (max-width: 1250px) {
+        font-size: 1.25rem;
+      }
+    }
+
+    img {
+      @media screen and (max-width: variables.$bp-phone) {
+        max-width: 5rem;
+      }
+    }
+
+    .icon-container {
+      @media screen and (max-width: variables.$bp-phone) {
+        margin-top: -0.63rem;
+        margin-right: -0.63rem;
+      }
+    }
+
+    &__row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+
+      img {
+        max-width: 7rem;
+
+        @media screen and (max-width: variables.$bp-phone) {
+          max-width: 5rem;
+        }
+      }
+
+      .button {
+        outline: 0;
+      }
+    }
+
+    &--add-device,
+    &--add-activity,
+    &--software-update {
+      cursor: pointer;
+    }
+
+    &--battery {
+      align-items: flex-start;
+      pointer-events: none;
+
+      & > div {
+        display: flex;
+        flex-direction: column;
+        align-self: flex-end;
+        width: 100%;
+        color: var(--uc-text-text-primary);
+        overflow: hidden;
+
+        span {
+          font-size: 3.75rem;
+          font-weight: 200;
+          letter-spacing: 0.16875rem;
+          line-height: 1;
+          margin-top: 0.15rem;
+          margin-bottom: 0.15rem;
+
+          @media only screen and (max-width: 1250px) {
+            font-size: 4rem;
+          }
+
+          @media only screen and (min-height: 980px) and (min-width: 1020px) {
+            font-size: 5.625rem;
+          }
+
+          @media only screen and (min-height: 1050px) and (min-width: 1350px) {
+            font-size: 6.25rem;
+          }
+
+          @media only screen and (min-height: 1150px) and (min-width: 1600px) {
+            font-size: 7.5rem;
+          }
+
+          @media screen and (max-width: variables.$bp-tablet) {
+            font-size: 5.625rem;
+          }
+
+          @media screen and (max-width: variables.$bp-phone) {
+            font-size: 3.75rem;
+            letter-spacing: 0.1125rem;
+          }
+
+          & > span {
+            font-size: 2.75rem;
+
+            @media only screen and (min-height: 1050px) and (min-width: 1350px) {
+              font-size: 3rem;
+            }
+
+            @media only screen and (min-height: 1150px) and (min-width: 1600px) {
+              font-size: 3.5rem;
+            }
+
+            @media screen and (max-width: variables.$bp-phone) {
+              font-size: 1.875rem;
+            }
+          }
+        }
+
+        p {
+          @include mixins.body-large;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .button {
+        pointer-events: none;
+      }
+
+      &--green {
+        & > div {
+          span {
+            color: var(--uc-success-success);
+          }
+        }
+      }
+
+      &--red {
+        .button--icon {
+          color: var(--uc-error-error-40);
+        }
+
+        & > div {
+          span {
+            color: var(--uc-error-error-40);
+          }
+        }
+      }
+    }
+
+    &--software-update {
+      pointer-events: none;
+
+      &.has-update {
+        pointer-events: all;
+
+        .button--icon {
+          color: var(--uc-warning-warning);
+        }
+      }
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        .button--tertiary {
+          background-color: var(--uc-buttons-tertiary-button-tertiary-hover-bg);
+          border-color: var(--uc-buttons-tertiary-button-tertiary-hover-bg);
+          color: var(--uc-buttons-tertiary-button-tertiary-hover-text);
+
+          i {
+            transform: scale(1);
+            font-size: 1.375rem;
+            transition: all 0.2s;
+          }
+        }
+      }
+    }
+  }
+}

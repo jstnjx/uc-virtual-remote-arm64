@@ -1,0 +1,61 @@
+Artwork in this directory
+==========================
+
+See ../ARTWORK.md for the complete attribution manifest and ../LICENSES/CC-BY-4.0.txt
+for the full Creative Commons Attribution 4.0 International license.
+
+Unmodified Unfolded Circle artwork (CC BY 4.0)
+------------------------------------------------
+
+Copyright © 2024–2026 Unfolded Circle ApS.
+
+  add-page.svg
+  cropper-corner.svg
+  loading-indicator.png
+  loading-indicator-dark.png
+  remote-2-front.webp
+  remote-2-front-min.webp
+  remote-3-silver-front.webp
+  remote-3-silver-front-min.webp
+  remote-3-dark-front.webp
+  remote-3-dark-front-min.webp
+  dock/dock-2.webp
+  dock/dock-d-c.webp
+  dock/dock-d-n.webp
+  dock/dock-s-c.webp
+  dock/dock-s-n.webp
+  customise-remote/add-entities.png
+  customise-remote/add-groups.png
+  customise-remote/configure-buttons.png
+  quick-tips/icon-contextual.svg
+
+Modified Unfolded Circle derivatives (CC BY 4.0)
+--------------------------------------------------
+
+  remote-3-dark-front-backlight.webp
+  remote-3-dark-front-backlight-min.webp
+  remote-3-dark-backlight-mask.png
+
+Copyright in the original artwork © 2024–2026 Unfolded Circle ApS.
+Modified by Justin Jäger / Unfolded.Tools on 2026-08-04. Changes include simulator-only transparent
+button symbols, a resized/minified simulator variant, and a generated button-backlight mask.
+
+Original Unfolded.Tools artwork (GPL-3.0-only)
+-----------------------------------------------
+
+  background/login-bg.jpg
+  background/login-bg-1280.jpg
+  background/login-bg-1920.jpg
+  background/login-bg-2500.jpg
+  background/login-bg-phone.jpg
+  background/login-bg-v2.jpg
+  background/login-bg-v2-1280.jpg
+  background/login-bg-v2-1920.jpg
+  background/login-bg-v2-2500.jpg
+  background/login-bg-v2-phone.jpg
+
+Copyright © 2026 Justin Jäger / Unfolded.Tools.
+
+The CC BY license grants copyright permissions only and does not grant trademark rights.
+This unofficial community build is not affiliated with, endorsed by, operated by, or
+supported by Unfolded Circle ApS.

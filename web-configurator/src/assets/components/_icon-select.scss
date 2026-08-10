@@ -1,0 +1,87 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.icon-select {
+  position: fixed;
+  z-index: var(--uc-vselect-z-index);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  transition: opacity 0.3s ease;
+  padding: 3.75rem;
+  padding-bottom: 0;
+
+  &--hidden {
+    visibility: hidden;
+  }
+
+  @media screen and (max-width: variables.$bp-phone) {
+    padding: 0.625rem;
+    padding-bottom: 0;
+  }
+
+  &__background {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.08);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    animation: blurAnimation 0.1s ease;
+  }
+
+  &__container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--uc-app-max-width);
+    height: 100%;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    padding: 1.875rem;
+    padding-bottom: 0;
+    background: var(--uc-background);
+    z-index: 2;
+    overflow: hidden;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      padding: 1.25rem;
+      padding-bottom: 0;
+    }
+
+    .button-close {
+      position: absolute;
+      top: 1.875rem;
+      right: 1.875rem;
+      margin-left: auto;
+      margin-right: 0;
+
+      @media screen and (max-width: variables.$bp-phone) {
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        min-height: 1.5rem;
+      }
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+  }
+}
+
+@include mixins.transition-slide-from-bottom;

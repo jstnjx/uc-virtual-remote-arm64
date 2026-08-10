@@ -1,0 +1,160 @@
+@use "../base/mixins";
+@use "../vars/variables";
+
+.dialog {
+  position: fixed;
+  z-index: var(--uc-vselect-z-index);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+
+  &:before {
+    content: "";
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    animation: blurAnimation 0.1s ease;
+  }
+
+  &__container {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+    max-width: 24.25rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: var(--uc-bg-bg);
+    z-index: 2;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: calc(100% - 1.25rem);
+    }
+  }
+
+  &__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+
+    &--red {
+      color: var(--uc-error-error-60);
+    }
+
+    &--green {
+      color: var(--uc-success-success);
+    }
+  }
+
+  &__title {
+    @include mixins.heading-4;
+
+    & {
+      color: var(--uc-text-text-primary);
+      margin-left: 0;
+      margin-right: auto;
+    }
+  }
+
+  &__text {
+    @include mixins.body-large;
+    width: 100%;
+    color: var(--uc-text-text-secondary);
+
+    .vue-markdown {
+      p {
+        @include mixins.body-large;
+        color: var(--uc-text-text-secondary);
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &__extra {
+    @include mixins.body-large;
+    width: 100%;
+    color: var(--uc-text-text-secondary);
+  }
+
+  &__triggers {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+    gap: 1.88rem;
+
+    .button {
+      width: 100%;
+    }
+  }
+
+  &--center {
+    .dialog {
+      &__title {
+        margin-left: auto;
+      }
+
+      &__text {
+        text-align: center;
+      }
+    }
+  }
+
+  &--warning {
+    .dialog {
+      &__container {
+        background: #2a0404;
+      }
+
+      &__icon {
+        color: var(--uc-error-error-60);
+      }
+
+      &__title {
+        color: var(--uc-error-error-60);
+      }
+
+      &__text {
+        color: var(--uc-error-error-40);
+      }
+    }
+  }
+
+  &--confirm-command-select {
+    @media screen and (max-width: variables.$bp-tablet) {
+      // z-index: 2510;
+      z-index: var(--uc-vselect-z-index);
+    }
+  }
+
+  &--new-system-version {
+    .dialog {
+      &__container {
+        max-width: 26.25rem;
+      }
+
+      &__icon {
+        font-size: 2.25rem;
+      }
+
+      &__title {
+        text-align: center;
+      }
+    }
+  }
+}

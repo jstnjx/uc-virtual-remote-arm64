@@ -1,0 +1,282 @@
+@use "../vars/variables";
+
+i.fa-thin,
+i.fa-light,
+i.fa-regular {
+  &.icon-color {
+    &--red {
+      color: #ea0000;
+    }
+
+    &--green {
+      color: #108200;
+    }
+
+    &--blue {
+      color: #002bc6;
+    }
+
+    &--yellow {
+      color: #f9c941;
+    }
+  }
+}
+
+.icon-container {
+  display: flex;
+  width: 3.75rem;
+  height: 3.75rem;
+  background-color: var(--uc-theme-color-20);
+  color: var(--uc-foreground);
+  font-size: 1.25rem;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0rem 1rem;
+  border-radius: 1.875rem;
+  transition: all variables.$transition-bg-timing;
+
+  &--large {
+    width: 5.625rem;
+    height: 5.625rem;
+    font-size: 2.25rem;
+    border-radius: 50%;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 3.75rem;
+      height: 3.75rem;
+      font-size: 2rem;
+    }
+  }
+
+  &--huge {
+    width: 6.25rem;
+    height: 6.25rem;
+    font-size: 2.5rem;
+    border-radius: 0.5rem;
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 5.625rem;
+      height: 5.625rem;
+    }
+  }
+
+  &--huge--circle {
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 50%;
+
+    &.selected-icon--custom {
+      height: 7.5rem;
+      max-height: 7.5rem;
+    }
+
+    @media screen and (max-width: variables.$bp-phone) {
+      width: 5.625rem;
+      height: 5.625rem;
+      font-size: 3.375rem;
+
+      &.selected-icon--custom {
+        height: 5.625rem;
+      }
+    }
+  }
+}
+
+@mixin touch-screen-si-edit {
+  left: auto;
+  top: -0.9375rem;
+  right: -0.9375rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  font-size: 1.125rem;
+  border-radius: 50%;
+  padding-left: 0;
+  padding-right: 0;
+  color: var(--uc-theme-color-30);
+  background-color: var(--uc-foreground);
+  opacity: 1;
+}
+
+@mixin touch-screen-si-edit-image {
+  background-color: var(--uc-foreground);
+}
+
+.selected-icon {
+  position: relative;
+  padding: 0;
+
+  .vue-load-image {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    border-radius: 50%;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+  }
+
+  @media (pointer: fine) {
+    &:hover {
+      .selected-icon__edit {
+        opacity: 1;
+        transition: all 0.3s;
+      }
+    }
+  }
+
+  &--editable {
+    background-color: transparent;
+    border: 1px solid var(--uc-theme-color-30);
+
+    & > i,
+    & > .vue-load-image {
+      transition: all 0.3s;
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        & > i,
+        & > .vue-load-image {
+          opacity: 0.1;
+          transition: all 0.3s;
+        }
+      }
+    }
+  }
+
+  &--custom {
+    border-color: transparent;
+    height: 100%;
+    max-height: 6.25rem;
+
+    .selected-icon__edit {
+      border-radius: 50%;
+    }
+
+    &--square {
+      .vue-load-image {
+        border-radius: 0.75rem;
+
+        img {
+          border-radius: 0.75rem;
+        }
+      }
+
+      .selected-icon__edit {
+        border-radius: 0.75rem;
+      }
+    }
+  }
+
+  &__edit {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: var(--uc-foreground);
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+    border-radius: inherit;
+    background-color: var(--uc-bg-bg-surface-1);
+    padding: 0;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 2;
+    text-align: center;
+
+    @media screen and (max-width: variables.$bp-tablet) {
+      @include touch-screen-si-edit;
+    }
+
+    &--image {
+      background: transparent;
+
+      @media screen and (max-width: variables.$bp-tablet) {
+        @include touch-screen-si-edit-image;
+      }
+
+      * {
+        position: relative;
+        z-index: 2;
+      }
+
+      &::before {
+        position: absolute;
+        content: "";
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        background-color: var(--uc-theme-color-30);
+        opacity: 0.4;
+        z-index: 1;
+
+        @media screen and (max-width: variables.$bp-tablet) {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.icon-container--huge--square {
+  .selected-icon {
+    &__edit {
+      border-radius: 0.5rem;
+    }
+  }
+}
+
+body.touch-screen {
+  .selected-icon {
+    &--editable {
+      @media (pointer: fine) {
+        &:hover {
+          & > i,
+          & > .vue-load-image {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    &__edit {
+      @include touch-screen-si-edit;
+
+      &--image {
+        @include touch-screen-si-edit-image;
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .icon-container--huge--circle {
+    .selected-icon {
+      &__edit {
+        top: 0.25rem;
+        right: -0.5rem;
+      }
+    }
+  }
+}
