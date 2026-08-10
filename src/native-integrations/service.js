@@ -184,6 +184,29 @@ export function executableArchitecture(filename) {
   }
 }
 
+export function driverLaunchCommand(record, options = {}) {
+  const executable = String(record?.executable || "");
+  const architecture = record?.architecture
+    || (executable ? executableArchitecture(executable) : null);
+  const runtimeArch = String(options.runtimeArch || process.arch);
+  if (architecture !== "arm64" || runtimeArch === "arm64") {
+    return { command: executable, args: [], emulated: false, architecture: architecture || "script" };
+  }
+  if (!["x64", "amd64"].includes(runtimeArch)) {
+    throw new Error(`ARM64 integration ${record?.driver_id || executable} cannot run on unsupported host architecture ${runtimeArch}`);
+  }
+  const emulator = String(options.emulator ?? process.env.UCVR_ARM64_EMULATOR ?? "/usr/local/bin/qemu-aarch64-static");
+  const exists = options.exists || fs.existsSync;
+  if (!emulator || !exists(emulator)) {
+    throw new Error(`ARM64 integration ${record?.driver_id || executable} requires qemu-aarch64-static on ${runtimeArch}`);
+  }
+  const args = [];
+  const ldPrefix = String(options.ldPrefix ?? process.env.UCVR_ARM64_LD_PREFIX ?? "").trim();
+  if (ldPrefix) args.push("-L", ldPrefix);
+  args.push(executable);
+  return { command: emulator, args, emulated: true, architecture };
+}
+
 async function portAvailable(host, port) {
   return await new Promise((resolve) => {
     const socket = net.createConnection({ host, port });
@@ -459,7 +482,11 @@ export class NativeIntegrationService {
     chownTree(configDir, this.runUid, this.runGid);
     chownTree(dataDir, this.runUid, this.runGid);
     const logFile = path.join(this.logsDir, `${record.driver_id}.log`);
-    const child = spawn(record.executable, [], {
+    const launch = driverLaunchCommand(record);
+    if (launch.emulated) {
+      log.info(`Starting ARM64 integration ${record.driver_id} through ${path.basename(launch.command)} on ${process.arch}`);
+    }
+    const child = spawn(launch.command, launch.args, {
       cwd: record.package_dir,
       env: nativeEnvironment(record, this.host, configDir, dataDir),
       ...(this.runUid !== null && this.runGid !== null && typeof process.getuid === "function" && process.getuid() === 0

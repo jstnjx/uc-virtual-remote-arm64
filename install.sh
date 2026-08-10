@@ -161,17 +161,6 @@ fi
 $SUDO docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is required (the 'docker compose' command)."
 $SUDO docker info >/dev/null 2>&1 || fail "Docker is installed but the daemon is unavailable. Start Docker and rerun the installer."
 
-HOST_ARCH="$(uname -m)"
-if [ "$HOST_ARCH" != "aarch64" ] && [ "$HOST_ARCH" != "arm64" ]; then
-  echo "==> Host architecture is $HOST_ARCH; checking ARM64 container emulation"
-  if ! $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1; then
-    echo "==> Enabling Linux ARM64 binfmt support"
-    $SUDO docker run --privileged --rm tonistiigi/binfmt --install arm64 >/dev/null
-    $SUDO docker run --rm --platform linux/arm64 alpine:3.22 /bin/true >/dev/null 2>&1 \
-      || fail "ARM64 container emulation could not be enabled on this host."
-  fi
-fi
-
 if [ "${LOCAL_INSTALL:-0}" = "1" ]; then
   install_local_checkout
 else
