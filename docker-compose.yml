@@ -1,7 +1,6 @@
 services:
   virtual-remote:
     build: .
-    platform: linux/arm64
     image: ghcr.io/jstnjx/uc-virtual-remote-arm64:latest
     container_name: uc-virtual-remote-arm64
     restart: unless-stopped
@@ -36,7 +35,6 @@ services:
 
   demo-integration:
     build: .
-    platform: linux/arm64
     image: ghcr.io/jstnjx/uc-virtual-remote-arm64:latest
     container_name: uc-virtual-remote-arm64-demo
     profiles: ["demo"]
