@@ -58,10 +58,17 @@ test("Web Configurator exposes Management", () => {
   assert.match(navBar, /__UCVR_BASE_PATH__/);
 });
 
-
 test("nested Docker checks mount namespace privilege", () => {
   assert.match(dockerfile, /util-linux/);
   assert.match(entrypoint, /unshare --mount/);
   assert.match(entrypoint, /CAP_SYS_ADMIN/);
-  assert.match(entrypoint, /full_access does not grant Linux capabilities/);
+  assert.match(entrypoint, /Supervisor can still restrict namespaces independently/);
+});
+
+test("read-only HAOS cgroups degrade external runtime instead of stopping the appliance", () => {
+  assert.match(entrypoint, /mark_dind_unavailable/);
+  assert.match(entrypoint, /UCVR_DIND_RUNTIME_AVAILABLE=false/);
+  assert.match(entrypoint, /continuing without registry\/external integration containers/);
+  assert.match(entrypoint, /if ! prepare_dind_cgroups; then[\s\S]*mark_dind_unavailable[\s\S]*return 0/);
+  assert.doesNotMatch(entrypoint, /the cgroup v2 hierarchy is read-only or not delegated to this container\." >&2\n\s*exit 1/);
 });
