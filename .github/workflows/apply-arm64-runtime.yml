@@ -1,0 +1,32 @@
+name: Apply ARM64 appliance runtime
+
+on:
+  push:
+    branches:
+      - feature/arm64-appliance-runtime
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.event.head_commit.message == 'Stage ARM64 runtime patch 4'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v6
+        with:
+          ref: feature/arm64-appliance-runtime
+          fetch-depth: 0
+
+      - name: Apply complete implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .arm64-runtime.patch.part-* > /tmp/arm64-runtime.patch
+          git apply --index /tmp/arm64-runtime.patch
+          git rm .github/workflows/apply-arm64-runtime.yml .arm64-runtime.patch.part-*
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Complete ARM64 appliance runtime"
+          git push origin HEAD:feature/arm64-appliance-runtime
