@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   apply:
-    if: github.event.head_commit.message == 'Stage ARM64 runtime patch 4'
+    if: github.event.head_commit.message == 'Stage ARM64 runtime patch 12'
     runs-on: ubuntu-latest
     steps:
       - name: Check out feature branch
