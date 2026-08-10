@@ -1,0 +1,102 @@
+name: Apply integration install fixes
+
+on:
+  push:
+    branches:
+      - fix/registry-build-and-upload
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/registry-build-and-upload
+          fetch-depth: 0
+
+      - name: Apply fixes
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          root = Path.cwd()
+
+          external_path = root / "src/external-integrations/service.js"
+          external = external_path.read_text(encoding="utf-8")
+          helper_anchor = '''function findFile(root, candidates) {\n  for (const candidate of candidates) {\n    const filename = path.join(root, candidate);\n    if (fs.existsSync(filename) && fs.statSync(filename).isFile()) return candidate;\n  }\n  return null;\n}\n'''
+          helper = helper_anchor + '''\nexport function dockerfileBuildPath(root, dockerfile) {\n  if (dockerfile === "-") return "-";\n  return path.isAbsolute(dockerfile) ? dockerfile : path.resolve(root, dockerfile);\n}\n'''
+          if "export function dockerfileBuildPath" not in external:
+            if helper_anchor not in external:
+              raise SystemExit("findFile helper anchor not found")
+            external = external.replace(helper_anchor, helper, 1)
+          old_build = '''      await this.#jobCommand(job, process.env.UCVR_DOCKER_BIN || "docker", ["build", "--pull", "-t", image, "-f", dockerfile, appDir], {\n        timeoutMs: 30 * 60_000,\n        ...(generated ? { input: generated } : {})\n      });'''
+          new_build = '''      const dockerfilePath = dockerfileBuildPath(appDir, dockerfile);\n      await this.#jobCommand(job, process.env.UCVR_DOCKER_BIN || "docker", ["build", "--pull", "-t", image, "-f", dockerfilePath, appDir], {\n        timeoutMs: 30 * 60_000,\n        ...(generated ? { input: generated } : {})\n      });'''
+          if old_build in external:
+            external = external.replace(old_build, new_build, 1)
+          elif "-f\", dockerfilePath, appDir" not in external:
+            raise SystemExit("docker build call not found")
+          external_path.write_text(external, encoding="utf-8")
+
+          native_path = root / "src/native-integrations/service.js"
+          native = native_path.read_text(encoding="utf-8")
+          native = native.replace('const MAX_ARCHIVE_BYTES = 512 * 1024 * 1024;\n', '', 1)
+          native = native.replace('    if (archive.length > MAX_ARCHIVE_BYTES) throw Object.assign(new Error("Integration archive is too large"), { status: 413 });\n', '', 1)
+          if "MAX_ARCHIVE_BYTES" in native:
+            raise SystemExit("native archive size cap still present")
+          native_path.write_text(native, encoding="utf-8")
+
+          server_path = root / "src/api/server.js"
+          server = server_path.read_text(encoding="utf-8")
+          install_block = '''    if (pathname === "/intg/install" && method === "POST") {\n      const upload = await multipartFile(request, 512 * 1024 * 1024);'''
+          replacement = '''    if (pathname === "/intg/install" && method === "POST") {\n      const upload = await multipartFile(request, Number.POSITIVE_INFINITY);'''
+          if install_block in server:
+            server = server.replace(install_block, replacement, 1)
+          elif replacement not in server:
+            raise SystemExit("custom integration upload block not found")
+          server_path.write_text(server, encoding="utf-8")
+
+          ui_path = root / "web-configurator/src/components/integration/ImportCustomIntegration.vue"
+          ui = ui_path.read_text(encoding="utf-8")
+          ui = re.sub(
+            r'\n\s*<span class="form-item--file__label__description">\s*\n\s*\{\{ \$t\("integration\.install_custom\.popup\.upload\.description"\) \}\}\s*\n\s*</span>',
+            '',
+            ui,
+            count=1,
+          )
+          ui_path.write_text(ui, encoding="utf-8")
+
+          test_path = root / "test/integration-install-regression.test.js"
+          test_path.write_text('''import assert from "node:assert/strict";\nimport fs from "node:fs";\nimport path from "node:path";\nimport test from "node:test";\n\nimport { dockerfileBuildPath } from "../src/external-integrations/service.js";\n\nconst nativeService = fs.readFileSync(new URL("../src/native-integrations/service.js", import.meta.url), "utf8");\nconst apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");\nconst customUploadUi = fs.readFileSync(new URL("../web-configurator/src/components/integration/ImportCustomIntegration.vue", import.meta.url), "utf8");\n\ntest("registry source builds resolve repository Dockerfiles inside the cloned context", () => {\n  const appDir = path.resolve("/data/external-integrations/apps/uc-remote-sync");\n  assert.equal(dockerfileBuildPath(appDir, "Dockerfile"), path.join(appDir, "Dockerfile"));\n  assert.equal(dockerfileBuildPath(appDir, "docker/Dockerfile"), path.join(appDir, "docker/Dockerfile"));\n  assert.equal(dockerfileBuildPath(appDir, "-"), "-");\n});\n\ntest("native integration tarball installation has no fixed archive byte cap", () => {\n  assert.doesNotMatch(nativeService, /MAX_ARCHIVE_BYTES/);\n  assert.doesNotMatch(nativeService, /Integration archive is too large/);\n  assert.match(\n    apiServer,\n    /pathname === "\\/intg\\/install"[\\s\\S]{0,200}multipartFile\\(request, Number\\.POSITIVE_INFINITY\\)/,\n  );\n});\n\ntest("custom integration uploader no longer advertises a fixed 100 MB limit", () => {\n  assert.doesNotMatch(customUploadUi, /install_custom\\.popup\\.upload\\.description/);\n});\n''', encoding="utf-8")
+
+          for filename in ["VERSION", "package.json", "package-lock.json"]:
+            p = root / filename
+            text = p.read_text(encoding="utf-8")
+            text = text.replace("0.14.2", "0.14.3")
+            p.write_text(text, encoding="utf-8")
+
+      - name: Build bundled configurator
+        working-directory: web-configurator
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run project validation
+        run: |
+          npm ci
+          npm run ci
+
+      - name: Commit feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/apply-install-fixes.yml .github/workflows/inspect-install-paths.yml
+          git add -A
+          git commit -m "Fix registry builds and large custom integration uploads"
+          git push origin HEAD:fix/registry-build-and-upload
