@@ -1,0 +1,60 @@
+name: Publish v0.13.1
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'Publish UC Virtual Remote ARM64 v0.13.1'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Tag source release
+        env:
+          RELEASE_COMMIT: 65878f269db08fca9e8284cda04d830308881e89
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a v0.13.1 "$RELEASE_COMMIT" -m "UC Virtual Remote ARM64 v0.13.1"
+          git push origin v0.13.1
+
+      - name: Dispatch release and container publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" \
+            -f event_type=publish-release \
+            -F client_payload[tag]=v0.13.1 \
+            -F client_payload[version]=0.13.1 \
+            -F client_payload[major_minor]=0.13 \
+            -F client_payload[major]=0 \
+            -F client_payload[stable]=true
+
+      - name: Record publication run ids
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sleep 5
+          {
+            echo "helper=${GITHUB_RUN_ID}"
+            gh run list --event repository_dispatch --limit 10 --json databaseId,workflowName,status,conclusion \
+              --jq '.[] | "\(.workflowName)=\(.databaseId) status=\(.status) conclusion=\(.conclusion // "")"'
+          } > .publish-v0.13.1-runs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .publish-v0.13.1-runs
+          git commit -m "Record v0.13.1 publication runs"
+          git push origin HEAD:main
