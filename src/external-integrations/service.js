@@ -336,6 +336,32 @@ function pythonEntrypoint(root, profile) {
   return walk(root).find((item) => /(^|\/)driver\.py$/i.test(item)) || walk(root).find((item) => /(^|\/)main\.py$/i.test(item)) || null;
 }
 
+export function pythonLaunchTarget(root, profile = {}) {
+  if (profile.python_entrypoint) {
+    const explicit = path.join(root, profile.python_entrypoint);
+    if (fs.existsSync(explicit) && fs.statSync(explicit).isFile()) {
+      return { kind: "script", value: profile.python_entrypoint };
+    }
+  }
+  if (profile.python_module) {
+    const moduleName = String(profile.python_module).trim();
+    if (moduleName) return { kind: "module", value: moduleName };
+  }
+
+  // Python integrations commonly expose their real runtime as
+  // `python -m package` while also containing an internal driver.py.
+  // Prefer a single top-level import package with __main__.py over
+  // executing that implementation file directly.
+  const modules = fs.readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+    .filter((entry) => fs.existsSync(path.join(root, entry.name, "__init__.py")) && fs.existsSync(path.join(root, entry.name, "__main__.py")))
+    .map((entry) => entry.name);
+  if (modules.length === 1) return { kind: "module", value: modules[0] };
+
+  const entrypoint = pythonEntrypoint(root, profile);
+  return entrypoint ? { kind: "script", value: entrypoint } : null;
+}
+
 export function generatedDockerfile(root, entry, profile, stack) {
   if (stack === "python") {
     const python = profile.python_image || "python:3.12-slim";
@@ -1214,8 +1240,8 @@ export class ExternalIntegrationService {
     job.phase = "building";
     job.progress = 30;
     if (stack === "python") {
-      const entrypoint = pythonEntrypoint(appDir, profile);
-      if (!entrypoint) throw new Error("Python integration entrypoint could not be detected");
+      const launchTarget = pythonLaunchTarget(appDir, profile);
+      if (!launchTarget) throw new Error("Python integration entrypoint could not be detected");
       const venv = path.join(this.venvDir, slug(entry.id));
       const python = path.join(venv, "bin", "python");
       if (!fs.existsSync(python)) {
@@ -1232,7 +1258,9 @@ export class ExternalIntegrationService {
         await this.#jobCommand(job, python, ["-m", "pip", "install", "--disable-pip-version-check", "--no-cache-dir", "."], { cwd: appDir, timeoutMs: 30 * 60_000, ...identity });
       }
       command = python;
-      args = [path.resolve(appDir, entrypoint)];
+      args = launchTarget.kind === "module"
+        ? ["-m", launchTarget.value]
+        : [path.resolve(appDir, launchTarget.value)];
     } else {
       const pkg = safeJson(path.join(appDir, "package.json"), {});
       const entrypoint = findFile(appDir, ["src/driver.js", "driver.js", "src/index.js", "index.js"]);
@@ -1257,6 +1285,7 @@ export class ExternalIntegrationService {
       UC_DISABLE_MDNS_PUBLISH: "true",
       PYTHONUNBUFFERED: "1",
       PYTHONDONTWRITEBYTECODE: "1",
+      PYTHONPATH: [appDir, process.env.PYTHONPATH].filter(Boolean).join(":"),
       ...(profile.environment || {})
     };
     const logPath = path.join(this.logsDir, `${processName}.log`);

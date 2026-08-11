@@ -211,6 +211,15 @@ export function packageExecutable(root) {
   throw Object.assign(new Error("Integration archive is missing bin/driver or bin/driver.js"), { status: 422 });
 }
 
+export function ensureRuntimeDriverManifest(root, executable) {
+  const source = path.join(root, "driver.json");
+  const destination = path.join(path.dirname(executable), "driver.json");
+  if (!fs.existsSync(source) || path.resolve(source) === path.resolve(destination) || fs.existsSync(destination)) return null;
+  fs.copyFileSync(source, destination);
+  try { fs.chmodSync(destination, fs.statSync(source).mode & 0o777); } catch {}
+  return destination;
+}
+
 export function executableArchitecture(filename) {
   const handle = fs.openSync(filename, "r");
   try {
@@ -448,6 +457,7 @@ export class NativeIntegrationService {
       }
       const executable = packageExecutable(sourceRoot);
       fs.chmodSync(executable, fs.statSync(executable).mode | 0o755);
+      ensureRuntimeDriverManifest(sourceRoot, executable);
       const architecture = executableArchitecture(executable);
       if (architecture && architecture !== "arm64") {
         throw Object.assign(new Error(`Integration executable is ${architecture}; an ARM64/aarch64 package is required`), { status: 409 });
