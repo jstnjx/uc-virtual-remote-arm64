@@ -1,0 +1,68 @@
+name: Publish exact v0.14.13
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    if: github.head_ref == 'publish/v0.14.13-exact'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: 7d084fe7870da732750e366c20044d0bc47746f6
+          fetch-depth: 0
+      - name: Validate exact source
+        run: |
+          test "$(cat VERSION)" = "0.14.13"
+          test "$(node -p "require('./package.json').version")" = "0.14.13"
+          test "$(git rev-parse HEAD)" = "7d084fe7870da732750e366c20044d0bc47746f6"
+      - name: Create exact tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view v0.14.13 >/dev/null 2>&1; then
+            gh release create v0.14.13 \
+              --target 7d084fe7870da732750e366c20044d0bc47746f6 \
+              --title "UC Virtual Remote v0.14.13" \
+              --notes "Removes the unavailable 'Looking for API definitions? Click here' prompt from the Web Configurator login screen. Login and authentication behavior are otherwise unchanged."
+          fi
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Build and push exact release image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/jstnjx/uc-virtual-remote-arm64:0.14.13
+            ghcr.io/jstnjx/uc-virtual-remote-arm64:0.14
+            ghcr.io/jstnjx/uc-virtual-remote-arm64:0
+            ghcr.io/jstnjx/uc-virtual-remote-arm64:latest
+            ghcr.io/jstnjx/uc-virtual-remote-arm64:sha-7d084fe
+      - name: Verify anonymous multiarch image
+        run: |
+          docker logout ghcr.io
+          docker buildx imagetools inspect ghcr.io/jstnjx/uc-virtual-remote-arm64:0.14.13 | tee /tmp/manifest.txt
+          grep -q 'linux/amd64' /tmp/manifest.txt
+          grep -q 'linux/arm64' /tmp/manifest.txt
+      - name: Remove temporary publisher
+        run: |
+          git checkout publish/v0.14.13-exact
+          rm -f .github/workflows/publish-v01413-exact.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Remove temporary v0.14.13 publisher"
+          git push origin HEAD:publish/v0.14.13-exact
