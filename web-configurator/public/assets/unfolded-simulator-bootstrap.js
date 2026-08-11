@@ -30,6 +30,7 @@
         "factory-reset",
       ])
     : Object.freeze([]);
+  const unavailableApiDefinitionsPrompt = "Looking for API definitions? Click here";
 
   Object.defineProperty(window, "__UCVR_BASE_PATH__", {
     value: basePath,
@@ -50,6 +51,37 @@
     enumerable: false,
     writable: false,
   });
+
+  function normalizedText(element) {
+    return String(element?.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function removeUnavailableApiDefinitionsPrompt(root = document) {
+    const candidates = [];
+    if (root instanceof Element && root.matches("div")) candidates.push(root);
+    root.querySelectorAll?.("div").forEach((element) => candidates.push(element));
+    for (const element of candidates) {
+      if (normalizedText(element) === unavailableApiDefinitionsPrompt) element.remove();
+    }
+  }
+
+  function startLoginCleanup() {
+    removeUnavailableApiDefinitionsPrompt();
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof Element) removeUnavailableApiDefinitionsPrompt(node);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startLoginCleanup, { once: true });
+  } else {
+    startLoginCleanup();
+  }
 
   if (hostedSession) {
     document.documentElement.classList.add("ucvr-public-simulator");
