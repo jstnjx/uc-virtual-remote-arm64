@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { displayName } from "../shared/util.js";
 import { logger } from "../shared/logger.js";
 import { runProcess } from "../shared/process.js";
+import { redactIntegrationLogLine } from "../shared/log-redaction.js";
 
 const log = logger("native-integrations");
 const MAX_EXTRACTED_FILES = 20_000;
@@ -258,7 +259,8 @@ export function pyInstallerOnedirEnvironment(record, options = {}) {
   return {
     _PYI_ARCHIVE_FILE: executable,
     _PYI_PARENT_PROCESS_LEVEL: "0",
-    LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":")
+    LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":"),
+    OPENSSL_armcap: String(process.env.UCVR_ARM64_OPENSSL_ARMCAP || "0")
   };
 }
 
@@ -699,15 +701,17 @@ export class NativeIntegrationService {
       pending = lines.pop() || "";
       for (const line of lines) {
         if (!line) continue;
-        const output = `[${new Date().toISOString()}] ${level} ${line}\n`;
+        const safeLine = redactIntegrationLogLine(line);
+        const output = `[${new Date().toISOString()}] ${level} ${safeLine}\n`;
         try { fs.appendFileSync(filename, output); } catch {}
-        if (level === "ERROR") log.warn(`${driverId}: ${line}`);
-        else log.info(`${driverId}: ${line}`);
+        if (level === "ERROR") log.warn(`${driverId}: ${safeLine}`);
+        else log.info(`${driverId}: ${safeLine}`);
       }
     });
     stream?.once("end", () => {
       if (!pending) return;
-      try { fs.appendFileSync(filename, `[${new Date().toISOString()}] ${level} ${pending}\n`); } catch {}
+      const safePending = redactIntegrationLogLine(pending);
+      try { fs.appendFileSync(filename, `[${new Date().toISOString()}] ${level} ${safePending}\n`); } catch {}
     });
   }
 
