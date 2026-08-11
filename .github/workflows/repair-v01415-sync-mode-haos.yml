@@ -1,0 +1,111 @@
+name: Repair v0.14.15 Sync Mode HAOS fallback
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.head_ref == 'fix/v0.14.15-sync-mode-haos'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/v0.14.15-sync-mode-haos
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Apply Sync Mode source fallback fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          sync = Path('src/sync-mode/service.js')
+          text = sync.read_text()
+          text = text.replace(
+              'const IMAGE = "ghcr.io/jstnjx/uc-remote-sync";\n',
+              'const IMAGE = "ghcr.io/jstnjx/uc-remote-sync";\nconst REPOSITORY = "https://github.com/jstnjx/uc-remote-sync";\n',
+              1,
+          )
+          text = text.replace(
+              '        image: settings.integration.image,\n        version: settings.integration.version,\n',
+              '        image: settings.integration.image,\n        repository: REPOSITORY,\n        version: settings.integration.version,\n',
+              1,
+          )
+          text = text.replace(
+              '            ucvr_install_source: "image",\n',
+              '            ucvr_install_source: "auto",\n',
+              1,
+          )
+          text = text.replace(
+              '      warnings.push("Remote Sync is enabled but its managed container is not installed.");',
+              '      warnings.push("Remote Sync is enabled but its managed runtime is not installed.");',
+              1,
+          )
+          if 'ucvr_install_source: "image"' in text:
+              raise SystemExit('Sync Mode still contains image-only setup source')
+          if 'repository: REPOSITORY' not in text or 'ucvr_install_source: "auto"' not in text:
+              raise SystemExit('Sync Mode source fallback patch did not apply')
+          sync.write_text(text)
+
+          ext = Path('src/external-integrations/service.js')
+          text = ext.read_text()
+          old = '''function customGhcrEntry(input = {}) {\n  const image = normalizeGhcrImage(input.image || input.docker_image);\n  const driverId = String(input.driver_id || input.id || "").trim();\n'''
+          new = '''export function customGhcrEntry(input = {}) {\n  const image = normalizeGhcrImage(input.image || input.docker_image);\n  const repository = String(input.repository || "").trim().replace(/\\.git$/i, "");\n  if (repository && !ownerRepo(repository)) {\n    throw Object.assign(new Error("Enter a valid GitHub repository URL such as https://github.com/owner/integration"), { status: 422 });\n  }\n  const driverId = String(input.driver_id || input.id || "").trim();\n'''
+          if old not in text:
+              raise SystemExit('customGhcrEntry header not found')
+          text = text.replace(old, new, 1)
+          old = '''    version: String(input.version || "latest").trim() || "latest",\n    docker_image: image,\n    registry_source: "ghcr",\n'''
+          new = '''    version: String(input.version || "latest").trim() || "latest",\n    docker_image: image,\n    ...(repository ? { repository } : {}),\n    registry_source: "ghcr",\n'''
+          if old not in text:
+              raise SystemExit('customGhcrEntry return block not found')
+          text = text.replace(old, new, 1)
+          old = '''        version: entry.version,\n        image: entry.docker_image,\n        websocket_path: entry.external_runtime?.websocket_path || "/intg",\n'''
+          new = '''        version: entry.version,\n        image: entry.docker_image,\n        ...(entry.repository ? { repository: entry.repository } : {}),\n        websocket_path: entry.external_runtime?.websocket_path || "/intg",\n'''
+          if old not in text:
+              raise SystemExit('GHCR source persistence block not found')
+          text = text.replace(old, new, 1)
+          ext.write_text(text)
+
+          test = Path('test/integration-install-regression.test.js')
+          text = test.read_text()
+          text = text.replace(
+              'import { dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";',
+              'import { customGhcrEntry, dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";',
+              1,
+          )
+          marker = 'const apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");\n'
+          if 'const syncModeService =' not in text:
+              if marker not in text:
+                  raise SystemExit('integration regression test marker not found')
+              text = text.replace(marker, marker + 'const syncModeService = fs.readFileSync(new URL("../src/sync-mode/service.js", import.meta.url), "utf8");\n', 1)
+          text += '''\n\ntest("custom GHCR entries retain an optional GitHub source repository", () => {\n  const entry = customGhcrEntry({\n    id: "uc-remote-sync",\n    driver_id: "remote_sync",\n    image: "ghcr.io/jstnjx/uc-remote-sync",\n    repository: "https://github.com/jstnjx/uc-remote-sync.git"\n  });\n  assert.equal(entry.repository, "https://github.com/jstnjx/uc-remote-sync");\n  assert.throws(\n    () => customGhcrEntry({ id: "invalid", driver_id: "invalid", image: "ghcr.io/jstnjx/invalid", repository: "https://example.com/not-github" }),\n    /valid GitHub repository URL/\n  );\n});\n\ntest("Sync Mode uses Automatic so HAOS can fall back to the Remote Sync source checkout", () => {\n  assert.match(syncModeService, /const REPOSITORY = "https:\\/\\/github\\.com\\/jstnjx\\/uc-remote-sync"/);\n  assert.match(syncModeService, /repository: REPOSITORY/);\n  assert.match(syncModeService, /ucvr_install_source: "auto"/);\n  assert.doesNotMatch(syncModeService, /ucvr_install_source: "image"/);\n});\n'''
+          test.write_text(text)
+
+          Path('VERSION').write_text('0.14.15\n')
+          for name in ('package.json', 'package-lock.json'):
+              path = Path(name)
+              data = json.loads(path.read_text())
+              data['version'] = '0.14.15'
+              if name == 'package-lock.json' and '' in data.get('packages', {}):
+                  data['packages']['']['version'] = '0.14.15'
+              path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+      - name: Validate repaired source
+        run: |
+          npm ci
+          npm run ci
+      - name: Commit clean product change
+        run: |
+          rm -f .github/workflows/repair-v01415-sync-mode-haos.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Fix Sync Mode source fallback on Home Assistant"
+          git push origin HEAD:fix/v0.14.15-sync-mode-haos
