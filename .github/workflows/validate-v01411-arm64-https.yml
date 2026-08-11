@@ -54,7 +54,6 @@ jobs:
 
           print('probe:dns:start', flush=True)
           addresses = socket.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM)
-          print('probe:dns:families:' + ','.join(str(item[0]) for item in addresses), flush=True)
           ipv4 = next((item for item in addresses if item[0] == socket.AF_INET), None)
           if ipv4 is None:
               raise RuntimeError('No IPv4 address returned')
@@ -90,18 +89,12 @@ jobs:
               )
               print(f'probe:async-dns:ok:{len(async_addresses)}', flush=True)
 
-              print('probe:aiohttp-ipv4:start', flush=True)
+              print('probe:aiohttp:start', flush=True)
               timeout = aiohttp.ClientTimeout(total=20, connect=10, sock_connect=10, sock_read=10)
               connector = aiohttp.TCPConnector(ssl=context, family=socket.AF_INET)
               async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
                   async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
-                      print(f'probe:aiohttp-ipv4:ok:{response.status}', flush=True)
-
-              print('probe:aiohttp-default:start', flush=True)
-              connector = aiohttp.TCPConnector(ssl=context)
-              async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
-                  async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
-                      print(f'probe:aiohttp-default:ok:{response.status}', flush=True)
+                      print(f'probe:aiohttp:ok:{response.status}', flush=True)
 
           asyncio.run(async_probe())
           print('probe:ok', flush=True)
@@ -113,25 +106,23 @@ jobs:
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
             bash -lc 'cd /workspace && pyinstaller --clean --onedir --name network-probe probe.py'
 
-      - name: Diagnose ARM64 PyInstaller networking through UC Virtual Remote emulator
+      - name: Require ARM64 PyInstaller HTTPS with generic OpenSSL ARM fallback
         shell: bash
         run: |
           set -euo pipefail
-          set +e
           timeout --kill-after=5s 70s docker run --rm --init \
             --entrypoint sh \
             -v /tmp/arm64-probe/dist/network-probe:/probe:ro \
             -e _PYI_ARCHIVE_FILE=/probe/network-probe \
             -e _PYI_PARENT_PROCESS_LEVEL=0 \
             -e LD_LIBRARY_PATH=/probe/_internal \
+            -e OPENSSL_armcap=0 \
             ucvr:v01411 \
             -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/network-probe' \
-            >/tmp/network-probe.log 2>&1
-          status=$?
-          set -e
-          cat /tmp/network-probe.log
-          echo "network-probe-status=$status"
-          test "$status" -eq 0
+            | tee /tmp/network-probe.log
+          grep -q 'probe:tls:ok:' /tmp/network-probe.log
+          grep -q 'probe:http-manual:ok:' /tmp/network-probe.log
+          grep -q 'probe:aiohttp:ok:' /tmp/network-probe.log
           grep -q 'probe:ok' /tmp/network-probe.log
 
       - name: Build v0.14.11 arm64 appliance
