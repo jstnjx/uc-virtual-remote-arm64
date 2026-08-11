@@ -58,7 +58,8 @@ export class SupervisorUpdateAdapter {
     }
   }
 
-  async check() {
+  async check(force = false) {
+    if (force) await this.#request("/store/reload", { method: "POST" });
     const info = await this.#request("/addons/self/info");
     this.installedVersion = normalizedVersion(info?.version || info?.installed);
     this.latestVersion = normalizedVersion(info?.version_latest);
