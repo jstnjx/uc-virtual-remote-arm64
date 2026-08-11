@@ -58,7 +58,13 @@
 
   function removeUnavailableApiDefinitionsPrompt(root = document) {
     const candidates = [];
-    if (root instanceof Element && root.matches("div")) candidates.push(root);
+    if (
+      typeof Element !== "undefined"
+      && root instanceof Element
+      && root.matches("div")
+    ) {
+      candidates.push(root);
+    }
     root.querySelectorAll?.("div").forEach((element) => candidates.push(element));
     for (const element of candidates) {
       if (normalizedText(element) === unavailableApiDefinitionsPrompt) element.remove();
@@ -67,10 +73,13 @@
 
   function startLoginCleanup() {
     removeUnavailableApiDefinitionsPrompt();
+    if (typeof MutationObserver === "undefined" || !document.documentElement) return;
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
-          if (node instanceof Element) removeUnavailableApiDefinitionsPrompt(node);
+          if (typeof Element !== "undefined" && node instanceof Element) {
+            removeUnavailableApiDefinitionsPrompt(node);
+          }
         }
       }
     });
