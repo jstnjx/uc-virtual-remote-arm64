@@ -1,0 +1,91 @@
+name: Repair v0.14.14 resource downloads
+
+on:
+  push:
+    branches:
+      - fix/v0.14.14-public-resource-downloads
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/v0.14.14-public-resource-downloads
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Apply generic public resource download compatibility
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          server = Path('src/api/server.js')
+          text = server.read_text()
+          old = '''      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+                if (publicResource && request.method === "GET") return binary(response, this.platform.db.getResource(publicResource.type, publicResource.id), true);
+          '''
+          # Preserve source indentation as committed; use a normalized fallback if needed.
+          if old not in text:
+              old = '''      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+                if (publicResource && request.method === "GET") return binary(response, this.platform.db.getResource(publicResource.type, publicResource.id), true);
+          '''
+          if old not in text:
+              old = '''      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+          if (publicResource && request.method === "GET") return binary(response, this.platform.db.getResource(publicResource.type, publicResource.id), true);
+          '''
+          if old not in text:
+              raise SystemExit('public resource block not found')
+          new = '''      // Resource files are intentionally readable without API/session headers. External
+      // clients frequently render returned resource URLs directly (for example in an
+      // image view) where the Core API Authorization header is not propagated. Keep
+      // list/upload/delete operations authenticated, but expose the immutable binary
+      // GET through both the official Core URL and the legacy content helper.
+      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+      if (!publicResource) publicResource = match(pathname, "/api/resources/:type/:id");
+      if (!publicResource) publicResource = match(pathname, "/resources/:type/:id");
+      if (publicResource && request.method === "GET") {
+        return binary(
+          response,
+          this.platform.db.getResource(internalResourceType(publicResource.type), publicResource.id),
+          true
+        );
+      }
+          '''
+          text = text.replace(old, new, 1)
+          server.write_text(text)
+
+          Path('VERSION').write_text('0.14.14\n')
+          pkg_path = Path('package.json')
+          pkg = json.loads(pkg_path.read_text())
+          pkg['version'] = '0.14.14'
+          pkg_path.write_text(json.dumps(pkg, indent=2) + '\n')
+          lock_path = Path('package-lock.json')
+          lock = json.loads(lock_path.read_text())
+          lock['version'] = '0.14.14'
+          if '' in lock.get('packages', {}):
+              lock['packages']['']['version'] = '0.14.14'
+          lock_path.write_text(json.dumps(lock, indent=2) + '\n')
+
+          test = Path('test/public-resource-downloads.test.js')
+          test.write_text('''import assert from "node:assert/strict";\nimport fs from "node:fs";\nimport test from "node:test";\n\nconst source = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");\n\ntest("binary Core resource downloads are available before API authentication routing", () => {\n  const contentAlias = source.indexOf('match(pathname, "/api/resources/:type/:id/content")');\n  const officialAlias = source.indexOf('match(pathname, "/api/resources/:type/:id")');\n  const unprefixedAlias = source.indexOf('match(pathname, "/resources/:type/:id")');\n  const officialRouting = source.indexOf('if (pathname.startsWith("/api/") && this.#officialRequest(request))');\n  const rootAuth = source.indexOf('if (["/auth", "/intg", "/entities"');\n\n  assert.ok(contentAlias >= 0);\n  assert.ok(officialAlias > contentAlias);\n  assert.ok(unprefixedAlias > officialAlias);\n  assert.ok(officialAlias < officialRouting);\n  assert.ok(unprefixedAlias < rootAuth);\n  assert.match(source.slice(contentAlias, officialRouting), /request\.method === "GET"/);\n  assert.match(source.slice(contentAlias, officialRouting), /internalResourceType\(publicResource\.type\)/);\n});\n\ntest("resource mutation paths remain in authenticated compatibility handling", () => {\n  const compatibility = source.indexOf('// Resources and empty virtual hardware surfaces');\n  const deleteResource = source.indexOf('if (params && method === "DELETE") return db.deleteResource', compatibility);\n  assert.ok(compatibility >= 0);\n  assert.ok(deleteResource > compatibility);\n});\n''')
+          PY
+      - name: Validate source and tests
+        run: |
+          npm ci
+          npm run ci
+      - name: Commit repaired product source and remove temporary workflow
+        run: |
+          rm -f .github/workflows/repair-v01414-resource-downloads.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Allow external clients to download Core resources"
+          git push origin HEAD:fix/v0.14.14-public-resource-downloads
