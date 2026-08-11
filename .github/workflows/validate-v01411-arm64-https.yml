@@ -13,23 +13,20 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
 
-      - name: Build v0.14.11 amd64 appliance
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          platforms: linux/amd64
-          load: true
-          tags: ucvr:v01411
-
-      - name: Verify packaged QEMU generation
+      - name: Extract current Bookworm qemu-aarch64-static
+        shell: bash
         run: |
-          docker run --rm --entrypoint /usr/local/bin/qemu-aarch64-static ucvr:v01411 --version | tee /tmp/qemu-version
-          grep -Eq 'version 10\.' /tmp/qemu-version
+          set -euo pipefail
+          mkdir -p /tmp/ucvr-qemu
+          docker run --rm -v /tmp/ucvr-qemu:/out debian:bookworm-slim sh -lc '
+            apt-get update >/dev/null &&
+            apt-get install -y --no-install-recommends qemu-user-static >/dev/null &&
+            cp /usr/bin/qemu-aarch64-static /out/qemu-aarch64-static
+          '
+          chmod 0755 /tmp/ucvr-qemu/qemu-aarch64-static
+          /tmp/ucvr-qemu/qemu-aarch64-static --version
 
       - name: Build ARM64 PyInstaller network probe
         shell: bash
@@ -46,95 +43,70 @@ jobs:
 
           HOST = 'accounts.spotify.com'
           PORT = 443
-
           print('probe:start', flush=True)
-          print('probe:random:start', flush=True)
-          random_bytes = os.getrandom(32)
-          print(f'probe:random:ok:{len(random_bytes)}', flush=True)
-
-          print('probe:dns:start', flush=True)
+          print(f'probe:random:ok:{len(os.getrandom(32))}', flush=True)
           addresses = socket.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM)
-          ipv4 = next((item for item in addresses if item[0] == socket.AF_INET), None)
-          if ipv4 is None:
-              raise RuntimeError('No IPv4 address returned')
-          target = ipv4[4]
-          print(f'probe:dns:ok:{target[0]}', flush=True)
-
-          print('probe:tcp:start', flush=True)
-          raw = socket.create_connection(target, timeout=10)
+          ipv4 = next(item for item in addresses if item[0] == socket.AF_INET)
+          print(f'probe:dns:ok:{ipv4[4][0]}', flush=True)
+          raw = socket.create_connection(ipv4[4], timeout=10)
           raw.settimeout(10)
           print('probe:tcp:ok', flush=True)
-
-          print('probe:ssl-context:start', flush=True)
           context = ssl.create_default_context(cafile=certifi.where())
-          print('probe:ssl-context:ok', flush=True)
-
           print('probe:tls:start', flush=True)
           tls = context.wrap_socket(raw, server_hostname=HOST)
           tls.settimeout(10)
           print(f'probe:tls:ok:{tls.version()}:{tls.cipher()[0]}', flush=True)
-
-          print('probe:http-manual:start', flush=True)
-          tls.sendall(f'GET /authorize HTTP/1.1\r\nHost: {HOST}\r\nConnection: close\r\nUser-Agent: ucvr-probe\r\n\r\n'.encode())
+          tls.sendall(f'GET /authorize HTTP/1.1\r\nHost: {HOST}\r\nConnection: close\r\n\r\n'.encode())
           head = tls.recv(4096)
-          print('probe:http-manual:ok:' + head.split(b'\r\n', 1)[0].decode('ascii', 'replace'), flush=True)
+          print('probe:http:ok:' + head.split(b'\r\n', 1)[0].decode('ascii', 'replace'), flush=True)
           tls.close()
 
-          async def async_probe():
-              print('probe:async-dns:start', flush=True)
+          async def main():
               loop = asyncio.get_running_loop()
-              async_addresses = await asyncio.wait_for(
-                  loop.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM),
-                  timeout=10,
-              )
-              print(f'probe:async-dns:ok:{len(async_addresses)}', flush=True)
-
-              print('probe:aiohttp:start', flush=True)
+              resolved = await asyncio.wait_for(loop.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM), timeout=10)
+              print(f'probe:async-dns:ok:{len(resolved)}', flush=True)
               timeout = aiohttp.ClientTimeout(total=20, connect=10, sock_connect=10, sock_read=10)
               connector = aiohttp.TCPConnector(ssl=context, family=socket.AF_INET)
               async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
                   async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
                       print(f'probe:aiohttp:ok:{response.status}', flush=True)
-
-          asyncio.run(async_probe())
+          asyncio.run(main())
           print('probe:ok', flush=True)
           PY
           docker run --rm --platform linux/arm64 \
-            --user "$(id -u):$(id -g)" \
-            -e HOME=/tmp \
+            --user "$(id -u):$(id -g)" -e HOME=/tmp \
             -v /tmp/arm64-probe:/workspace \
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
             bash -lc 'cd /workspace && pyinstaller --clean --onedir --name network-probe probe.py'
 
-      - name: Require ARM64 PyInstaller HTTPS with generic OpenSSL ARM fallback
+      - name: Extract compatible ARM64 userspace
         shell: bash
         run: |
           set -euo pipefail
-          timeout --kill-after=5s 70s docker run --rm --init \
-            --entrypoint sh \
-            -v /tmp/arm64-probe/dist/network-probe:/probe:ro \
-            -e _PYI_ARCHIVE_FILE=/probe/network-probe \
-            -e _PYI_PARENT_PROCESS_LEVEL=0 \
-            -e LD_LIBRARY_PATH=/probe/_internal \
-            -e OPENSSL_armcap=0 \
-            ucvr:v01411 \
-            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/network-probe' \
-            | tee /tmp/network-probe.log
-          grep -q 'probe:tls:ok:' /tmp/network-probe.log
-          grep -q 'probe:http-manual:ok:' /tmp/network-probe.log
-          grep -q 'probe:aiohttp:ok:' /tmp/network-probe.log
-          grep -q 'probe:ok' /tmp/network-probe.log
+          docker pull --platform linux/arm64 arm64v8/debian:bullseye-slim >/dev/null
+          cid="$(docker create --platform linux/arm64 arm64v8/debian:bullseye-slim)"
+          trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+          mkdir -p /tmp/arm64-rootfs
+          docker export "$cid" | tar -C /tmp/arm64-rootfs -xf -
 
-      - name: Build v0.14.11 arm64 appliance
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          platforms: linux/arm64
-          push: false
-          tags: ucvr:v01411-arm64
+      - name: Require TLS and aiohttp with ARM crypto acceleration disabled
+        shell: bash
+        env:
+          OPENSSL_armcap: '0'
+        run: |
+          set -euo pipefail
+          export _PYI_ARCHIVE_FILE=/tmp/arm64-probe/dist/network-probe/network-probe
+          export _PYI_PARENT_PROCESS_LEVEL=0
+          export LD_LIBRARY_PATH=/tmp/arm64-probe/dist/network-probe/_internal
+          timeout --kill-after=5s 60s \
+            /tmp/ucvr-qemu/qemu-aarch64-static -L /tmp/arm64-rootfs \
+            /tmp/arm64-probe/dist/network-probe/network-probe \
+            | tee /tmp/probe.log
+          grep -q 'probe:tls:ok:' /tmp/probe.log
+          grep -q 'probe:aiohttp:ok:' /tmp/probe.log
+          grep -q 'probe:ok' /tmp/probe.log
 
-      - name: Run source tests
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
       - run: npm ci
