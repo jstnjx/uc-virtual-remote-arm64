@@ -1,0 +1,92 @@
+name: Validate v0.14.11 ARM64 HTTPS
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.head_ref == 'fix/v0.14.11-arm64-https'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build v0.14.11 amd64 appliance
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: ucvr:v01411
+
+      - name: Verify packaged QEMU generation
+        run: |
+          docker run --rm --entrypoint /usr/local/bin/qemu-aarch64-static ucvr:v01411 --version | tee /tmp/qemu-version
+          grep -Eq 'version 10\.' /tmp/qemu-version
+
+      - name: Build ARM64 PyInstaller HTTPS probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/arm64-probe
+          cat >/tmp/arm64-probe/probe.py <<'PY'
+          import asyncio
+          import socket
+          import ssl
+          import aiohttp
+          import certifi
+
+          async def main():
+              print('probe:start', flush=True)
+              loop = asyncio.get_running_loop()
+              addresses = await asyncio.wait_for(
+                  loop.getaddrinfo('accounts.spotify.com', 443, type=socket.SOCK_STREAM),
+                  timeout=10,
+              )
+              if not addresses:
+                  raise RuntimeError('DNS returned no addresses')
+              print(f'probe:dns:{len(addresses)}', flush=True)
+              context = ssl.create_default_context(cafile=certifi.where())
+              timeout = aiohttp.ClientTimeout(total=20, connect=10)
+              connector = aiohttp.TCPConnector(ssl=context)
+              async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+                  async with session.get('https://accounts.spotify.com/authorize', allow_redirects=False) as response:
+                      print(f'probe:https:{response.status}', flush=True)
+                      if response.status >= 500:
+                          raise RuntimeError(f'Unexpected HTTP {response.status}')
+              print('probe:ok', flush=True)
+
+          asyncio.run(main())
+          PY
+          docker run --rm --platform linux/arm64 \
+            -v /tmp/arm64-probe:/workspace \
+            docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
+            bash -lc 'cd /workspace && python -m pip install --no-cache-dir aiohttp certifi && pyinstaller --clean --onedir --name https-probe probe.py'
+
+      - name: Run ARM64 PyInstaller HTTPS probe through UC Virtual Remote emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 45 docker run --rm \
+            --entrypoint sh \
+            -v /tmp/arm64-probe/dist/https-probe:/probe:ro \
+            -e _PYI_ARCHIVE_FILE=/probe/https-probe \
+            -e _PYI_PARENT_PROCESS_LEVEL=0 \
+            -e LD_LIBRARY_PATH=/probe/_internal \
+            ucvr:v01411 \
+            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/https-probe' | tee /tmp/arm64-https-probe.log
+          grep -q 'probe:ok' /tmp/arm64-https-probe.log
+
+      - name: Run source tests
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run ci
