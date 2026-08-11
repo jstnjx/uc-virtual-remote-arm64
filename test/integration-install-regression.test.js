@@ -3,7 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { dockerfileBuildPath } from "../src/external-integrations/service.js";
+import { dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";
+import { ensureRuntimeDriverManifest } from "../src/native-integrations/service.js";
 
 const nativeService = fs.readFileSync(new URL("../src/native-integrations/service.js", import.meta.url), "utf8");
 const apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");
@@ -48,4 +49,39 @@ test("Remote Simulator keeps all configured profiles and exposes its event strea
   const eventRoute = apiServer.indexOf('if (pathname === "/api/events"');
   const officialRoute = apiServer.indexOf('if (pathname.startsWith("/api/") && this.#officialRequest(request))');
   assert.ok(eventRoute >= 0 && officialRoute >= 0 && eventRoute < officialRoute);
+});
+
+
+test("Python registry runtime prefers a package __main__ over an internal driver.py", () => {
+  const root = fs.mkdtempSync(path.join(process.cwd(), ".test-python-launch-"));
+  try {
+    fs.mkdirSync(path.join(root, "uc_intg_spotify"));
+    fs.writeFileSync(path.join(root, "uc_intg_spotify", "__init__.py"), "");
+    fs.writeFileSync(path.join(root, "uc_intg_spotify", "__main__.py"), "");
+    fs.writeFileSync(path.join(root, "uc_intg_spotify", "driver.py"), "");
+    assert.deepEqual(pythonLaunchTarget(root), { kind: "module", value: "uc_intg_spotify" });
+    assert.deepEqual(
+      pythonLaunchTarget(root, { python_entrypoint: "uc_intg_spotify/driver.py" }),
+      { kind: "script", value: "uc_intg_spotify/driver.py" }
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("native package runtime mirrors root driver.json beside bin/driver without overwriting package data", () => {
+  const root = fs.mkdtempSync(path.join(process.cwd(), ".test-driver-manifest-"));
+  try {
+    fs.mkdirSync(path.join(root, "bin"));
+    fs.writeFileSync(path.join(root, "driver.json"), '{"driver_id":"spotify"}');
+    fs.writeFileSync(path.join(root, "bin", "driver"), "binary");
+    const copied = ensureRuntimeDriverManifest(root, path.join(root, "bin", "driver"));
+    assert.equal(copied, path.join(root, "bin", "driver.json"));
+    assert.equal(fs.readFileSync(copied, "utf8"), '{"driver_id":"spotify"}');
+    fs.writeFileSync(copied, "keep-me");
+    assert.equal(ensureRuntimeDriverManifest(root, path.join(root, "bin", "driver")), null);
+    assert.equal(fs.readFileSync(copied, "utf8"), "keep-me");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
