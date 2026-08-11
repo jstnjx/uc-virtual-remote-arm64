@@ -23,13 +23,12 @@ jobs:
           docker run --rm -v /tmp/ucvr-qemu:/out debian:bookworm-slim sh -lc '
             apt-get update >/dev/null &&
             apt-get install -y --no-install-recommends qemu-user-static >/dev/null &&
-            cp /usr/bin/qemu-aarch64-static /out/qemu-aarch64-static &&
-            chmod 0755 /out/qemu-aarch64-static
+            cp /usr/bin/qemu-aarch64-static /out/qemu-aarch64-static && chmod 0755 /out/qemu-aarch64-static
           '
           sudo chown "$(id -u):$(id -g)" /tmp/ucvr-qemu/qemu-aarch64-static
           /tmp/ucvr-qemu/qemu-aarch64-static --version
 
-      - name: Build ARM64 PyInstaller network probe
+      - name: Build ARM64 PyInstaller TLS probe
         shell: bash
         run: |
           set -euo pipefail
@@ -41,15 +40,15 @@ jobs:
           import ssl
           import aiohttp
           import certifi
+          from aiohttp.abc import AbstractResolver
 
           HOST = 'accounts.spotify.com'
           PORT = 443
+          IP = os.environ['PROBE_IP']
+
           print('probe:start', flush=True)
           print(f'probe:random:ok:{len(os.getrandom(32))}', flush=True)
-          addresses = socket.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM)
-          ipv4 = next(item for item in addresses if item[0] == socket.AF_INET)
-          print(f'probe:dns:ok:{ipv4[4][0]}', flush=True)
-          raw = socket.create_connection(ipv4[4], timeout=10)
+          raw = socket.create_connection((IP, PORT), timeout=10)
           raw.settimeout(10)
           print('probe:tcp:ok', flush=True)
           context = ssl.create_default_context(cafile=certifi.where())
@@ -62,13 +61,24 @@ jobs:
           print('probe:http:ok:' + head.split(b'\r\n', 1)[0].decode('ascii', 'replace'), flush=True)
           tls.close()
 
+          class StaticResolver(AbstractResolver):
+              async def resolve(self, host, port=0, family=socket.AF_INET):
+                  return [{
+                      'hostname': host,
+                      'host': IP,
+                      'port': port,
+                      'family': socket.AF_INET,
+                      'proto': socket.IPPROTO_TCP,
+                      'flags': 0,
+                  }]
+              async def close(self):
+                  return None
+
           async def main():
-              loop = asyncio.get_running_loop()
-              resolved = await asyncio.wait_for(loop.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM), timeout=10)
-              print(f'probe:async-dns:ok:{len(resolved)}', flush=True)
               timeout = aiohttp.ClientTimeout(total=20, connect=10, sock_connect=10, sock_read=10)
-              connector = aiohttp.TCPConnector(ssl=context, family=socket.AF_INET)
+              connector = aiohttp.TCPConnector(ssl=context, resolver=StaticResolver(), family=socket.AF_INET)
               async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+                  print('probe:aiohttp:start', flush=True)
                   async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
                       print(f'probe:aiohttp:ok:{response.status}', flush=True)
           asyncio.run(main())
@@ -78,7 +88,7 @@ jobs:
             --user "$(id -u):$(id -g)" -e HOME=/tmp \
             -v /tmp/arm64-probe:/workspace \
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
-            bash -lc 'cd /workspace && pyinstaller --clean --onedir --name network-probe probe.py'
+            bash -lc 'cd /workspace && pyinstaller --clean --onedir --name tls-probe probe.py'
 
       - name: Extract compatible ARM64 userspace
         shell: bash
@@ -96,12 +106,15 @@ jobs:
           OPENSSL_armcap: '0'
         run: |
           set -euo pipefail
-          export _PYI_ARCHIVE_FILE=/tmp/arm64-probe/dist/network-probe/network-probe
+          export PROBE_IP="$(getent ahostsv4 accounts.spotify.com | awk 'NR==1 {print $1}')"
+          test -n "$PROBE_IP"
+          echo "Using host-resolved Spotify IPv4: $PROBE_IP"
+          export _PYI_ARCHIVE_FILE=/tmp/arm64-probe/dist/tls-probe/tls-probe
           export _PYI_PARENT_PROCESS_LEVEL=0
-          export LD_LIBRARY_PATH=/tmp/arm64-probe/dist/network-probe/_internal
+          export LD_LIBRARY_PATH=/tmp/arm64-probe/dist/tls-probe/_internal
           timeout --kill-after=5s 60s \
             /tmp/ucvr-qemu/qemu-aarch64-static -L /tmp/arm64-rootfs \
-            /tmp/arm64-probe/dist/network-probe/network-probe \
+            /tmp/arm64-probe/dist/tls-probe/tls-probe \
             | tee /tmp/probe.log
           grep -q 'probe:tls:ok:' /tmp/probe.log
           grep -q 'probe:aiohttp:ok:' /tmp/probe.log
