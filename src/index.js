@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
 const reexecMarker = "UCVR_SQLITE_REEXEC";
@@ -44,6 +45,8 @@ function relaunchWithSqliteFlag() {
 }
 
 async function bootstrap() {
+  installPublicResourceCompatibility();
+
   if (await hasSqliteBuiltin()) {
     await import("./main.js");
     return;
