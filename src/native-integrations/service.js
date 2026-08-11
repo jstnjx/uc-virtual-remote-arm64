@@ -259,7 +259,8 @@ export function pyInstallerOnedirEnvironment(record, options = {}) {
   return {
     _PYI_ARCHIVE_FILE: executable,
     _PYI_PARENT_PROCESS_LEVEL: "0",
-    LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":")
+    LD_LIBRARY_PATH: [internalDir, inheritedLd].filter(Boolean).join(":"),
+    OPENSSL_armcap: String(process.env.UCVR_ARM64_OPENSSL_ARMCAP || "0")
   };
 }
 

@@ -35,25 +35,20 @@ COPY docker-entrypoint.sh /usr/local/bin/ucvr-entrypoint
 COPY --from=configurator-builder /build/web-configurator-build ./web-configurator-build
 COPY --from=configurator-builder /build/web-configurator-source ./web-configurator-source
 
-RUN echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/bookworm-backports.list \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager python3 python3-pip python3-venv rfkill tar usbutils util-linux \
     && if [ "$TARGETARCH" = "amd64" ]; then \
          dpkg --add-architecture arm64; \
          apt-get update; \
-         apt-get install -y --no-install-recommends -t bookworm-backports qemu-user; \
-         apt-get install -y --no-install-recommends libc6-arm64-cross libgcc-s1-arm64-cross libstdc++6-arm64-cross zlib1g:arm64; \
-         cp /usr/bin/qemu-aarch64 /usr/local/bin/qemu-aarch64-static; \
+         apt-get install -y --no-install-recommends qemu-user-static libc6-arm64-cross libgcc-s1-arm64-cross libstdc++6-arm64-cross zlib1g:arm64; \
+         cp /usr/bin/qemu-aarch64-static /usr/local/bin/qemu-aarch64-static; \
          chmod 0755 /usr/local/bin/qemu-aarch64-static; \
-         /usr/local/bin/qemu-aarch64-static --version | grep -Eq 'version 10\.'; \
          install -d /usr/aarch64-linux-gnu/lib; \
          cp -a /lib/aarch64-linux-gnu/libz.so.1* /usr/aarch64-linux-gnu/lib/; \
          test -e /usr/aarch64-linux-gnu/lib/libz.so.1; \
-         apt-get purge -y qemu-user; \
-         apt-get autoremove -y; \
+         apt-get purge -y qemu-user-static; \
        fi \
-    && rm -f /etc/apt/sources.list.d/bookworm-backports.list \
     && rm -rf /var/lib/apt/lists/* \
     && chmod 0755 /usr/local/bin/ucvr-entrypoint \
     && setcap 'cap_net_bind_service=+ep' "$(readlink -f "$(command -v node)")" \

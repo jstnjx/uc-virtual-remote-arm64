@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";
-import { ensureRuntimeDriverManifest } from "../src/native-integrations/service.js";
+import { ensureRuntimeDriverManifest, pyInstallerOnedirEnvironment } from "../src/native-integrations/service.js";
 
 const nativeService = fs.readFileSync(new URL("../src/native-integrations/service.js", import.meta.url), "utf8");
 const apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");
@@ -84,4 +84,14 @@ test("native package runtime mirrors root driver.json beside bin/driver without 
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+
+test("emulated ARM64 PyInstaller integrations disable OpenSSL ARM acceleration by default", () => {
+  const env = pyInstallerOnedirEnvironment(
+    { executable: "/tmp/pkg/bin/driver", architecture: "arm64" },
+    { runtimeArch: "x64", isDirectory: () => true, ldLibraryPath: "" }
+  );
+  assert.equal(env.OPENSSL_armcap, "0");
+  assert.equal(env._PYI_PARENT_PROCESS_LEVEL, "0");
 });
