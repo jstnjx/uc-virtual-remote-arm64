@@ -483,6 +483,11 @@ export class PlatformHttpServer {
         return await this.#management(request, response, `/api/${pathname.slice("/management/".length)}`, url);
       }
 
+      if (pathname === "/api/events" && request.method === "GET") {
+        if (!this.#authenticated(request, true)) return json(response, 401, { error: "Unauthorized" });
+        return this.#events(request, response);
+      }
+
       if (pathname.startsWith("/api/") && this.#officialRequest(request)) {
         if (!this.#sessionAuthenticated(request)) return json(response, 401, { code: "AUTH_REQUIRED", message: "Authentication required" });
         return await this.#compatibility(request, response, pathname.slice(4), url);
@@ -505,11 +510,6 @@ export class PlatformHttpServer {
         }
         if (!this.#coreApiAuthenticated(request)) return json(response, 401, { error: "Unauthorized" });
         return await this.#compatibility(request, response, coreApiPath, url);
-      }
-
-      if (pathname === "/api/events" && request.method === "GET") {
-        if (!this.#authenticated(request, true)) return json(response, 401, { error: "Unauthorized" });
-        return this.#events(request, response);
       }
 
       if (pathname.startsWith("/api/")) {

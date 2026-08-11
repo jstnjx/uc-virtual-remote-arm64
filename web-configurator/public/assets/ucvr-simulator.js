@@ -523,8 +523,7 @@
         }
       }
 
-      const profiles = collection(profilesPayload)
-        .filter((profile) => idOf(profile) === "ucvr-demo-profile");
+      const profiles = collection(profilesPayload);
       const activeProfileId = idOf(activeProfilePayload) || idOf(profiles.find((profile) => profile.active));
       const profile = profiles.find((candidate) => idOf(candidate) === activeProfileId)
         || activeProfilePayload

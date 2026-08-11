@@ -32,6 +32,8 @@ export function runProcess(command, args = [], options = {}) {
     const child = spawn(command, values, {
       cwd: options.cwd,
       env: { ...process.env, ...(options.env || {}) },
+      ...(Number.isInteger(options.uid) ? { uid: options.uid } : {}),
+      ...(Number.isInteger(options.gid) ? { gid: options.gid } : {}),
       stdio: [options.input === undefined ? "ignore" : "pipe", "pipe", "pipe"]
     });
     const finish = (error, result = null) => {

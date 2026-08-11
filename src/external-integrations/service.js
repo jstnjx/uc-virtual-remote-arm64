@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
@@ -64,6 +65,27 @@ function writableDirectory(filename) {
   fs.mkdirSync(filename, { recursive: true });
   try { fs.chmodSync(filename, 0o777); } catch {}
   return filename;
+}
+
+function runtimeIdentity() {
+  if (typeof process.getuid !== "function" || process.getuid() !== 0) return {};
+  const uid = Math.max(1, Number(process.env.UCVR_NATIVE_UID || 1000));
+  const gid = Math.max(1, Number(process.env.UCVR_NATIVE_GID || 1000));
+  return { uid, gid };
+}
+
+function tailFile(filename, lines = 100) {
+  try {
+    const stat = fs.statSync(filename);
+    const maximum = Math.min(stat.size, 512 * 1024);
+    const fd = fs.openSync(filename, "r");
+    const buffer = Buffer.alloc(maximum);
+    fs.readSync(fd, buffer, 0, maximum, Math.max(0, stat.size - maximum));
+    fs.closeSync(fd);
+    return buffer.toString("utf8").split(/\r?\n/).slice(-Math.max(1, lines)).join("\n");
+  } catch {
+    return "";
+  }
 }
 
 function slug(value) {
@@ -225,16 +247,16 @@ function registryDriver(entry, installed = null) {
       settings: [
         {
           id: "ucvr_install_notice",
-          label: { en: "Container installation" },
-          field: { label: { value: { en: "UC Virtual Remote will pull a prebuilt image when available, otherwise clone and build the integration source. The resulting container is started with host networking and registered automatically." } } }
+          label: { en: "Managed installation" },
+          field: { label: { value: { en: "UC Virtual Remote uses a container when Docker is available. On restricted Home Assistant hosts it falls back to a supervised source process for supported Python and Node.js integrations." } } }
         },
         {
           id: "ucvr_install_source",
           label: { en: "Installation source" },
           field: { dropdown: { value: "auto", items: [
-            { id: "auto", label: { en: "Automatic: image, then source build" } },
-            { id: "image", label: { en: "Prebuilt container image only" } },
-            { id: "build", label: { en: "Build from source" } }
+            { id: "auto", label: { en: "Automatic" } },
+            { id: "image", label: { en: "Prebuilt container image only (requires Docker)" } },
+            { id: "build", label: { en: "Source checkout" } }
           ] } }
         },
         {
@@ -415,6 +437,10 @@ export class ExternalIntegrationService {
     this.updateCache = { checkedAt: 0, items: [] };
     this.updatePromise = null;
     this.eventListener = null;
+    this.processes = new Map();
+    this.dockerAvailable = process.env.UCVR_DIND_RUNTIME_AVAILABLE !== "false";
+    this.venvDir = path.join(this.root, "venvs");
+    this.logsDir = path.join(this.root, "logs");
     this.state = safeJson(this.statePath, { version: 1, integrations: {} });
     const savedSources = safeJson(this.sourcesPath, { version: 1, registries: [], ghcr: [] });
     const configuredRegistries = options.registryUrls
@@ -429,7 +455,7 @@ export class ExternalIntegrationService {
       ? savedSources.ghcr.map((entry) => { try { return customGhcrEntry(entry); } catch { return null; } }).filter(Boolean)
       : [];
     this.registrySourceErrors = [];
-    for (const directory of [this.root, this.appsDir, this.configDir, this.runtimeDataDir]) fs.mkdirSync(directory, { recursive: true });
+    for (const directory of [this.root, this.appsDir, this.configDir, this.runtimeDataDir, this.venvDir, this.logsDir]) fs.mkdirSync(directory, { recursive: true });
     this.#saveSources();
   }
 
@@ -446,16 +472,24 @@ export class ExternalIntegrationService {
       job.updatedAt = new Date().toISOString();
     };
     this.platform.events.on("integration.setup", this.eventListener);
-    try {
-      const version = await this.#docker(["version", "--format", "{{.Server.Version}}"], { timeoutMs: 5000 });
-      log.info(`Docker daemon available, server ${version.stdout.trim() || "unknown"}`);
-      this.hostDataDir ||= await this.#detectHostDataDir();
-      log.info(`Managed integration persistence mapped to host path ${this.hostDataDir}`);
-      await this.#reconcile();
-      this.#repairManagedIntegrationUrls();
-    } catch (error) {
-      log.warn("Docker management is unavailable:", error.message);
+    if (process.env.UCVR_DIND_RUNTIME_AVAILABLE === "false") {
+      this.dockerAvailable = false;
+      log.warn(`Docker management is unavailable: ${process.env.UCVR_DIND_UNAVAILABLE_REASON || "the appliance runtime disabled nested Docker"}. Supported source integrations will use the supervised process runtime.`);
+    } else {
+      try {
+        const version = await this.#docker(["version", "--format", "{{.Server.Version}}"], { timeoutMs: 5000 });
+        this.dockerAvailable = true;
+        log.info(`Docker daemon available, server ${version.stdout.trim() || "unknown"}`);
+        this.hostDataDir ||= await this.#detectHostDataDir();
+        log.info(`Managed integration persistence mapped to host path ${this.hostDataDir}`);
+      } catch (error) {
+        this.dockerAvailable = false;
+        log.warn("Docker management is unavailable:", error.message);
+        log.warn("Supported source integrations will use the supervised process runtime.");
+      }
     }
+    await this.#reconcile();
+    this.#repairManagedIntegrationUrls();
     this.fetchRegistry().then((registry) => {
       log.info(`Integration registry loaded: ${registry.integrations.length} entries`);
       this.updates(true).catch((error) => log.debug("Initial managed integration update check failed:", error.message));
@@ -469,6 +503,7 @@ export class ExternalIntegrationService {
     await Promise.allSettled([...this.updateJobs.values()].map((job) => job.promise));
     this.jobs.clear();
     this.updateJobs.clear();
+    await Promise.allSettled([...this.processes.keys()].map((driverId) => this.#stopProcess(driverId)));
     if (this.eventListener) this.platform.events.off("integration.setup", this.eventListener);
     this.eventListener = null;
   }
@@ -481,6 +516,8 @@ export class ExternalIntegrationService {
       registry_errors: structuredClone(this.registrySourceErrors),
       cached_entries: Number(this.registryCache?.integrations?.length || 0),
       managed_instances: Object.keys(this.state.integrations || {}).length,
+      docker_available: this.dockerAvailable,
+      process_managed: Object.values(this.state.integrations || {}).filter((item) => item.runtime === "process").length,
       active_jobs: [...this.jobs.values()].filter((item) => !["success", "error", "cancelled"].includes(item.state)).length,
       active_updates: this.updateJobs.size,
       updates_available: this.updateCache.items.filter((item) => item.update_available).length,
@@ -919,7 +956,7 @@ export class ExternalIntegrationService {
     job.state = "installing";
     job.phase = "resolving";
     job.progress = 3;
-    job.message = "Resolving container image";
+    job.message = "Resolving integration runtime";
     job.updatedAt = new Date().toISOString();
     const resolved = await this.#install(entry, job);
     job.recordId = resolved.driverId;
@@ -989,6 +1026,12 @@ export class ExternalIntegrationService {
     const requestedPort = Number(options.port || existing?.port || 0);
     const port = requestedPort > 0 ? requestedPort : await this.#nextPort();
     const profile = runtimeProfile(entry);
+    if (!this.dockerAvailable) {
+      if (job.source === "image") {
+        throw Object.assign(new Error("This installation source requires Docker, but nested Docker is unavailable on this host. Choose Automatic or Source checkout."), { status: 503 });
+      }
+      return await this.#installProcess(entry, job, options, profile);
+    }
     let image = dockerImage(entry, job.version);
     let source = "image";
     if (job.source !== "build" && image) {
@@ -1128,6 +1171,182 @@ export class ExternalIntegrationService {
     }
   }
 
+
+  async #installProcess(entry, job, options = {}, profile = runtimeProfile(entry)) {
+    const driverId = baseDriverId(entry);
+    const processName = `ucvr-intg-${slug(entry.id)}`;
+    const existing = this.managedRecord(driverId);
+    const requestedPort = Number(options.port || existing?.port || 0);
+    const port = requestedPort > 0 ? requestedPort : await this.#nextPort();
+    const appDir = path.join(this.appsDir, slug(entry.id));
+    const repo = ownerRepo(entry.repository);
+    if (!repo) throw new Error(`Unsupported repository URL for process runtime: ${entry.repository}`);
+
+    await this.#stopProcess(driverId);
+    job.phase = "source";
+    job.progress = 12;
+    job.message = "Preparing integration source";
+    job.updatedAt = new Date().toISOString();
+    if (fs.existsSync(path.join(appDir, ".git"))) {
+      await this.#jobCommand(job, "git", ["-c", `safe.directory=${appDir}`, "-C", appDir, "fetch", "--all", "--tags", "--prune"], { timeoutMs: 120_000 });
+    } else {
+      fs.rmSync(appDir, { recursive: true, force: true });
+      await this.#jobCommand(job, "git", ["clone", "--filter=blob:none", entry.repository, appDir], { timeoutMs: 180_000 });
+    }
+    if (job.version && job.version !== "latest") {
+      await this.#jobCommand(job, "git", ["-c", `safe.directory=${appDir}`, "-C", appDir, "checkout", "--force", job.version], { timeoutMs: 60_000 });
+    } else {
+      await this.#jobCommand(job, "git", ["-c", `safe.directory=${appDir}`, "-C", appDir, "reset", "--hard", "origin/HEAD"], { timeoutMs: 60_000 }).catch(() => {});
+    }
+
+    if (profile.patch_driver_metadata) this.#patchDriverMetadata(appDir, driverId, `${entry.name || entry.id} (external)`);
+    const stack = detectStack(appDir, profile);
+    if (!["python", "node"].includes(stack)) {
+      throw Object.assign(new Error(`Docker is unavailable and the ${stack} source stack does not yet have a direct process runtime. Use a custom integration package or a host with Docker.`), { status: 503 });
+    }
+
+    const config = writableDirectory(path.join(this.configDir, processName));
+    const data = writableDirectory(path.join(this.runtimeDataDir, processName));
+    const identity = runtimeIdentity();
+    let command;
+    let args;
+
+    job.phase = "building";
+    job.progress = 30;
+    if (stack === "python") {
+      const entrypoint = pythonEntrypoint(appDir, profile);
+      if (!entrypoint) throw new Error("Python integration entrypoint could not be detected");
+      const venv = path.join(this.venvDir, slug(entry.id));
+      const python = path.join(venv, "bin", "python");
+      if (!fs.existsSync(python)) {
+        job.message = "Creating Python environment";
+        await this.#jobCommand(job, "python3", ["-m", "venv", venv], { timeoutMs: 120_000 });
+      }
+      if (identity.uid) {
+        await this.#jobCommand(job, "chown", ["-R", `${identity.uid}:${identity.gid}`, appDir, venv, config, data], { timeoutMs: 120_000 });
+      }
+      job.message = "Installing Python dependencies";
+      if (fs.existsSync(path.join(appDir, "requirements.txt"))) {
+        await this.#jobCommand(job, python, ["-m", "pip", "install", "--disable-pip-version-check", "--no-cache-dir", "-r", "requirements.txt"], { cwd: appDir, timeoutMs: 30 * 60_000, ...identity });
+      } else if (fs.existsSync(path.join(appDir, "pyproject.toml")) || fs.existsSync(path.join(appDir, "setup.py"))) {
+        await this.#jobCommand(job, python, ["-m", "pip", "install", "--disable-pip-version-check", "--no-cache-dir", "."], { cwd: appDir, timeoutMs: 30 * 60_000, ...identity });
+      }
+      command = python;
+      args = [path.resolve(appDir, entrypoint)];
+    } else {
+      const pkg = safeJson(path.join(appDir, "package.json"), {});
+      const entrypoint = findFile(appDir, ["src/driver.js", "driver.js", "src/index.js", "index.js"]);
+      const start = profile.command || (pkg.scripts?.start ? "npm start" : entrypoint ? `node ${entrypoint}` : null);
+      if (!start) throw new Error("Node integration start command could not be detected");
+      if (identity.uid) {
+        await this.#jobCommand(job, "chown", ["-R", `${identity.uid}:${identity.gid}`, appDir, config, data], { timeoutMs: 120_000 });
+      }
+      job.message = "Installing Node.js dependencies";
+      await this.#jobCommand(job, "npm", [fs.existsSync(path.join(appDir, "package-lock.json")) ? "ci" : "install", "--include=dev"], { cwd: appDir, timeoutMs: 30 * 60_000, ...identity });
+      command = "sh";
+      args = ["-lc", start];
+    }
+
+    const environment = {
+      HOME: data,
+      UC_CONFIG_HOME: config,
+      STATE_DIRECTORY: data,
+      UC_DATA_HOME: data,
+      UC_INTEGRATION_INTERFACE: this.integrationHost,
+      UC_INTEGRATION_HTTP_PORT: String(port),
+      UC_DISABLE_MDNS_PUBLISH: "true",
+      PYTHONUNBUFFERED: "1",
+      PYTHONDONTWRITEBYTECODE: "1",
+      ...(profile.environment || {})
+    };
+    const logPath = path.join(this.logsDir, `${processName}.log`);
+    const revision = await this.#localRepositoryRevision(appDir).catch(() => null);
+    const record = {
+      registry_id: entry.id, driver_id: driverId, name: entry.name || driverId, repository: entry.repository,
+      container: processName, runtime: "process", image: null, source: "build", port, version: job.version,
+      websocket_path: integrationWebSocketPath(entry) || null,
+      runtime_command: command, runtime_args: args, runtime_cwd: appDir, runtime_env: environment,
+      runtime_uid: identity.uid ?? null, runtime_gid: identity.gid ?? null, log_path: logPath,
+      ...(revision ? { revision } : {}),
+      installed_at: options.installedAt || existing?.installed_at || new Date().toISOString(), updated_at: new Date().toISOString()
+    };
+
+    job.phase = "starting";
+    job.progress = 86;
+    job.message = "Starting integration process";
+    await this.#startProcess(record);
+    if (!await waitForPort(this.integrationHost, port, Number(process.env.UCVR_INTEGRATION_START_TIMEOUT_MS || 45_000))) {
+      const output = tailFile(logPath, 100);
+      await this.#stopProcess(driverId);
+      throw new Error(`Integration process ${processName} did not open Integration API port ${port}.${output ? ` Last output: ${output.slice(-2000)}` : ""}`);
+    }
+
+    this.state.integrations[driverId] = record;
+    atomicJson(this.statePath, this.state);
+    this.invalidateUpdateCache();
+    job.progress = 90;
+    job.message = "Integration process ready";
+    log.info(`${entry.name || entry.id} process ready: ${processName}, port=${port}, source=build`);
+    return { ...record, driverId };
+  }
+
+  async #startProcess(record) {
+    if (!record || record.runtime !== "process" || !record.driver_id) return false;
+    const current = this.processes.get(record.driver_id);
+    if (current?.child && current.child.exitCode === null) return true;
+    fs.mkdirSync(path.dirname(record.log_path), { recursive: true });
+    const logFd = fs.openSync(record.log_path, "a");
+    const options = {
+      cwd: record.runtime_cwd || this.root,
+      env: { ...process.env, ...(record.runtime_env || {}) },
+      stdio: ["ignore", logFd, logFd],
+      ...(Number.isInteger(record.runtime_uid) ? { uid: record.runtime_uid } : {}),
+      ...(Number.isInteger(record.runtime_gid) ? { gid: record.runtime_gid } : {})
+    };
+    const child = spawn(record.runtime_command, Array.isArray(record.runtime_args) ? record.runtime_args.map(String) : [], options);
+    const runtime = { child, logFd, startedAt: new Date().toISOString(), stopping: false };
+    this.processes.set(record.driver_id, runtime);
+    child.once("error", (error) => log.error(`Managed process ${record.driver_id} failed to start:`, error));
+    child.once("exit", (code, signal) => {
+      try { fs.closeSync(logFd); } catch {}
+      if (this.processes.get(record.driver_id)?.child === child) this.processes.delete(record.driver_id);
+      if (!runtime.stopping) log.warn(`Managed process ${record.driver_id} exited: code=${code ?? "none"}, signal=${signal || "none"}`);
+    });
+    log.info(`Started managed process ${record.driver_id}: pid=${child.pid}`);
+    return true;
+  }
+
+  async #stopProcess(idOrDriver) {
+    const key = String(idOrDriver || "");
+    const record = this.managedRecord(key);
+    const driverId = record?.driver_id || key;
+    const runtime = this.processes.get(driverId);
+    if (!runtime?.child) return false;
+    runtime.stopping = true;
+    try { runtime.child.kill("SIGTERM"); } catch {}
+    for (let attempt = 0; attempt < 20 && runtime.child.exitCode === null; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    if (runtime.child.exitCode === null) {
+      try { runtime.child.kill("SIGKILL"); } catch {}
+    }
+    this.processes.delete(driverId);
+    return true;
+  }
+
+  runtimeStatus(record) {
+    if (!record || record.runtime !== "process") return null;
+    const runtime = this.processes.get(record.driver_id);
+    const running = Boolean(runtime?.child && runtime.child.exitCode === null);
+    return {
+      state: running ? "running" : "stopped",
+      running,
+      pid: running ? runtime.child.pid : null,
+      started_at: runtime?.startedAt || null,
+      error: running ? null : "Managed integration process is not running"
+    };
+  }
+
   #patchDriverMetadata(root, driverId, name) {
     const backups = [];
     for (const relative of walk(root).filter((item) => /(^|\/)driver\.json$/i.test(item))) {
@@ -1215,6 +1434,18 @@ export class ExternalIntegrationService {
 
   async #reconcile() {
     for (const record of Object.values(this.state.integrations || {})) {
+      if (record.runtime === "process") {
+        try {
+          await this.#startProcess(record);
+          if (!await waitForPort(this.integrationHost, record.port, 15_000)) {
+            log.warn(`Managed process ${record.driver_id} did not reopen Integration API port ${record.port}`);
+          }
+        } catch (error) {
+          log.warn(`Unable to restart managed process ${record.driver_id}:`, error.message);
+        }
+        continue;
+      }
+      if (!this.dockerAvailable) continue;
       const inspect = await this.#docker(["inspect", "-f", "{{.State.Status}}", record.container], { timeoutMs: 5000, rejectOnError: false });
       if (inspect.code !== 0) continue;
       if (inspect.stdout.trim() !== "running") await this.#docker(["start", record.container], { timeoutMs: 30_000 });
@@ -1246,6 +1477,15 @@ export class ExternalIntegrationService {
   async setRunning(idOrDriver, running) {
     const record = this.managedRecord(idOrDriver);
     if (!record) return false;
+    if (record.runtime === "process") {
+      if (running) {
+        await this.#startProcess(record);
+        return await waitForPort(this.integrationHost, record.port, 20_000);
+      }
+      await this.#stopProcess(record.driver_id);
+      return true;
+    }
+    if (!this.dockerAvailable) throw Object.assign(new Error("Docker is unavailable on this host"), { status: 503 });
     await this.#docker([running ? "start" : "stop", record.container], { timeoutMs: 60_000 });
     return true;
   }
@@ -1253,29 +1493,40 @@ export class ExternalIntegrationService {
   async remove(idOrDriver) {
     const record = this.managedRecord(idOrDriver);
     if (!record) return false;
-    await this.#removeContainer(record.container, false);
+    if (record.runtime === "process") await this.#stopProcess(record.driver_id);
+    else if (this.dockerAvailable) await this.#removeContainer(record.container, false);
     delete this.state.integrations[record.driver_id];
     atomicJson(this.statePath, this.state);
     fs.rmSync(path.join(this.configDir, record.container), { recursive: true, force: true });
     fs.rmSync(path.join(this.runtimeDataDir, record.container), { recursive: true, force: true });
+    if (record.runtime === "process") {
+      fs.rmSync(path.join(this.venvDir, slug(record.registry_id || record.driver_id)), { recursive: true, force: true });
+    }
     this.invalidateUpdateCache();
-    log.info(`Removed managed integration container ${record.container}`);
+    log.info(`Removed managed integration ${record.runtime === "process" ? "process" : "container"} ${record.container}`);
     return true;
   }
 
   async factoryReset() {
     for (const job of this.jobs.values()) job.controller.abort();
-    await Promise.allSettled(Object.values(this.state.integrations || {}).map((item) => this.#removeContainer(item.container, false)));
+    await Promise.allSettled(Object.values(this.state.integrations || {}).map((item) => item.runtime === "process"
+      ? this.#stopProcess(item.driver_id)
+      : this.dockerAvailable ? this.#removeContainer(item.container, false) : Promise.resolve()));
     this.state = { version: 1, integrations: {} };
     this.invalidateUpdateCache();
     fs.rmSync(this.root, { recursive: true, force: true });
   }
 
   services() {
-    return Object.values(this.state.integrations || {}).map((item) => ({ service: item.container, name: item.name || item.driver_id, container: item.container }));
+    return Object.values(this.state.integrations || {}).map((item) => ({ service: item.container, name: item.name || item.driver_id, container: item.container, runtime: item.runtime || "container" }));
   }
 
   async containerLogs(container, options = {}) {
+    const processRecord = Object.values(this.state.integrations || {}).find((item) => item.runtime === "process" && (item.container === container || item.driver_id === container));
+    if (processRecord) {
+      return tailFile(processRecord.log_path, Math.max(1, Math.min(10000, Number(options.tail || 1000))));
+    }
+    if (!this.dockerAvailable) throw new Error("Docker is unavailable on this host");
     const args = ["logs", "--timestamps", "--tail", String(Math.max(1, Math.min(10000, Number(options.tail || 1000))))];
     if (options.since) args.push("--since", options.since);
     if (options.until) args.push("--until", options.until);
