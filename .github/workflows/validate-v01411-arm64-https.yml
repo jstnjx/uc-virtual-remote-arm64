@@ -43,8 +43,13 @@ jobs:
           import aiohttp
           import certifi
 
+          print('probe:start', flush=True)
+          print('probe:sync-dns:start', flush=True)
+          sync_addresses = socket.getaddrinfo('accounts.spotify.com', 443, type=socket.SOCK_STREAM)
+          print(f'probe:sync-dns:ok:{len(sync_addresses)}', flush=True)
+
           async def main():
-              print('probe:start', flush=True)
+              print('probe:async-dns:start', flush=True)
               loop = asyncio.get_running_loop()
               addresses = await asyncio.wait_for(
                   loop.getaddrinfo('accounts.spotify.com', 443, type=socket.SOCK_STREAM),
@@ -52,7 +57,8 @@ jobs:
               )
               if not addresses:
                   raise RuntimeError('DNS returned no addresses')
-              print(f'probe:dns:{len(addresses)}', flush=True)
+              print(f'probe:async-dns:ok:{len(addresses)}', flush=True)
+              print('probe:https:start', flush=True)
               context = ssl.create_default_context(cafile=certifi.where())
               timeout = aiohttp.ClientTimeout(total=20, connect=10)
               connector = aiohttp.TCPConnector(ssl=context)
@@ -72,19 +78,58 @@ jobs:
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
             bash -lc 'cd /workspace && pyinstaller --clean --onedir --name https-probe probe.py'
 
-      - name: Run ARM64 PyInstaller HTTPS probe through UC Virtual Remote emulator
+      - name: Diagnose current cross sysroot
         shell: bash
         run: |
           set -euo pipefail
-          timeout 45 docker run --rm \
+          set +e
+          timeout --kill-after=5s 35s docker run --rm --init \
             --entrypoint sh \
             -v /tmp/arm64-probe/dist/https-probe:/probe:ro \
             -e _PYI_ARCHIVE_FILE=/probe/https-probe \
             -e _PYI_PARENT_PROCESS_LEVEL=0 \
             -e LD_LIBRARY_PATH=/probe/_internal \
             ucvr:v01411 \
-            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/https-probe' | tee /tmp/arm64-https-probe.log
-          grep -q 'probe:ok' /tmp/arm64-https-probe.log
+            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/https-probe' \
+            >/tmp/current-sysroot.log 2>&1
+          current_status=$?
+          set -e
+          cat /tmp/current-sysroot.log
+          echo "current-sysroot-status=$current_status"
+
+      - name: Export official ARM64 Bullseye runtime rootfs
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull --platform linux/arm64 arm64v8/debian:bullseye-slim
+          container_id="$(docker create --platform linux/arm64 arm64v8/debian:bullseye-slim)"
+          trap 'docker rm -f "$container_id" >/dev/null 2>&1 || true' EXIT
+          mkdir -p /tmp/arm64-bullseye-rootfs
+          docker export "$container_id" | tar -C /tmp/arm64-bullseye-rootfs -xf -
+          test -x /tmp/arm64-bullseye-rootfs/lib/ld-linux-aarch64.so.1
+
+      - name: Require ARM64 PyInstaller DNS and HTTPS through Bullseye rootfs
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          timeout --kill-after=5s 45s docker run --rm --init \
+            --entrypoint sh \
+            -v /tmp/arm64-probe/dist/https-probe:/probe:ro \
+            -v /tmp/arm64-bullseye-rootfs:/arm64-rootfs:ro \
+            -e _PYI_ARCHIVE_FILE=/probe/https-probe \
+            -e _PYI_PARENT_PROCESS_LEVEL=0 \
+            -e LD_LIBRARY_PATH=/probe/_internal \
+            ucvr:v01411 \
+            -lc '/usr/local/bin/qemu-aarch64-static -L /arm64-rootfs /probe/https-probe' \
+            >/tmp/bullseye-rootfs.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/bullseye-rootfs.log
+          test "$status" -eq 0
+          grep -q 'probe:sync-dns:ok:' /tmp/bullseye-rootfs.log
+          grep -q 'probe:async-dns:ok:' /tmp/bullseye-rootfs.log
+          grep -q 'probe:ok' /tmp/bullseye-rootfs.log
 
       - name: Build v0.14.11 arm64 appliance
         uses: docker/build-push-action@v7
