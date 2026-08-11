@@ -133,8 +133,12 @@ function normalizeGhcrImage(value) {
   return tail.includes(":") || image.includes("@sha256:") ? image : `${image}:{version}`;
 }
 
-function customGhcrEntry(input = {}) {
+export function customGhcrEntry(input = {}) {
   const image = normalizeGhcrImage(input.image || input.docker_image);
+  const repository = String(input.repository || "").trim().replace(/\.git$/i, "");
+  if (repository && !ownerRepo(repository)) {
+    throw Object.assign(new Error("Enter a valid GitHub repository URL such as https://github.com/owner/integration"), { status: 422 });
+  }
   const driverId = String(input.driver_id || input.id || "").trim();
   if (!driverId) throw Object.assign(new Error("A driver ID is required for a custom GHCR integration"), { status: 422 });
   const id = slug(input.id || `ghcr-${driverId}`);
@@ -147,6 +151,7 @@ function customGhcrEntry(input = {}) {
     author: String(input.author || "Custom GHCR image"),
     version: String(input.version || "latest").trim() || "latest",
     docker_image: image,
+    ...(repository ? { repository } : {}),
     registry_source: "ghcr",
     custom_image: true,
     external_runtime: {
@@ -563,6 +568,7 @@ export class ExternalIntegrationService {
         author: entry.author,
         version: entry.version,
         image: entry.docker_image,
+        ...(entry.repository ? { repository: entry.repository } : {}),
         websocket_path: entry.external_runtime?.websocket_path || "/intg",
         environment: entry.external_runtime?.environment || {}
       }))

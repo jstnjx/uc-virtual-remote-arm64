@@ -10,6 +10,7 @@ const SECRET_KEY = "sync_mode_secrets";
 const ENTRY_ID = "uc-remote-sync";
 const DRIVER_ID = "remote_sync";
 const IMAGE = "ghcr.io/jstnjx/uc-remote-sync";
+const REPOSITORY = "https://github.com/jstnjx/uc-remote-sync";
 const DEFAULT_SECTIONS = [
   "resources",
   "entities",
@@ -231,7 +232,7 @@ export class SyncModeService {
       warnings.push("The dedicated Remote Sync Core API key has not been provisioned yet.");
     }
     if (settings.enabled && !managed && !job) {
-      warnings.push("Remote Sync is enabled but its managed container is not installed.");
+      warnings.push("Remote Sync is enabled but its managed runtime is not installed.");
     }
     if (this.lastError) warnings.push(this.lastError);
 
@@ -285,6 +286,7 @@ export class SyncModeService {
         description: "Managed Primary synchronization service for UC Virtual Remote.",
         author: "jstnjx",
         image: settings.integration.image,
+        repository: REPOSITORY,
         version: settings.integration.version,
         websocket_path: "/intg",
         preconfigured: true,
@@ -310,7 +312,7 @@ export class SyncModeService {
       } else {
         job = await this.platform.externalIntegrations.startSetup(DRIVER_ID, {
           input_values: {
-            ucvr_install_source: "image",
+            ucvr_install_source: "auto",
             ucvr_install_version: settings.integration.version
           }
         });

@@ -3,11 +3,12 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";
+import { customGhcrEntry, dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";
 import { ensureRuntimeDriverManifest, pyInstallerOnedirEnvironment } from "../src/native-integrations/service.js";
 
 const nativeService = fs.readFileSync(new URL("../src/native-integrations/service.js", import.meta.url), "utf8");
 const apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");
+const syncModeService = fs.readFileSync(new URL("../src/sync-mode/service.js", import.meta.url), "utf8");
 const customUploadUi = fs.readFileSync(new URL("../web-configurator/src/components/integration/ImportCustomIntegration.vue", import.meta.url), "utf8");
 const externalService = fs.readFileSync(new URL("../src/external-integrations/service.js", import.meta.url), "utf8");
 const dockerfile = fs.readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
@@ -94,4 +95,26 @@ test("emulated ARM64 PyInstaller integrations disable OpenSSL ARM acceleration b
   );
   assert.equal(env.OPENSSL_armcap, "0");
   assert.equal(env._PYI_PARENT_PROCESS_LEVEL, "0");
+});
+
+
+test("custom GHCR entries retain an optional GitHub source repository", () => {
+  const entry = customGhcrEntry({
+    id: "uc-remote-sync",
+    driver_id: "remote_sync",
+    image: "ghcr.io/jstnjx/uc-remote-sync",
+    repository: "https://github.com/jstnjx/uc-remote-sync.git"
+  });
+  assert.equal(entry.repository, "https://github.com/jstnjx/uc-remote-sync");
+  assert.throws(
+    () => customGhcrEntry({ id: "invalid", driver_id: "invalid", image: "ghcr.io/jstnjx/invalid", repository: "https://example.com/not-github" }),
+    /valid GitHub repository URL/
+  );
+});
+
+test("Sync Mode uses Automatic so HAOS can fall back to the Remote Sync source checkout", () => {
+  assert.match(syncModeService, /const REPOSITORY = "https:\/\/github\.com\/jstnjx\/uc-remote-sync"/);
+  assert.match(syncModeService, /repository: REPOSITORY/);
+  assert.match(syncModeService, /ucvr_install_source: "auto"/);
+  assert.doesNotMatch(syncModeService, /ucvr_install_source: "image"/);
 });
