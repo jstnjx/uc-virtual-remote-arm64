@@ -147,6 +147,7 @@ async function waitForPort(host, port, timeoutMs = 20_000) {
 
 async function containerRuntime(service, managed) {
   if (!managed?.container) return null;
+  if (managed.runtime === "process") return service.runtimeStatus(managed);
   try {
     const result = await service.runner(
       process.env.UCVR_DOCKER_BIN || "docker",
