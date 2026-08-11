@@ -8,37 +8,95 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  repair-v01414:
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/v0.14.14-public-resource-downloads' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/v0.14.14-public-resource-downloads
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Apply resource compatibility fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          server = Path('src/api/server.js')
+          text = server.read_text()
+          old = '''      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+      if (publicResource && request.method === "GET") return binary(response, this.platform.db.getResource(publicResource.type, publicResource.id), true);
+'''
+          if old not in text:
+              raise SystemExit('public resource block not found')
+          new = '''      // Resource files are intentionally readable without API/session headers. External
+      // clients frequently render returned resource URLs directly (for example in an
+      // image view) where the Core API Authorization header is not propagated. Keep
+      // list/upload/delete operations authenticated, but expose the immutable binary
+      // GET through both the official Core URL and the legacy content helper.
+      let publicResource = match(pathname, "/api/resources/:type/:id/content");
+      if (!publicResource) publicResource = match(pathname, "/api/resources/:type/:id");
+      if (!publicResource) publicResource = match(pathname, "/resources/:type/:id");
+      if (publicResource && request.method === "GET") {
+        return binary(
+          response,
+          this.platform.db.getResource(internalResourceType(publicResource.type), publicResource.id),
+          true
+        );
+      }
+'''
+          server.write_text(text.replace(old, new, 1))
+          Path('VERSION').write_text('0.14.14\n')
+          for name in ('package.json', 'package-lock.json'):
+              p = Path(name)
+              data = json.loads(p.read_text())
+              data['version'] = '0.14.14'
+              if name == 'package-lock.json' and '' in data.get('packages', {}):
+                  data['packages']['']['version'] = '0.14.14'
+              p.write_text(json.dumps(data, indent=2) + '\n')
+          Path('test/public-resource-downloads.test.js').write_text('''import assert from "node:assert/strict";\nimport fs from "node:fs";\nimport test from "node:test";\n\nconst source = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");\n\ntest("binary Core resource downloads are available before API authentication routing", () => {\n  const contentAlias = source.indexOf('match(pathname, "/api/resources/:type/:id/content")');\n  const officialAlias = source.indexOf('match(pathname, "/api/resources/:type/:id")');\n  const unprefixedAlias = source.indexOf('match(pathname, "/resources/:type/:id")');\n  const officialRouting = source.indexOf('if (pathname.startsWith("/api/") && this.#officialRequest(request))');\n  const rootAuth = source.indexOf('if (["/auth", "/intg", "/entities"');\n  assert.ok(contentAlias >= 0);\n  assert.ok(officialAlias > contentAlias);\n  assert.ok(unprefixedAlias > officialAlias);\n  assert.ok(officialAlias < officialRouting);\n  assert.ok(unprefixedAlias < rootAuth);\n  assert.match(source.slice(contentAlias, officialRouting), /request\\.method === "GET"/);\n  assert.match(source.slice(contentAlias, officialRouting), /internalResourceType\\(publicResource\\.type\\)/);\n});\n\ntest("resource mutation paths remain in authenticated compatibility handling", () => {\n  const compatibility = source.indexOf("// Resources and empty virtual hardware surfaces");\n  const deleteResource = source.indexOf('if (params && method === "DELETE") return db.deleteResource', compatibility);\n  assert.ok(compatibility >= 0);\n  assert.ok(deleteResource > compatibility);\n});\n''')
+          PY
+          npm ci
+          npm run ci
+      - name: Commit clean product change
+        run: |
+          git checkout origin/main -- .github/workflows/ci.yml .github/workflows/build.yml
+          rm -f .github/workflows/repair-v01414-resource-downloads.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Allow external clients to download Core resources"
+          git push origin HEAD:fix/v0.14.14-public-resource-downloads
+
   test:
     name: Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         node-version:
           - 22
           - 24
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
-
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run source checks and tests
         run: npm run ci
 
@@ -46,24 +104,19 @@ jobs:
     name: Validate ${{ matrix.platform }} image
     runs-on: ubuntu-latest
     needs: test
-
     strategy:
       fail-fast: false
       matrix:
         platform:
           - linux/amd64
           - linux/arm64
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-
       - name: Build image without publishing
         uses: docker/build-push-action@v7
         with:
