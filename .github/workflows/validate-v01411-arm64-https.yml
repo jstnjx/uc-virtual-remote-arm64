@@ -66,9 +66,11 @@ jobs:
           asyncio.run(main())
           PY
           docker run --rm --platform linux/arm64 \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/tmp \
             -v /tmp/arm64-probe:/workspace \
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
-            bash -lc 'cd /workspace && python -m pip install --no-cache-dir aiohttp certifi && pyinstaller --clean --onedir --name https-probe probe.py'
+            bash -lc 'cd /workspace && pyinstaller --clean --onedir --name https-probe probe.py'
 
       - name: Run ARM64 PyInstaller HTTPS probe through UC Virtual Remote emulator
         shell: bash
@@ -83,6 +85,14 @@ jobs:
             ucvr:v01411 \
             -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/https-probe' | tee /tmp/arm64-https-probe.log
           grep -q 'probe:ok' /tmp/arm64-https-probe.log
+
+      - name: Build v0.14.11 arm64 appliance
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/arm64
+          push: false
+          tags: ucvr:v01411-arm64
 
       - name: Run source tests
         uses: actions/setup-node@v6
