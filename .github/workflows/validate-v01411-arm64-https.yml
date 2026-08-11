@@ -23,9 +23,10 @@ jobs:
           docker run --rm -v /tmp/ucvr-qemu:/out debian:bookworm-slim sh -lc '
             apt-get update >/dev/null &&
             apt-get install -y --no-install-recommends qemu-user-static >/dev/null &&
-            cp /usr/bin/qemu-aarch64-static /out/qemu-aarch64-static
+            cp /usr/bin/qemu-aarch64-static /out/qemu-aarch64-static &&
+            chmod 0755 /out/qemu-aarch64-static
           '
-          chmod 0755 /tmp/ucvr-qemu/qemu-aarch64-static
+          sudo chown "$(id -u):$(id -g)" /tmp/ucvr-qemu/qemu-aarch64-static
           /tmp/ucvr-qemu/qemu-aarch64-static --version
 
       - name: Build ARM64 PyInstaller network probe
