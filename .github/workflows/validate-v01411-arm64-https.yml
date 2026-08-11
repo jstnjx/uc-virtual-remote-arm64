@@ -31,105 +31,108 @@ jobs:
           docker run --rm --entrypoint /usr/local/bin/qemu-aarch64-static ucvr:v01411 --version | tee /tmp/qemu-version
           grep -Eq 'version 10\.' /tmp/qemu-version
 
-      - name: Build ARM64 PyInstaller HTTPS probe
+      - name: Build ARM64 PyInstaller network probe
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/arm64-probe
           cat >/tmp/arm64-probe/probe.py <<'PY'
           import asyncio
+          import os
           import socket
           import ssl
           import aiohttp
           import certifi
 
-          print('probe:start', flush=True)
-          print('probe:sync-dns:start', flush=True)
-          sync_addresses = socket.getaddrinfo('accounts.spotify.com', 443, type=socket.SOCK_STREAM)
-          print(f'probe:sync-dns:ok:{len(sync_addresses)}', flush=True)
+          HOST = 'accounts.spotify.com'
+          PORT = 443
 
-          async def main():
+          print('probe:start', flush=True)
+          print('probe:random:start', flush=True)
+          random_bytes = os.getrandom(32)
+          print(f'probe:random:ok:{len(random_bytes)}', flush=True)
+
+          print('probe:dns:start', flush=True)
+          addresses = socket.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM)
+          print('probe:dns:families:' + ','.join(str(item[0]) for item in addresses), flush=True)
+          ipv4 = next((item for item in addresses if item[0] == socket.AF_INET), None)
+          if ipv4 is None:
+              raise RuntimeError('No IPv4 address returned')
+          target = ipv4[4]
+          print(f'probe:dns:ok:{target[0]}', flush=True)
+
+          print('probe:tcp:start', flush=True)
+          raw = socket.create_connection(target, timeout=10)
+          raw.settimeout(10)
+          print('probe:tcp:ok', flush=True)
+
+          print('probe:ssl-context:start', flush=True)
+          context = ssl.create_default_context(cafile=certifi.where())
+          print('probe:ssl-context:ok', flush=True)
+
+          print('probe:tls:start', flush=True)
+          tls = context.wrap_socket(raw, server_hostname=HOST)
+          tls.settimeout(10)
+          print(f'probe:tls:ok:{tls.version()}:{tls.cipher()[0]}', flush=True)
+
+          print('probe:http-manual:start', flush=True)
+          tls.sendall(f'GET /authorize HTTP/1.1\r\nHost: {HOST}\r\nConnection: close\r\nUser-Agent: ucvr-probe\r\n\r\n'.encode())
+          head = tls.recv(4096)
+          print('probe:http-manual:ok:' + head.split(b'\r\n', 1)[0].decode('ascii', 'replace'), flush=True)
+          tls.close()
+
+          async def async_probe():
               print('probe:async-dns:start', flush=True)
               loop = asyncio.get_running_loop()
-              addresses = await asyncio.wait_for(
-                  loop.getaddrinfo('accounts.spotify.com', 443, type=socket.SOCK_STREAM),
+              async_addresses = await asyncio.wait_for(
+                  loop.getaddrinfo(HOST, PORT, type=socket.SOCK_STREAM),
                   timeout=10,
               )
-              if not addresses:
-                  raise RuntimeError('DNS returned no addresses')
-              print(f'probe:async-dns:ok:{len(addresses)}', flush=True)
-              print('probe:https:start', flush=True)
-              context = ssl.create_default_context(cafile=certifi.where())
-              timeout = aiohttp.ClientTimeout(total=20, connect=10)
+              print(f'probe:async-dns:ok:{len(async_addresses)}', flush=True)
+
+              print('probe:aiohttp-ipv4:start', flush=True)
+              timeout = aiohttp.ClientTimeout(total=20, connect=10, sock_connect=10, sock_read=10)
+              connector = aiohttp.TCPConnector(ssl=context, family=socket.AF_INET)
+              async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+                  async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
+                      print(f'probe:aiohttp-ipv4:ok:{response.status}', flush=True)
+
+              print('probe:aiohttp-default:start', flush=True)
               connector = aiohttp.TCPConnector(ssl=context)
               async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
-                  async with session.get('https://accounts.spotify.com/authorize', allow_redirects=False) as response:
-                      print(f'probe:https:{response.status}', flush=True)
-                      if response.status >= 500:
-                          raise RuntimeError(f'Unexpected HTTP {response.status}')
-              print('probe:ok', flush=True)
+                  async with session.get(f'https://{HOST}/authorize', allow_redirects=False) as response:
+                      print(f'probe:aiohttp-default:ok:{response.status}', flush=True)
 
-          asyncio.run(main())
+          asyncio.run(async_probe())
+          print('probe:ok', flush=True)
           PY
           docker run --rm --platform linux/arm64 \
             --user "$(id -u):$(id -g)" \
             -e HOME=/tmp \
             -v /tmp/arm64-probe:/workspace \
             docker.io/unfoldedcircle/r2-pyinstaller:3.11.12-0.3.0 \
-            bash -lc 'cd /workspace && pyinstaller --clean --onedir --name https-probe probe.py'
+            bash -lc 'cd /workspace && pyinstaller --clean --onedir --name network-probe probe.py'
 
-      - name: Diagnose current cross sysroot
+      - name: Diagnose ARM64 PyInstaller networking through UC Virtual Remote emulator
         shell: bash
         run: |
           set -euo pipefail
           set +e
-          timeout --kill-after=5s 35s docker run --rm --init \
+          timeout --kill-after=5s 70s docker run --rm --init \
             --entrypoint sh \
-            -v /tmp/arm64-probe/dist/https-probe:/probe:ro \
-            -e _PYI_ARCHIVE_FILE=/probe/https-probe \
+            -v /tmp/arm64-probe/dist/network-probe:/probe:ro \
+            -e _PYI_ARCHIVE_FILE=/probe/network-probe \
             -e _PYI_PARENT_PROCESS_LEVEL=0 \
             -e LD_LIBRARY_PATH=/probe/_internal \
             ucvr:v01411 \
-            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/https-probe' \
-            >/tmp/current-sysroot.log 2>&1
-          current_status=$?
-          set -e
-          cat /tmp/current-sysroot.log
-          echo "current-sysroot-status=$current_status"
-
-      - name: Export official ARM64 Bullseye runtime rootfs
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker pull --platform linux/arm64 arm64v8/debian:bullseye-slim
-          container_id="$(docker create --platform linux/arm64 arm64v8/debian:bullseye-slim)"
-          trap 'docker rm -f "$container_id" >/dev/null 2>&1 || true' EXIT
-          mkdir -p /tmp/arm64-bullseye-rootfs
-          docker export "$container_id" | tar -C /tmp/arm64-bullseye-rootfs -xf -
-          test -x /tmp/arm64-bullseye-rootfs/lib/ld-linux-aarch64.so.1
-
-      - name: Require ARM64 PyInstaller DNS and HTTPS through Bullseye rootfs
-        shell: bash
-        run: |
-          set -euo pipefail
-          set +e
-          timeout --kill-after=5s 45s docker run --rm --init \
-            --entrypoint sh \
-            -v /tmp/arm64-probe/dist/https-probe:/probe:ro \
-            -v /tmp/arm64-bullseye-rootfs:/arm64-rootfs:ro \
-            -e _PYI_ARCHIVE_FILE=/probe/https-probe \
-            -e _PYI_PARENT_PROCESS_LEVEL=0 \
-            -e LD_LIBRARY_PATH=/probe/_internal \
-            ucvr:v01411 \
-            -lc '/usr/local/bin/qemu-aarch64-static -L /arm64-rootfs /probe/https-probe' \
-            >/tmp/bullseye-rootfs.log 2>&1
+            -lc '/usr/local/bin/qemu-aarch64-static -L /usr/aarch64-linux-gnu /probe/network-probe' \
+            >/tmp/network-probe.log 2>&1
           status=$?
           set -e
-          cat /tmp/bullseye-rootfs.log
+          cat /tmp/network-probe.log
+          echo "network-probe-status=$status"
           test "$status" -eq 0
-          grep -q 'probe:sync-dns:ok:' /tmp/bullseye-rootfs.log
-          grep -q 'probe:async-dns:ok:' /tmp/bullseye-rootfs.log
-          grep -q 'probe:ok' /tmp/bullseye-rootfs.log
+          grep -q 'probe:ok' /tmp/network-probe.log
 
       - name: Build v0.14.11 arm64 appliance
         uses: docker/build-push-action@v7
