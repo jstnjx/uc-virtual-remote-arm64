@@ -211,8 +211,9 @@ export default class ServiceConfig
   }
 
   async update(group: string, name: string, value: unknown): Promise<CfgAll> {
-    const cfg = ({ ...this.cfg }?.[group] || {}) as Cfg;
-    cfg[name] = value;
+    // PATCH is partial on Core. Sending a full group copied from the initial
+    // getAll() cache can roll back sibling settings changed since that load.
+    const cfg = { [name]: value } as Cfg;
 
     const response = await this.rest.request<CfgAll>({
       url: this.getEndpoint(group),
