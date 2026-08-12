@@ -33,7 +33,20 @@ function setupJobPublic(job) {
 }
 
 const OFFICIAL_PROFILES = {
-  "uc-intg-hass": { driver_id: "hass_external", skip_repo_dockerfile: true, patch_driver_metadata: true, websocket_path: "/ws" },
+  "uc-intg-hass": {
+    driver_id: "hass_external",
+    skip_repo_dockerfile: true,
+    patch_driver_metadata: true,
+    websocket_path: "/ws",
+    process_release: {
+      repository: "unfoldedcircle/integration-home-assistant",
+      binary: "uc-intg-hass",
+      assets: {
+        x64: "uc-intg-hass-{tag}-Linux-x64.tar.gz",
+        arm64: "uc-intg-hass-{tag}-UCR2.tar.gz"
+      }
+    }
+  },
   "uc-intg-denonavr": { driver_id: "denonavr_external", python_image: "python:3.11-slim", python_entrypoint: "intg-denonavr/driver.py", patch_driver_metadata: true },
   "uc-intg-androidtv": { driver_id: "androidtv_external", python_image: "python:3.11-slim", python_entrypoint: "src/driver.py", patch_driver_metadata: true, environment: { UC_DATA_HOME: "/data" } },
   "uc-intg-appletv": { driver_id: "appletv_external", python_image: "python:3.11-slim", python_entrypoint: "intg-appletv/driver.py", patch_driver_metadata: true },
@@ -197,6 +210,21 @@ function runtimeProfile(entry) {
     base.patch_driver_metadata ??= true;
   }
   return base;
+}
+
+export function processReleaseAsset(profile, tag, arch = process.arch) {
+  const release = profile?.process_release;
+  const normalizedTag = String(tag || "").trim();
+  const template = release?.assets?.[arch];
+  if (!release?.repository || !release?.binary || !normalizedTag || !template) return null;
+  const version = normalizedTag.replace(/^v/i, "");
+  return {
+    repository: String(release.repository),
+    binary: String(release.binary),
+    tag: normalizedTag,
+    version,
+    asset: String(template).replaceAll("{tag}", normalizedTag).replaceAll("{version}", version)
+  };
 }
 
 function normalizedWebSocketPath(value) {
@@ -760,6 +788,20 @@ export class ExternalIntegrationService {
     };
     if (!entry) return { ...base, check_error: "Registry entry not found" };
     try {
+      if (record.source === "release" && runtimeProfile(entry).process_release) {
+        const profile = runtimeProfile(entry);
+        const release = await this.#githubProcessRelease(profile, record.version === "latest" ? "latest" : (record.release_tag || record.version));
+        const installed = String(record.release_tag || (record.version ? `v${String(record.version).replace(/^v/i, "")}` : ""));
+        const available = String(release.tag_name || "");
+        return {
+          ...base,
+          installed_ref: installed || null,
+          available_ref: available || null,
+          available_version: available ? available.replace(/^v/i, "") : null,
+          update_available: Boolean(installed && available && installed !== available),
+          update_supported: true
+        };
+      }
       if (record.source === "build" && ownerRepo(entry.repository)) {
         const appDir = path.join(this.appsDir, slug(entry.id));
         const installed = record.revision || await this.#localRepositoryRevision(appDir);
@@ -1058,6 +1100,9 @@ export class ExternalIntegrationService {
     const requestedPort = Number(options.port || existing?.port || 0);
     const port = requestedPort > 0 ? requestedPort : await this.#nextPort();
     const profile = runtimeProfile(entry);
+    if (job.source === "release" && profile.process_release) {
+      return await this.#installProcess(entry, job, options, profile);
+    }
     if (!this.dockerAvailable) {
       if (job.source === "image") {
         throw Object.assign(new Error("This installation source requires Docker, but nested Docker is unavailable on this host. Choose Automatic or Source checkout."), { status: 503 });
@@ -1204,6 +1249,114 @@ export class ExternalIntegrationService {
   }
 
 
+  async #githubProcessRelease(profile, version = "latest") {
+    const repository = String(profile?.process_release?.repository || "").trim();
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
+      throw new Error("Process release repository is invalid");
+    }
+    const requested = String(version || "latest").trim() || "latest";
+    const tag = requested === "latest" ? null : (requested.startsWith("v") ? requested : `v${requested}`);
+    const url = tag
+      ? `https://api.github.com/repos/${repository}/releases/tags/${encodeURIComponent(tag)}`
+      : `https://api.github.com/repos/${repository}/releases/latest`;
+    if (!this.fetchImpl) throw new Error("fetch is unavailable");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 30_000);
+    const headers = {
+      "User-Agent": `uc-virtual-remote/${this.platform.version}`,
+      Accept: "application/vnd.github+json"
+    };
+    const token = String(process.env.UCVR_GITHUB_TOKEN || "").trim();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    let response;
+    try { response = await this.fetchImpl(url, { headers, signal: controller.signal }); }
+    finally { clearTimeout(timer); }
+    if (!response.ok) {
+      throw new Error(`Official integration release lookup returned HTTP ${response.status}`);
+    }
+    const release = await response.json();
+    if (!release?.tag_name || !Array.isArray(release.assets)) {
+      throw new Error("Official integration release metadata is incomplete");
+    }
+    return release;
+  }
+
+  async #prepareProcessRelease(profile, job, appDir, port) {
+    const release = await this.#githubProcessRelease(profile, job.version);
+    const selected = processReleaseAsset(profile, release.tag_name, process.arch);
+    if (!selected) {
+      throw Object.assign(new Error(`No official process release is defined for ${process.arch}`), { status: 503 });
+    }
+    const asset = release.assets.find((item) => String(item?.name || "") === selected.asset);
+    if (!asset?.browser_download_url) {
+      throw new Error(`Official release ${release.tag_name} does not contain ${selected.asset}`);
+    }
+
+    job.message = `Downloading official ${selected.version} release for ${process.arch}`;
+    job.updatedAt = new Date().toISOString();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2 * 60_000);
+    let response;
+    try {
+      response = await this.fetchImpl(asset.browser_download_url, {
+        headers: { "User-Agent": `uc-virtual-remote/${this.platform.version}` },
+        signal: controller.signal
+      });
+    } finally { clearTimeout(timer); }
+    if (!response.ok) throw new Error(`Official integration download returned HTTP ${response.status}`);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (!buffer.length || buffer.length > 64 * 1024 * 1024) {
+      throw new Error("Official integration release archive is empty or unexpectedly large");
+    }
+
+    const runtimeDir = path.join(appDir, ".ucvr-release");
+    fs.rmSync(runtimeDir, { recursive: true, force: true });
+    fs.mkdirSync(runtimeDir, { recursive: true });
+    const archive = path.join(runtimeDir, "integration.tar.gz");
+    fs.writeFileSync(archive, buffer, { mode: 0o600 });
+    const listing = await this.#jobCommand(job, "tar", ["-tzf", archive], { timeoutMs: 30_000 });
+    for (const item of String(listing.stdout || "").split(/\r?\n/).map((value) => value.trim()).filter(Boolean)) {
+      if (item.startsWith("/") || item.split("/").includes("..")) {
+        fs.rmSync(runtimeDir, { recursive: true, force: true });
+        throw new Error(`Unsafe path in official integration release: ${item}`);
+      }
+    }
+    await this.#jobCommand(job, "tar", ["-xzf", archive, "-C", runtimeDir, "--no-same-owner"], { timeoutMs: 60_000 });
+    fs.rmSync(archive, { force: true });
+
+    const binary = path.join(runtimeDir, selected.binary);
+    if (!fs.existsSync(binary) || !fs.statSync(binary).isFile()) {
+      throw new Error(`Official integration release does not contain executable ${selected.binary}`);
+    }
+    fs.chmodSync(binary, 0o755);
+
+    // integration-home-assistant cannot override nested integration.http.port
+    // with UC_* environment variables. Give every supervised instance its own
+    // explicit listener configuration instead of colliding on the default 8000.
+    const configFile = path.join(runtimeDir, "ucvr-configuration.yaml");
+    fs.writeFileSync(configFile, [
+      "integration:",
+      `  interface: ${JSON.stringify(this.integrationHost)}`,
+      "  http:",
+      "    enabled: true",
+      `    port: ${port}`,
+      "  https:",
+      "    enabled: false",
+      "    port: 9443",
+      ""
+    ].join("\n"));
+
+    return {
+      command: binary,
+      args: ["--config", configFile],
+      cwd: runtimeDir,
+      version: selected.version,
+      releaseTag: selected.tag,
+      releaseAsset: selected.asset
+    };
+  }
+
+
   async #installProcess(entry, job, options = {}, profile = runtimeProfile(entry)) {
     const driverId = baseDriverId(entry);
     const processName = `ucvr-intg-${slug(entry.id)}`;
@@ -1233,7 +1386,8 @@ export class ExternalIntegrationService {
 
     if (profile.patch_driver_metadata) this.#patchDriverMetadata(appDir, driverId, `${entry.name || entry.id} (external)`);
     const stack = detectStack(appDir, profile);
-    if (!["python", "node"].includes(stack)) {
+    const hasReleaseRuntime = Boolean(profile.process_release);
+    if (!["python", "node"].includes(stack) && !hasReleaseRuntime) {
       throw Object.assign(new Error(`Docker is unavailable and the ${stack} source stack does not yet have a direct process runtime. Use a custom integration package or a host with Docker.`), { status: 503 });
     }
 
@@ -1242,10 +1396,28 @@ export class ExternalIntegrationService {
     const identity = runtimeIdentity();
     let command;
     let args;
+    let runtimeCwd = appDir;
+    let runtimeSource = "build";
+    let runtimeVersion = job.version;
+    let releaseTag = null;
+    let releaseAsset = null;
 
     job.phase = "building";
     job.progress = 30;
-    if (stack === "python") {
+    if (hasReleaseRuntime) {
+      const releaseRuntime = await this.#prepareProcessRelease(profile, job, appDir, port);
+      if (identity.uid) {
+        await this.#jobCommand(job, "chown", ["-R", `${identity.uid}:${identity.gid}`, appDir, config, data], { timeoutMs: 120_000 });
+      }
+      command = releaseRuntime.command;
+      args = releaseRuntime.args;
+      runtimeCwd = releaseRuntime.cwd;
+      runtimeSource = "release";
+      runtimeVersion = releaseRuntime.version;
+      releaseTag = releaseRuntime.releaseTag;
+      releaseAsset = releaseRuntime.releaseAsset;
+      job.message = `Official integration ${runtimeVersion} ready`;
+    } else if (stack === "python") {
       const launchTarget = pythonLaunchTarget(appDir, profile);
       if (!launchTarget) throw new Error("Python integration entrypoint could not be detected");
       const venv = path.join(this.venvDir, slug(entry.id));
@@ -1295,14 +1467,16 @@ export class ExternalIntegrationService {
       ...(profile.environment || {})
     };
     const logPath = path.join(this.logsDir, `${processName}.log`);
-    const revision = await this.#localRepositoryRevision(appDir).catch(() => null);
+    const revision = runtimeSource === "build" ? await this.#localRepositoryRevision(appDir).catch(() => null) : null;
     const record = {
       registry_id: entry.id, driver_id: driverId, name: entry.name || driverId, repository: entry.repository,
-      container: processName, runtime: "process", image: null, source: "build", port, version: job.version,
+      container: processName, runtime: "process", image: null, source: runtimeSource, port, version: runtimeVersion,
       websocket_path: integrationWebSocketPath(entry) || null,
-      runtime_command: command, runtime_args: args, runtime_cwd: appDir, runtime_env: environment,
+      runtime_command: command, runtime_args: args, runtime_cwd: runtimeCwd, runtime_env: environment,
       runtime_uid: identity.uid ?? null, runtime_gid: identity.gid ?? null, log_path: logPath,
       ...(revision ? { revision } : {}),
+      ...(releaseTag ? { release_tag: releaseTag } : {}),
+      ...(releaseAsset ? { release_asset: releaseAsset } : {}),
       installed_at: options.installedAt || existing?.installed_at || new Date().toISOString(), updated_at: new Date().toISOString()
     };
 

@@ -45,7 +45,7 @@ test("AMD64 image includes ARM64 runtime libraries", () => {
 });
 
 test("Sync Mode presents simple controls first", () => {
-  assert.match(syncMode, />Automatic synchronization</);
+  assert.match(syncMode, />Automatic configuration synchronization</);
   assert.match(syncMode, />What gets synchronized</);
   assert.match(syncMode, />Satellite remotes</);
   assert.match(syncMode, /<details class="sync-card sync-advanced">/);

@@ -3,12 +3,14 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { customGhcrEntry, dockerfileBuildPath, pythonLaunchTarget } from "../src/external-integrations/service.js";
+import { customGhcrEntry, dockerfileBuildPath, processReleaseAsset, pythonLaunchTarget } from "../src/external-integrations/service.js";
 import { ensureRuntimeDriverManifest, pyInstallerOnedirEnvironment } from "../src/native-integrations/service.js";
 
 const nativeService = fs.readFileSync(new URL("../src/native-integrations/service.js", import.meta.url), "utf8");
 const apiServer = fs.readFileSync(new URL("../src/api/server.js", import.meta.url), "utf8");
 const syncModeService = fs.readFileSync(new URL("../src/sync-mode/service.js", import.meta.url), "utf8");
+const addDeviceUi = fs.readFileSync(new URL("../web-configurator/src/components/elements/entity/AddDevice.vue", import.meta.url), "utf8");
+const syncModeUi = fs.readFileSync(new URL("../web-configurator/src/components/settings/SyncMode.vue", import.meta.url), "utf8");
 const customUploadUi = fs.readFileSync(new URL("../web-configurator/src/components/integration/ImportCustomIntegration.vue", import.meta.url), "utf8");
 const externalService = fs.readFileSync(new URL("../src/external-integrations/service.js", import.meta.url), "utf8");
 const dockerfile = fs.readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
@@ -117,4 +119,48 @@ test("Sync Mode uses Automatic so HAOS can fall back to the Remote Sync source c
   assert.match(syncModeService, /repository: REPOSITORY/);
   assert.match(syncModeService, /ucvr_install_source: "auto"/);
   assert.doesNotMatch(syncModeService, /ucvr_install_source: "image"/);
+});
+
+test("integration discovery preserves text typed after the modal opens", () => {
+  const branch = addDeviceUi.match(/if \(val\) \{([\s\S]*?)\n  \} else \{/s)?.[1] || "";
+  const reset = branch.indexOf('searchText.value = ""');
+  const discover = branch.indexOf("await startDiscover()");
+  assert.ok(reset >= 0 && discover >= 0 && reset < discover);
+  assert.equal(branch.indexOf('searchText.value = ""', reset + 1), -1);
+});
+
+test("Sync Mode distinguishes live, event-driven, periodic and audit synchronization", () => {
+  assert.match(syncModeUi, /How synchronization works/);
+  assert.match(syncModeUi, /1\. Live usage/);
+  assert.match(syncModeUi, /2\. Configuration changes/);
+  assert.match(syncModeUi, /3\. Periodic reconciliation/);
+  assert.match(syncModeUi, /4\. Full audit/);
+  assert.match(syncModeUi, /Reconcile every/);
+  assert.match(syncModeUi, /Configuration sync/);
+  assert.doesNotMatch(syncModeUi, /<span>Sync every<\/span>/);
+});
+
+test("official Home Assistant release runtime selects architecture-specific artifacts", () => {
+  const profile = {
+    process_release: {
+      repository: "unfoldedcircle/integration-home-assistant",
+      binary: "uc-intg-hass",
+      assets: {
+        x64: "uc-intg-hass-{tag}-Linux-x64.tar.gz",
+        arm64: "uc-intg-hass-{tag}-UCR2.tar.gz"
+      }
+    }
+  };
+  assert.deepEqual(processReleaseAsset(profile, "v0.16.4", "x64"), {
+    repository: "unfoldedcircle/integration-home-assistant",
+    binary: "uc-intg-hass",
+    tag: "v0.16.4",
+    version: "0.16.4",
+    asset: "uc-intg-hass-v0.16.4-Linux-x64.tar.gz"
+  });
+  assert.equal(processReleaseAsset(profile, "v0.16.4", "arm64")?.asset, "uc-intg-hass-v0.16.4-UCR2.tar.gz");
+  assert.match(externalService, /source: runtimeSource/);
+  assert.match(externalService, /release_tag: releaseTag/);
+  assert.match(externalService, /ucvr-configuration\.yaml/);
+  assert.match(externalService, /--config/);
 });
