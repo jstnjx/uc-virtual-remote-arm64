@@ -2,7 +2,6 @@ import { spawn } from "node:child_process";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { installApiParityCompatibility } from "./api/api-parity-compatibility.js";
-import { installCurrentHardwareWebSocketCompatibility } from "./api/ws-hardware-compatibility.js";
 import { installCurrentRestCompatibility } from "./api/rest-current-compatibility.js";
 import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
 import { installIntegrationRuntimeInfoCompatibility } from "./integrations/runtime-info-compatibility.js";
@@ -51,7 +50,6 @@ function relaunchWithSqliteFlag() {
 async function bootstrap() {
   installPublicResourceCompatibility();
   installApiParityCompatibility();
-  installCurrentHardwareWebSocketCompatibility();
   installCurrentRestCompatibility();
   installIntegrationRuntimeInfoCompatibility();
 
