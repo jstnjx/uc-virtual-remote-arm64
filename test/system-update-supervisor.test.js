@@ -14,7 +14,7 @@ function response(payload, status = 200) {
   });
 }
 
-function platform(dataDir, version = "0.14.12") {
+function platform(dataDir, version = "0.15.1") {
   return {
     dataDir,
     version,
@@ -36,6 +36,7 @@ async function settle() {
 }
 
 const SUPERVISOR_ADDON_SLUG = "a0d7b954_uc_virtual_remote_arm64";
+const HOME_ASSISTANT_UPDATE_ENTITY = "update.uc_virtual_remote_update";
 
 test("Supervisor adapter refreshes the store and reports the add-on update", async () => {
   const previousFetch = globalThis.fetch;
@@ -48,8 +49,9 @@ test("Supervisor adapter refreshes the store and reports the add-on update", asy
         result: "ok",
         data: {
           slug: SUPERVISOR_ADDON_SLUG,
-          version: "0.14.11",
-          version_latest: "0.14.12",
+          name: "UC Virtual Remote",
+          version: "0.15.0",
+          version_latest: "0.15.1",
           update_available: true
         }
       });
@@ -59,11 +61,12 @@ test("Supervisor adapter refreshes the store and reports the add-on update", asy
   try {
     const adapter = new SupervisorUpdateAdapter({ apiBase: "http://supervisor", token: "test-token" });
     const update = await adapter.check(true);
-    assert.equal(update.version, "0.14.12");
+    assert.equal(update.version, "0.15.1");
     assert.equal(update.source, "HOME_ASSISTANT_SUPERVISOR");
     assert.equal(adapter.addonSlug, SUPERVISOR_ADDON_SLUG);
-    assert.equal(adapter.installedVersion, "0.14.11");
-    assert.equal(adapter.latestVersion, "0.14.12");
+    assert.equal(adapter.addonName, "UC Virtual Remote");
+    assert.equal(adapter.installedVersion, "0.15.0");
+    assert.equal(adapter.latestVersion, "0.15.1");
     assert.deepEqual(calls.map((item) => [item.method, new URL(item.url).pathname]), [
       ["POST", "/store/reload"],
       ["GET", "/addons/self/info"]
@@ -73,7 +76,7 @@ test("Supervisor adapter refreshes the store and reports the add-on update", asy
   }
 });
 
-test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates installation", async () => {
+test("Supervisor-managed installation delegates self-update through Home Assistant Core", async () => {
   const previousFetch = globalThis.fetch;
   const previousManaged = process.env.UCVR_SUPERVISOR_MANAGED;
   const previousToken = process.env.SUPERVISOR_TOKEN;
@@ -88,23 +91,35 @@ test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates i
         result: "ok",
         data: {
           slug: SUPERVISOR_ADDON_SLUG,
-          version: "0.14.11",
-          version_latest: "0.14.12",
+          name: "UC Virtual Remote",
+          version: "0.15.0",
+          version_latest: "0.15.1",
           update_available: true
         }
       });
     }
-    if (String(url).endsWith(`/store/addons/${SUPERVISOR_ADDON_SLUG}/update`)) {
-      return response({ result: "ok", data: { job_id: "job-123" } });
+    if (String(url).endsWith("/core/api/states")) {
+      return response([
+        {
+          entity_id: HOME_ASSISTANT_UPDATE_ENTITY,
+          state: "on",
+          attributes: {
+            friendly_name: "UC Virtual Remote Update",
+            installed_version: "0.15.0",
+            latest_version: "0.15.1"
+          }
+        }
+      ]);
     }
+    if (String(url).endsWith("/core/api/services/update/install")) return response([]);
     throw new Error(`Unexpected request ${url}`);
   };
   try {
-    const target = platform(root, "0.14.12");
+    const target = platform(root, "0.15.1");
     const service = new SystemUpdateService(target, { supervisor: { apiBase: "http://supervisor", token: "test-token" } });
     const checked = await service.check(false);
-    assert.equal(checked.installed_version, "0.14.11");
-    assert.equal(checked.available[0].version, "0.14.12");
+    assert.equal(checked.installed_version, "0.15.0");
+    assert.equal(checked.available[0].version, "0.15.1");
     assert.equal(checked.supervisor_managed, true);
 
     const updateId = checked.available[0].id;
@@ -118,12 +133,18 @@ test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates i
     await settle();
     assert.equal(service.progress(updateId).state, "DONE");
 
-    const updatePath = `/store/addons/${SUPERVISOR_ADDON_SLUG}/update`;
-    const updateCall = calls.find((item) => item.url.endsWith(updatePath));
-    assert.ok(updateCall, "Supervisor update endpoint was not called with the resolved add-on slug");
-    assert.equal(updateCall.method, "POST");
-    assert.deepEqual(JSON.parse(updateCall.body), { backup: false, background: true });
-    assert.equal(calls.some((item) => item.url.endsWith("/store/addons/self/update")), false);
+    const stateCall = calls.find((item) => item.url.endsWith("/core/api/states"));
+    assert.ok(stateCall, "Home Assistant update entities were not queried");
+
+    const installCall = calls.find((item) => item.url.endsWith("/core/api/services/update/install"));
+    assert.ok(installCall, "Home Assistant Core update.install service was not called");
+    assert.equal(installCall.method, "POST");
+    assert.deepEqual(JSON.parse(installCall.body), {
+      entity_id: HOME_ASSISTANT_UPDATE_ENTITY,
+      backup: false
+    });
+
+    assert.equal(calls.some((item) => item.url.includes("/store/addons/") && item.url.endsWith("/update")), false);
   } finally {
     globalThis.fetch = previousFetch;
     if (previousManaged === undefined) delete process.env.UCVR_SUPERVISOR_MANAGED;
@@ -131,6 +152,50 @@ test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates i
     if (previousToken === undefined) delete process.env.SUPERVISOR_TOKEN;
     else process.env.SUPERVISOR_TOKEN = previousToken;
     fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("Supervisor adapter can resolve a renamed Home Assistant add-on update entity", async () => {
+  const previousFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), method: options.method || "GET", body: options.body });
+    if (String(url).endsWith("/addons/self/info")) {
+      return response({
+        result: "ok",
+        data: {
+          slug: SUPERVISOR_ADDON_SLUG,
+          name: "UC Virtual Remote",
+          version: "0.15.0",
+          version_latest: "0.15.1",
+          update_available: true
+        }
+      });
+    }
+    if (String(url).endsWith("/core/api/states")) {
+      return response([
+        {
+          entity_id: "update.my_custom_ucvr_update",
+          state: "on",
+          attributes: {
+            friendly_name: "UC Virtual Remote Update",
+            installed_version: "0.15.0",
+            latest_version: "0.15.1"
+          }
+        }
+      ]);
+    }
+    if (String(url).endsWith("/core/api/services/update/install")) return response([]);
+    throw new Error(`Unexpected request ${url}`);
+  };
+  try {
+    const adapter = new SupervisorUpdateAdapter({ apiBase: "http://supervisor", token: "test-token" });
+    await adapter.check(false);
+    await adapter.install();
+    const installCall = calls.find((item) => item.url.endsWith("/core/api/services/update/install"));
+    assert.equal(JSON.parse(installCall.body).entity_id, "update.my_custom_ucvr_update");
+  } finally {
+    globalThis.fetch = previousFetch;
   }
 });
 
