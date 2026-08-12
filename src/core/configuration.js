@@ -126,7 +126,10 @@ export class ConfigurationService {
       voice_control: {
         microphone: false,
         enabled: false,
+        entity_id: "",
         voice_assistant: "None",
+        profile_id: null,
+        speech_response: false,
       },
       sync_mode:
         this.platform.syncMode?.configurationState?.(false) || {
@@ -165,6 +168,12 @@ export class ConfigurationService {
       defaults.voice_control,
       stored.voice_control,
     );
+    if (!voiceControl.entity_id && voiceControl.voice_assistant && voiceControl.voice_assistant !== "None") {
+      voiceControl.entity_id = String(voiceControl.voice_assistant);
+    }
+    if (voiceControl.entity_id && (!voiceControl.voice_assistant || voiceControl.voice_assistant === "None")) {
+      voiceControl.voice_assistant = String(voiceControl.entity_id);
+    }
     return {
       ...defaults,
       ...stored,
@@ -363,6 +372,16 @@ export class ConfigurationService {
     if (section === "sound") {
       value.enabled = Boolean(value.enabled);
       value.volume = clampInteger(value.volume, 0, 100, 50);
+    }
+    if (section === "voice_control") {
+      value.microphone = Boolean(value.microphone);
+      value.enabled = Boolean(value.enabled);
+      value.entity_id = String(value.entity_id || (value.voice_assistant !== "None" ? value.voice_assistant || "" : "")).trim();
+      value.voice_assistant = value.entity_id || "None";
+      value.profile_id = value.profile_id === null || value.profile_id === undefined || value.profile_id === ""
+        ? null
+        : String(value.profile_id);
+      value.speech_response = Boolean(value.speech_response);
     }
     if (section === "power_saving") {
       value.wakeup_sensitivity = clampInteger(
