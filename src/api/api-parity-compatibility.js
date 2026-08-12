@@ -173,15 +173,6 @@ function wsEvent(peer, msg, cat, data) {
   peer.send(JSON.stringify({ kind: "event", msg, cat, ts: new Date().toISOString(), msg_data: data }));
 }
 
-function standbyInhibitors(platform) {
-  const now = Date.now();
-  const values = platform.db.getSetting("standby_inhibitors", []);
-  const list = Array.isArray(values) ? values : [];
-  const active = list.filter((item) => !item.expires_at || Number(item.expires_at) > now);
-  if (active.length !== list.length) platform.db.setSetting("standby_inhibitors", active);
-  return active;
-}
-
 function currentCommandMetadata() {
   const current = entityCommandMetadata();
   return [...current, ...VOICE_COMMAND_METADATA.filter((voice) => !current.some((item) => item.id === voice.id))];
@@ -216,26 +207,6 @@ async function compatibilityWsRequest(platform, peer, id, msg, data) {
       wsResponse(peer, id, "battery_charger", next);
       return true;
     }
-    case "create_standby_inhibitor": {
-      const values = standbyInhibitors(platform);
-      const idValue = String(data.id || data.inhibitor_id || `inhibitor-${Date.now()}`);
-      const timeout = Math.max(0, Number(data.timeout || data.timeout_ms || 0));
-      const item = { ...data, id: idValue, ...(timeout ? { expires_at: Date.now() + timeout } : {}) };
-      const next = [...values.filter((value) => value.id !== idValue), item];
-      platform.db.setSetting("standby_inhibitors", next);
-      wsResponse(peer, id, "result", { id: idValue });
-      return true;
-    }
-    case "del_standby_inhibitor": {
-      const idValue = String(data.id || data.inhibitor_id || "");
-      platform.db.setSetting("standby_inhibitors", standbyInhibitors(platform).filter((item) => item.id !== idValue));
-      wsResponse(peer, id, "result", {});
-      return true;
-    }
-    case "del_all_standby_inhibitors":
-      platform.db.setSetting("standby_inhibitors", []);
-      wsResponse(peer, id, "result", {});
-      return true;
     case "get_entity_command_metadata":
       wsResponse(peer, id, "entity_command_metadata", currentCommandMetadata());
       return true;
@@ -280,6 +251,7 @@ function patchCoreWebSocketFacade() {
     let authenticated = Boolean(options.authenticated) || validCoreToken(platform, options.token);
     let explicitSubscriptions = false;
     let channels = new Set();
+    let activeProfileId = platform.db.listProfiles().find((item) => item.active)?.id || null;
 
     peer.send = (data, callback) => {
       nativeSend(data, callback);
@@ -288,10 +260,14 @@ function patchCoreWebSocketFacade() {
         const payload = JSON.parse(String(data));
         if (payload?.kind === "event" && payload.msg === "profile_change") {
           const profile = payload.msg_data?.new_state?.profile;
-          if (profile?.active === true) {
+          const nextProfileId = profile?.active === true
+            ? String(payload.msg_data?.profile_id || profile.id || "")
+            : "";
+          if (nextProfileId && nextProfileId !== activeProfileId) {
+            activeProfileId = nextProfileId;
             nativeSend(JSON.stringify({
               kind: "event", msg: "active_profile_change", cat: "UI", ts: payload.ts || new Date().toISOString(),
-              msg_data: { profile_id: payload.msg_data.profile_id || profile.id, profile }
+              msg_data: { profile_id: nextProfileId, profile }
             }));
           }
         }
