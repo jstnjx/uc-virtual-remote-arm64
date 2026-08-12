@@ -66,12 +66,93 @@ Source builds happen in the internal Docker daemon for the host architecture. Pr
 
 ### Virtual Remote Core
 
-- Compatible Remote Core REST and WebSocket APIs
+- Remote Core REST API compatibility through `0.46.0`
+- Remote Core WebSocket API compatibility through `0.35.3-beta`
+- Integration API compatibility through `0.15.4-beta`
 - Persistent entities, activities, macros, profiles, pages, groups, resources, and button mappings
 - Remote 3-style configuration and state handling
 - Media browsing, search, queue, and playback services
+- Voice Assistant entities, assistant lifecycle events, and binary Integration API voice streaming
 - Application credentials, logs, backups, software updates, and factory reset
 - Virtual Dock, Bluetooth, Wi-Fi, and Remote Simulator support
+
+### Voice Assistant
+
+UC Virtual Remote supports the current `voice_assistant` entity and the Remote voice-stream protocol.
+
+A voice session uses the normal Integration API `voice_start` entity command. After the integration reports `assistant_event: ready`, UC Virtual Remote sends the official binary protobuf stream in this order:
+
+```text
+RemoteVoiceBegin
+RemoteVoiceData ...
+RemoteVoiceEnd
+```
+
+Audio can come from one of three sources:
+
+- **manual/raw** — send already-normalized PCM data to the voice ingress endpoint
+- **ALSA microphone** — capture from a local Linux audio device such as `default` or `hw:1,0`
+- **network audio** — capture an HTTP(S), RTSP, or RTSPS source
+
+Automatic sources are normalized by FFmpeg to the audio format negotiated with the Voice Assistant integration. Capture does not begin until the assistant is ready.
+
+Management endpoints:
+
+```text
+GET  /api/voice
+POST /api/voice/{entity_id}/start
+POST /api/voice/{entity_id}/{session_id}/audio
+POST /api/voice/{entity_id}/{session_id}/end
+POST /api/voice/{entity_id}/{session_id}/cancel
+```
+
+A start request can override the configured source, for example:
+
+```json
+{
+  "source": {
+    "type": "alsa",
+    "device": "default"
+  },
+  "speech_response": true
+}
+```
+
+or:
+
+```json
+{
+  "source": {
+    "type": "url",
+    "url": "rtsp://192.168.1.20/live"
+  }
+}
+```
+
+### Bluetooth LE HID remote
+
+Bluetooth remote entities can use a Linux Bluetooth adapter as a real **Bluetooth LE HID over GATT (HOGP)** peripheral.
+
+The appliance registers and advertises the standard HID service and provides keyboard, relative mouse, consumer-control, and system-control reports. Supported Remote command forms include:
+
+- regular keys such as `KEY_RETURN`, `KEY_UP_ARROW`, `KEY_F1`
+- modifier combinations such as `LCTRL+LALT+KEY_DELETE`
+- consumer controls such as `CONSUMER_VOLUME_INCREMENT` and `CONSUMER_PLAY_PAUSE`
+- system controls such as `SYSTEM_POWER_DOWN` and `SYSTEM_SLEEP`
+- mouse commands such as `MOUSE_BTN_1`, `MOUSE_X_-4`, `MOUSE_WHEEL_1`
+- two-digit raw keyboard usages and four-digit raw consumer usages
+- `remote.send_key` with the optional GUI/meta modifier
+- short US-ASCII text strings
+
+Bluetooth pairing and HID require a host Bluetooth adapter accessible through BlueZ and the host system D-Bus. The Home Assistant add-on packaging already exposes the required host D-Bus/device access.
+
+Management endpoints:
+
+```text
+GET  /api/hardware/bluetooth/hid
+PUT  /api/hardware/bluetooth/hid
+POST /api/hardware/bluetooth/hid/report
+```
 
 ### Web Configurator
 
@@ -92,6 +173,12 @@ Required on the host:
 - Docker Engine
 - Docker Compose v2
 - Git and curl for the one-command installer
+
+For host-backed features:
+
+- a BlueZ-compatible Bluetooth adapter is required for Bluetooth LE HID
+- an ALSA-visible input device is required for local microphone capture
+- network voice inputs must be reachable by the appliance
 
 No host-wide ARM64 `binfmt_misc` handler is required. The AMD64 image contains its own scoped ARM64 userspace emulator for normal Remote integration binaries.
 
@@ -135,6 +222,7 @@ Linux host
 └─ uc-virtual-remote-arm64           host-native, privileged, host network
    ├─ Virtual Remote Core
    ├─ Web Configurator
+   ├─ voice capture / Bluetooth LE HID
    ├─ native integration process A   uploaded Remote tarball
    ├─ native integration process B   uploaded Remote tarball
    └─ dockerd                         internal Docker daemon
@@ -174,6 +262,8 @@ The Compose service uses the multi-architecture image and automatically selects 
 | `UCVR_DIND_DATA_ROOT` | `/data/docker` | Internal Docker state |
 | `UCVR_DIND_STORAGE_DRIVER` | `overlay2` | Internal Docker storage driver; automatically falls back to `vfs` if startup fails |
 | `UCVR_GITHUB_TOKEN` | empty | Optional GitHub token for private repositories and updates |
+| `UCVR_FFMPEG` | `ffmpeg` | FFmpeg executable used for automatic Voice Assistant audio capture |
+| `UCVR_BT_HID_HELPER` | bundled helper | Optional path override for the Bluetooth LE HID helper |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, or `error` |
 
 ## Native integration storage
@@ -220,6 +310,8 @@ Node.js 22.5 or newer is required for backend development.
 npm ci
 npm run ci
 ```
+
+The CI suite guards the advertised REST, WebSocket, and Integration API compatibility levels, Voice Assistant protobuf framing/lifecycle, active-profile event semantics, and Bluetooth LE HID command/report behavior.
 
 Build the committed Web Configurator source with:
 
