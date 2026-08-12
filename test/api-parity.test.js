@@ -63,12 +63,17 @@ test("voice and Bluetooth HID runtime dependencies are built into the appliance"
   assert.match(index, /installApiParityCompatibility\(\)/);
   assert.match(index, /installCurrentHardwareWebSocketCompatibility\(\)/);
   assert.match(index, /installCurrentRestCompatibility\(\)/);
+  assert.match(index, /installIntegrationRuntimeInfoCompatibility\(\)/);
 });
 
 test("Integration API handles assistant events and runtime-info requests", () => {
   const manager = source("src/integrations/manager.js");
   const connection = source("src/integrations/connection.js");
+  const runtimeCompatibility = source("src/integrations/runtime-info-compatibility.js");
   assert.match(manager, /assistant_event/);
   assert.match(connection, /get_runtime_info/);
   assert.match(connection, /runtime_info/);
+  assert.match(runtimeCompatibility, /driver_id/);
+  assert.match(runtimeCompatibility, /intg_ids/);
+  assert.match(runtimeCompatibility, /log_id/);
 });
