@@ -21,7 +21,7 @@ test("current REST compatibility covers voice and the post-0.32 log web-app API"
     "/api/cfg/entity/commands",
     "/api/system/logs/web",
     "/api/resources/BtDeviceProfile",
-  ]) assert.match(rest, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  ]) assert.ok(rest.includes(marker), `missing REST parity marker ${marker}`);
   assert.match(rest, /password_hash/);
 });
 
@@ -37,7 +37,7 @@ test("current WebSocket compatibility covers new configuration, profile, Dock, B
     "active_profile_change",
     "dock_port_mode",
     "execute_entity_command",
-  ]) assert.match(parity, new RegExp(marker));
+  ]) assert.ok(parity.includes(marker), `missing WS parity marker ${marker}`);
   for (const marker of [
     "get_wifi_status",
     "wifi_command",
@@ -51,13 +51,13 @@ test("current WebSocket compatibility covers new configuration, profile, Dock, B
     "update_wifi_network",
     "wifi_network_command",
     "del_wifi_network",
-  ]) assert.match(hardware, new RegExp(marker));
+  ]) assert.ok(hardware.includes(marker), `missing Wi-Fi WS marker ${marker}`);
 });
 
 test("voice and Bluetooth HID runtime dependencies are built into the appliance", () => {
   const dockerfile = source("Dockerfile");
   for (const dependency of ["ffmpeg", "python3-dbus", "python3-gi", "bluez"]) {
-    assert.match(dockerfile, new RegExp(`\\b${dependency}\\b`));
+    assert.ok(dockerfile.includes(dependency), `missing runtime dependency ${dependency}`);
   }
   const index = source("src/index.js");
   assert.match(index, /installApiParityCompatibility\(\)/);
@@ -67,6 +67,8 @@ test("voice and Bluetooth HID runtime dependencies are built into the appliance"
 
 test("Integration API handles assistant events and runtime-info requests", () => {
   const manager = source("src/integrations/manager.js");
+  const connection = source("src/integrations/connection.js");
   assert.match(manager, /assistant_event/);
-  assert.match(manager, /get_runtime_info/);
+  assert.match(connection, /get_runtime_info/);
+  assert.match(connection, /runtime_info/);
 });
