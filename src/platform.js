@@ -75,6 +75,15 @@ function parsePort(value, name) {
   return port;
 }
 
+function hasOwnSetting(value, key) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.prototype.hasOwnProperty.call(value, key),
+  );
+}
+
 export class VirtualRemotePlatform {
   constructor(options = {}) {
     this.id = options.id || process.env.UCVR_ID || "uc-virtual-remote";
@@ -195,13 +204,44 @@ export class VirtualRemotePlatform {
       .catch((error) =>
         log.warn("Initial host hardware scan failed:", error.message),
       );
-    if (this.configuration.get("bt").enable_hci_log) {
+
+    // Runtime hardware state can be reset by the host/container restart even
+    // though the configuration row is durable. Reapply only values the user
+    // explicitly persisted; defaults must never change host radios implicitly.
+    const persistedConfiguration = this.db.getSetting("configuration", {});
+    const persistedNetwork =
+      persistedConfiguration?.network &&
+      typeof persistedConfiguration.network === "object"
+        ? persistedConfiguration.network
+        : {};
+    const persistedBluetooth =
+      persistedConfiguration?.bt &&
+      typeof persistedConfiguration.bt === "object"
+        ? persistedConfiguration.bt
+        : {};
+
+    if (hasOwnSetting(persistedNetwork, "bt_enabled")) {
       await this.hardware
-        .setHciLogging(true)
+        .setBluetoothPower(Boolean(persistedNetwork.bt_enabled))
         .catch((error) =>
-          log.warn("Unable to enable Bluetooth HCI logging:", error.message),
+          log.warn("Unable to restore persisted Bluetooth power state:", error.message),
         );
     }
+    if (hasOwnSetting(persistedNetwork, "wifi_enabled")) {
+      await this.hardware
+        .setWifiPower(Boolean(persistedNetwork.wifi_enabled))
+        .catch((error) =>
+          log.warn("Unable to restore persisted Wi-Fi power state:", error.message),
+        );
+    }
+    if (hasOwnSetting(persistedBluetooth, "enable_hci_log")) {
+      await this.hardware
+        .setHciLogging(Boolean(persistedBluetooth.enable_hci_log))
+        .catch((error) =>
+          log.warn("Unable to restore Bluetooth HCI logging state:", error.message),
+        );
+    }
+
     await this.externalIntegrations.start();
     await this.nativeIntegrations.start();
     await this.demo.start();

@@ -161,6 +161,10 @@ export class ConfigurationService {
         ...(storedNetwork.wifi || {}),
       },
     };
+    const voiceControl = mergeObject(
+      defaults.voice_control,
+      stored.voice_control,
+    );
     return {
       ...defaults,
       ...stored,
@@ -188,10 +192,10 @@ export class ConfigurationService {
         stored.software_update,
       ),
       sound: mergeObject(defaults.sound, stored.sound),
-      voice_control: mergeObject(
-        defaults.voice_control,
-        stored.voice_control,
-      ),
+      voice_control: voiceControl,
+      // Web Configurator 2.3.3 exposes this aggregate section as `voice`
+      // while its write endpoint remains /cfg/voice_control.
+      voice: structuredClone(voiceControl),
       features: mergeFeatures(defaults.features, stored.features),
       sync_mode:
         this.platform.syncMode?.configurationState?.(true) ||
@@ -253,7 +257,7 @@ export class ConfigurationService {
     this.platform.events.publish("configuration.change", {
       event_type: "CHANGE",
       key: section,
-      new_state: { [section]: next },
+      new_state: this.#eventState(section, next),
     });
     return next;
   }
@@ -286,9 +290,19 @@ export class ConfigurationService {
     this.platform.events.publish("configuration.change", {
       event_type: "RESET",
       key: section,
-      new_state: { [section]: value },
+      new_state: this.#eventState(section, value),
     });
     return value;
+  }
+
+  #eventState(section, value) {
+    if (section === "voice_control") {
+      return {
+        voice_control: value,
+        voice: structuredClone(value),
+      };
+    }
+    return { [section]: value };
   }
 
   #syncLightingToSimulator(configuration) {

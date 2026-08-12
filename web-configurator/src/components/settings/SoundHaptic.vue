@@ -76,7 +76,7 @@ async function hapticFeedbackChanged() {
   const params: ChangeCallbackParams = {
     group: CfgGroups.haptic,
     name: "enabled",
-    value: soundEffects.value,
+    value: hapticFeedback.value,
   };
 
   onItemChange(params);
