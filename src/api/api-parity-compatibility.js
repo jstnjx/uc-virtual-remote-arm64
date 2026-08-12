@@ -1,5 +1,6 @@
 import http from "node:http";
 import { CoreWebSocketFacade } from "../core/websocket-facade.js";
+import { entityCommandMetadata } from "../core/device-metadata.js";
 import { sha256 } from "../shared/util.js";
 
 let activePlatform = null;
@@ -98,6 +99,31 @@ async function handleVoiceManagement(platform, request, response, route) {
   }
 }
 
+async function handleHidManagement(platform, request, response, pathname, method) {
+  if (!managementAuthorized(platform, request)) return sendJson(response, 401, { code: "AUTH_FAILED", message: "Unauthorized" });
+  try {
+    if (pathname === "/api/hardware/bluetooth/hid" && method === "GET") {
+      return sendJson(response, 200, platform.bluetoothHid.status());
+    }
+    if (pathname === "/api/hardware/bluetooth/hid" && ["PUT", "POST"].includes(method)) {
+      const input = await readJson(request).catch(() => ({}));
+      const enabled = input.enabled !== false;
+      return sendJson(response, 200, enabled
+        ? await platform.bluetoothHid.start({ name: input.name || platform.name })
+        : await platform.bluetoothHid.stop());
+    }
+    if (pathname === "/api/hardware/bluetooth/hid/report" && method === "POST") {
+      const input = await readJson(request);
+      if (input.command) return sendJson(response, 200, await platform.bluetoothHid.sendCommand(input.command, input.params || input));
+      if (!input.report) return sendJson(response, 400, { code: "INV_ARGUMENT", message: "command or report is required" });
+      return sendJson(response, 200, await platform.bluetoothHid.sendReports([Buffer.from(String(input.report), "base64")]));
+    }
+  } catch (error) {
+    return sendJson(response, Number(error?.status || 500), { code: "ERROR", message: error?.message || "Bluetooth HID request failed" });
+  }
+  return false;
+}
+
 function interceptJsonResponse(response, transform) {
   const nativeWriteHead = response.writeHead.bind(response);
   const nativeWrite = response.write.bind(response);
@@ -150,9 +176,15 @@ function wsEvent(peer, msg, cat, data) {
 function standbyInhibitors(platform) {
   const now = Date.now();
   const values = platform.db.getSetting("standby_inhibitors", []);
-  const active = (Array.isArray(values) ? values : []).filter((item) => !item.expires_at || Number(item.expires_at) > now);
-  if (active.length !== values.length) platform.db.setSetting("standby_inhibitors", active);
+  const list = Array.isArray(values) ? values : [];
+  const active = list.filter((item) => !item.expires_at || Number(item.expires_at) > now);
+  if (active.length !== list.length) platform.db.setSetting("standby_inhibitors", active);
   return active;
+}
+
+function currentCommandMetadata() {
+  const current = entityCommandMetadata();
+  return [...current, ...VOICE_COMMAND_METADATA.filter((voice) => !current.some((item) => item.id === voice.id))];
 }
 
 async function compatibilityWsRequest(platform, peer, id, msg, data) {
@@ -164,8 +196,8 @@ async function compatibilityWsRequest(platform, peer, id, msg, data) {
       wsResponse(peer, id, "event_channels", { channels: [
         "all", "configuration", "entities", "entity_button", "entity_switch", "entity_climate", "entity_cover",
         "entity_light", "entity_media_player", "entity_sensor", "entity_activity", "entity_macro", "entity_remote",
-        "entity_select", "entity_voice_assistant", "activity_groups", "integrations", "profiles", "emitters", "docks",
-        "software_update", "power_mode", "battery_status", "ambient_light", "wifi", "media", "assistant"
+        "entity_select", "entity_ir_emitter", "entity_voice_assistant", "activity_groups", "integrations", "profiles",
+        "emitters", "docks", "software_update", "power_mode", "battery_status", "ambient_light", "wifi", "media", "assistant"
       ] });
       return true;
     case "reset_network_cfg":
@@ -205,8 +237,8 @@ async function compatibilityWsRequest(platform, peer, id, msg, data) {
       wsResponse(peer, id, "result", {});
       return true;
     case "get_entity_command_metadata":
-      wsResponse(peer, id, "entity_command_metadata", [...VOICE_COMMAND_METADATA]);
-      return false;
+      wsResponse(peer, id, "entity_command_metadata", currentCommandMetadata());
+      return true;
     case "get_entity_commands": {
       const entity = platform.db.getConfiguredEntity(data.entity_id);
       if (entity?.entity_type !== "voice_assistant") return false;
@@ -316,7 +348,7 @@ function patchCoreWebSocketFacade() {
 }
 
 function patchIntegrationCommands(platform) {
-  if (platform.integrations.__ucvrVoiceCommandCompatibility) return;
+  if (platform.integrations.__ucvrApiParityCommandCompatibility) return;
   const nativeCommand = platform.integrations.command.bind(platform.integrations);
   platform.integrations.command = async (entityId, commandId, params = undefined) => {
     const entity = platform.db.getConfiguredEntity(entityId);
@@ -325,14 +357,37 @@ function patchIntegrationCommands(platform) {
       if (command === "voice_start") return platform.voice.start(entityId, params || {});
       if (command === "voice_end") return platform.voice.end(entityId, params?.session_id);
     }
+    if (entity?.entity_type === "remote") {
+      const kind = String(entity.kind || entity.options?.kind || (entity.bt || entity.options?.bt ? "BT" : "IR")).toUpperCase();
+      if (kind === "BT") {
+        const command = String(commandId || "").toLowerCase();
+        if (command === "send_cmd" || command === "send_command") {
+          return platform.bluetoothHid.sendRemoteCommand(entity, commandId, params || {});
+        }
+      }
+    }
     return nativeCommand(entityId, commandId, params);
   };
-  Object.defineProperty(platform.integrations, "__ucvrVoiceCommandCompatibility", { value: true });
+  Object.defineProperty(platform.integrations, "__ucvrApiParityCommandCompatibility", { value: true });
+}
+
+function patchBluetoothPairing(platform) {
+  if (!platform.hardware?.setBluetoothPairing || platform.hardware.setBluetoothPairing.__ucvrHidPairing) return;
+  const nativePairing = platform.hardware.setBluetoothPairing.bind(platform.hardware);
+  const paired = async (enabled, advertisementName) => {
+    if (enabled && platform.bluetoothHid?.hasConfiguredRemote()) {
+      await platform.bluetoothHid.start({ name: advertisementName || platform.name });
+    }
+    return nativePairing(enabled, advertisementName);
+  };
+  Object.defineProperty(paired, "__ucvrHidPairing", { value: true });
+  platform.hardware.setBluetoothPairing = paired;
 }
 
 export function registerApiParityPlatform(platform) {
   activePlatform = platform;
   patchIntegrationCommands(platform);
+  patchBluetoothPairing(platform);
 }
 
 export function installApiParityCompatibility(httpModule = http) {
@@ -358,6 +413,10 @@ export function installApiParityCompatibility(httpModule = http) {
           if (url.pathname === "/api/voice" && method === "GET") {
             if (!managementAuthorized(platform, request)) return sendJson(response, 401, { code: "AUTH_FAILED", message: "Unauthorized" });
             return sendJson(response, 200, platform.voice.status());
+          }
+          if (url.pathname === "/api/hardware/bluetooth/hid" || url.pathname === "/api/hardware/bluetooth/hid/report") {
+            handleHidManagement(platform, request, response, url.pathname, method);
+            return;
           }
 
           if (url.pathname === "/cfg/voice") {
