@@ -37,7 +37,7 @@ COPY --from=configurator-builder /build/web-configurator-source ./web-configurat
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager python3 python3-pip python3-venv rfkill tar usbutils util-linux \
+       bluez ca-certificates docker.io fuse-overlayfs git gosu iproute2 iptables iw libcap2-bin network-manager python3 python3-dbus python3-gi python3-pip python3-venv rfkill tar usbutils util-linux \
     && if [ "$TARGETARCH" = "amd64" ]; then \
          dpkg --add-architecture arm64; \
          apt-get update; \
@@ -51,6 +51,7 @@ RUN apt-get update \
        fi \
     && rm -rf /var/lib/apt/lists/* \
     && chmod 0755 /usr/local/bin/ucvr-entrypoint \
+    && chmod 0755 /app/tools/bluetooth-hid.py \
     && setcap 'cap_net_bind_service=+ep' "$(readlink -f "$(command -v node)")" \
     && getcap "$(readlink -f "$(command -v node)")" | grep -q 'cap_net_bind_service=ep' \
     && mkdir -p /data \
