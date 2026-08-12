@@ -12,6 +12,13 @@ function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
+function statusRefreshReady(service) {
+  return Boolean(
+    service.platform.configuration &&
+      typeof service.platform.hardware?.status === "function",
+  );
+}
+
 function publicSnapshot(service) {
   const settings = service.settings();
   const cached = service.lastStatus || null;
@@ -31,7 +38,7 @@ function publicSnapshot(service) {
     job: cached?.job || null,
     agent: cached?.agent || { health: null, status: null, satellites: [] },
     warnings: [
-      ...(cached?.warnings || []),
+      ...(settings.enabled ? cached?.warnings || [] : []),
       ...(service.commandError ? [service.commandError] : []),
     ],
     catalog: cached?.catalog || [],
@@ -142,6 +149,7 @@ export function installSyncModeConfigurationAdapter(service) {
       );
       service.networkBridgeInstalled = true;
     }
+    service.commandError = null;
     return originalStart();
   };
 
@@ -170,6 +178,7 @@ export function installSyncModeConfigurationAdapter(service) {
   service.configurationState = (refresh = true) => {
     if (
       refresh &&
+      statusRefreshReady(service) &&
       !service.refreshPromise &&
       Date.now() - service.lastRefreshAt > 2000
     ) {
