@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { spawn } from "node:child_process";
 import { encodeVoiceBegin, encodeVoiceData, encodeVoiceEnd, normalizeAudioConfiguration } from "./protobuf.js";
 
 const MAX_BUFFERED_AUDIO = 2 * 1024 * 1024;
@@ -26,9 +27,59 @@ function assistantRecord(entity) {
   };
 }
 
+function normalizeInputSource(input = {}) {
+  const value = typeof input === "string" ? { type: input } : input && typeof input === "object" ? input : {};
+  const type = String(value.type || "manual").trim().toLowerCase();
+  if (type === "manual") return { type: "manual" };
+  if (type === "alsa" || type === "microphone") {
+    return { type: "alsa", device: String(value.device || "default").trim() || "default" };
+  }
+  if (type === "url" || type === "network") {
+    const raw = String(value.url || value.source || "").trim();
+    if (!raw) throw Object.assign(new Error("Network voice input requires a URL"), { status: 422 });
+    let url;
+    try { url = new URL(raw); }
+    catch { throw Object.assign(new Error("Invalid network voice input URL"), { status: 422 }); }
+    if (!["http:", "https:", "rtsp:", "rtsps:"].includes(url.protocol)) {
+      throw Object.assign(new Error(`Unsupported network voice input protocol ${url.protocol}`), { status: 422 });
+    }
+    return { type: "url", url: url.toString() };
+  }
+  throw Object.assign(new Error(`Unsupported voice input source ${type}`), { status: 422 });
+}
+
+function publicInputSource(source) {
+  if (!source || source.type !== "url") return source || { type: "manual" };
+  try {
+    const url = new URL(source.url);
+    if (url.username) url.username = "***";
+    if (url.password) url.password = "***";
+    return { type: "url", url: url.toString() };
+  } catch {
+    return { type: "url", url: "invalid" };
+  }
+}
+
+function ffmpegAudioFormat(audioCfg) {
+  const formats = {
+    I8: ["s8", "pcm_s8"],
+    I16: ["s16le", "pcm_s16le"],
+    I32: ["s32le", "pcm_s32le"],
+    U8: ["u8", "pcm_u8"],
+    F32: ["f32le", "pcm_f32le"],
+  };
+  const value = formats[audioCfg.sample_format];
+  if (!value) {
+    throw Object.assign(new Error(`Automatic voice capture does not support ${audioCfg.sample_format}; use manual PCM ingress`), { status: 422 });
+  }
+  return { format: value[0], codec: value[1] };
+}
+
 export class VoiceAssistantService {
-  constructor(platform) {
+  constructor(platform, options = {}) {
     this.platform = platform;
+    this.spawnProcess = options.spawnProcess || spawn;
+    this.ffmpeg = options.ffmpeg || process.env.UCVR_FFMPEG || "ffmpeg";
     this.sessions = new Map();
     this.platform.events.on("assistant.event", (event) => this.#assistantEvent(event.data || {}));
   }
@@ -39,9 +90,15 @@ export class VoiceAssistantService {
       .map(assistantRecord);
   }
 
+  configuredInputSource() {
+    const configured = this.platform.configuration?.get?.("voice_control")?.input_source;
+    return normalizeInputSource(configured || { type: "manual" });
+  }
+
   status() {
     return {
       assistants: this.assistants(),
+      input_source: publicInputSource(this.configuredInputSource()),
       sessions: [...this.sessions.values()].map((session) => this.#publicSession(session)),
     };
   }
@@ -71,6 +128,8 @@ export class VoiceAssistantService {
 
     const requestedAudio = input.audio_cfg || entity.options?.audio_cfg || {};
     const audioCfg = normalizeAudioConfiguration(requestedAudio);
+    const inputSource = normalizeInputSource(input.source || input.input_source || this.configuredInputSource());
+    if (inputSource.type !== "manual") ffmpegAudioFormat(audioCfg);
     const session = {
       session_id: sessionId,
       entity_id: entity.entity_id,
@@ -79,6 +138,9 @@ export class VoiceAssistantService {
       connection_record_id: resolved.record_id,
       connection,
       audio_cfg: audioCfg,
+      input_source: inputSource,
+      capture: null,
+      capture_stderr: "",
       ready: false,
       begin_sent: false,
       ended: false,
@@ -139,6 +201,7 @@ export class VoiceAssistantService {
   end(entityId, sessionId) {
     const session = this.#session(entityId, sessionId);
     if (!session.ended) {
+      this.#stopCapture(session);
       if (session.ready) {
         this.#ensureBegin(session);
         session.connection.socket.send(Buffer.from(encodeVoiceEnd(session.session_id)));
@@ -155,6 +218,7 @@ export class VoiceAssistantService {
 
   cancel(entityId, sessionId, reason = "CANCELLED") {
     const session = this.#session(entityId, sessionId);
+    this.#stopCapture(session);
     if (!session.ended && session.ready) {
       this.#ensureBegin(session);
       session.connection.socket.send(Buffer.from(encodeVoiceEnd(session.session_id)));
@@ -188,16 +252,86 @@ export class VoiceAssistantService {
       }
       session.queued = [];
       session.queued_bytes = 0;
+      if (session.input_source.type !== "manual") {
+        try { this.#startCapture(session); }
+        catch (error) {
+          session.state = "ERROR";
+          session.ended = true;
+          session.last_event = { type: "error", data: { code: "AUDIO_SOURCE_ERROR", message: error.message } };
+        }
+      }
     } else if (type === "finished") {
+      this.#stopCapture(session);
       session.ended = true;
       session.state = "FINISHED";
     } else if (type === "error") {
+      this.#stopCapture(session);
       session.ended = true;
       session.state = "ERROR";
     } else if (type) {
       session.state = session.ended ? "PROCESSING" : session.state;
     }
     this.platform.events.publish("voice.session", this.#publicSession(session));
+  }
+
+  #startCapture(session) {
+    if (session.capture || session.ended || !session.ready) return;
+    const audio = ffmpegAudioFormat(session.audio_cfg);
+    const inputArgs = session.input_source.type === "alsa"
+      ? ["-f", "alsa", "-i", session.input_source.device]
+      : ["-i", session.input_source.url];
+    const args = [
+      "-hide_banner", "-loglevel", "error", "-nostdin",
+      ...inputArgs,
+      "-vn",
+      "-ac", String(session.audio_cfg.channels),
+      "-ar", String(session.audio_cfg.sample_rate),
+      "-acodec", audio.codec,
+      "-f", audio.format,
+      "pipe:1",
+    ];
+    const child = this.spawnProcess(this.ffmpeg, args, { stdio: ["ignore", "pipe", "pipe"] });
+    session.capture = child;
+    child.stdout?.on("data", (data) => {
+      const value = Buffer.from(data);
+      for (let offset = 0; offset < value.length; offset += MAX_AUDIO_CHUNK) {
+        if (session.ended || session.capture !== child) break;
+        try { this.pushAudio(session.entity_id, session.session_id, value.subarray(offset, offset + MAX_AUDIO_CHUNK)); }
+        catch (error) {
+          session.last_event = { type: "error", data: { code: "AUDIO_STREAM_ERROR", message: error.message } };
+          session.state = "ERROR";
+          session.ended = true;
+          this.#stopCapture(session);
+          break;
+        }
+      }
+    });
+    child.stderr?.on("data", (data) => {
+      session.capture_stderr = `${session.capture_stderr}${String(data || "")}`.slice(-4096);
+    });
+    child.once("error", (error) => this.#captureStopped(session, child, error));
+    child.once("exit", (code, signal) => {
+      if (session.capture === child) this.#captureStopped(session, child, code === 0 ? null : new Error(session.capture_stderr.trim() || `ffmpeg exited with ${code ?? signal}`));
+    });
+  }
+
+  #captureStopped(session, child, error) {
+    if (session.capture !== child) return;
+    session.capture = null;
+    if (!session.ended && error) {
+      session.ended = true;
+      session.state = "ERROR";
+      session.last_event = { type: "error", data: { code: "AUDIO_SOURCE_ERROR", message: error.message } };
+      session.updated_at = new Date().toISOString();
+      this.platform.events.publish("voice.session", this.#publicSession(session));
+    }
+  }
+
+  #stopCapture(session) {
+    const child = session.capture;
+    session.capture = null;
+    if (!child) return;
+    try { child.kill("SIGTERM"); } catch {}
   }
 
   #ensureBegin(session) {
@@ -224,6 +358,8 @@ export class VoiceAssistantService {
       entity_id: session.entity_id,
       integration_id: session.integration_id,
       audio_cfg: session.audio_cfg,
+      input_source: publicInputSource(session.input_source),
+      capture_active: Boolean(session.capture),
       ready: session.ready,
       state: session.state,
       ended: session.ended,
@@ -234,3 +370,5 @@ export class VoiceAssistantService {
     };
   }
 }
+
+export { normalizeInputSource };
