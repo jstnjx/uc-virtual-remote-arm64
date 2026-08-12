@@ -39,6 +39,12 @@ jobs:
           indent = len(workflow[start]) - len(workflow[start].lstrip())
           body = '\n'.join(line[indent:] if line.startswith(' ' * indent) else line for line in workflow[start + 1:end])
           exec(compile(body, 'repair-v01416.py', 'exec'))
+          regression = Path('test/integration-runtime-ui-regression.test.js')
+          text = regression.read_text()
+          old = 'assert.match(syncMode, />Automatic synchronization</);'
+          if old not in text:
+              raise SystemExit('Sync Mode regression anchor not found')
+          regression.write_text(text.replace(old, 'assert.match(syncMode, />Automatic configuration synchronization</);', 1))
           PY
           npm ci
           npm run ci
