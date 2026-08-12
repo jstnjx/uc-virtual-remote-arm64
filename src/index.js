@@ -3,6 +3,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { installApiParityCompatibility } from "./api/api-parity-compatibility.js";
 import { installCurrentHardwareWebSocketCompatibility } from "./api/ws-hardware-compatibility.js";
+import { installCurrentRestCompatibility } from "./api/rest-current-compatibility.js";
 import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
@@ -50,6 +51,7 @@ async function bootstrap() {
   installPublicResourceCompatibility();
   installApiParityCompatibility();
   installCurrentHardwareWebSocketCompatibility();
+  installCurrentRestCompatibility();
 
   if (await hasSqliteBuiltin()) {
     await import("./main.js");
