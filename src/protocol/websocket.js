@@ -82,8 +82,13 @@ export class WebSocketPeer extends EventEmitter {
       if (!callback) throw error;
       return;
     }
-    const payload = Buffer.isBuffer(data) ? data : Buffer.from(String(data));
-    this.socket.write(frame(0x1, payload, this.maskOutgoing), callback);
+    const binary = Buffer.isBuffer(data) || data instanceof Uint8Array;
+    const payload = Buffer.isBuffer(data)
+      ? data
+      : binary
+        ? Buffer.from(data)
+        : Buffer.from(String(data));
+    this.socket.write(frame(binary ? 0x2 : 0x1, payload, this.maskOutgoing), callback);
   }
 
   ping(payload = Buffer.alloc(0)) {
@@ -154,13 +159,13 @@ export class WebSocketPeer extends EventEmitter {
           const complete = Buffer.concat(this.fragments);
           const originalOpcode = this.fragmentOpcode;
           this.fragments = []; this.fragmentOpcode = null;
-          if (originalOpcode === 0x1) this.emit("message", complete);
+          if (originalOpcode === 0x1 || originalOpcode === 0x2) this.emit("message", complete, originalOpcode === 0x2);
         }
         continue;
       }
       if (opcode !== 0x1 && opcode !== 0x2) return this.#protocolError(`Unsupported opcode ${opcode}`);
       if (!fin) { this.fragmentOpcode = opcode; this.fragments = [payload]; continue; }
-      this.emit("message", payload);
+      this.emit("message", payload, opcode === 0x2);
     }
   }
 }
