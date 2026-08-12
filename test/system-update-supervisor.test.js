@@ -35,6 +35,8 @@ async function settle() {
   await new Promise((resolve) => setTimeout(resolve, 25));
 }
 
+const SUPERVISOR_ADDON_SLUG = "a0d7b954_uc_virtual_remote_arm64";
+
 test("Supervisor adapter refreshes the store and reports the add-on update", async () => {
   const previousFetch = globalThis.fetch;
   const calls = [];
@@ -45,6 +47,7 @@ test("Supervisor adapter refreshes the store and reports the add-on update", asy
       return response({
         result: "ok",
         data: {
+          slug: SUPERVISOR_ADDON_SLUG,
           version: "0.14.11",
           version_latest: "0.14.12",
           update_available: true
@@ -58,6 +61,7 @@ test("Supervisor adapter refreshes the store and reports the add-on update", asy
     const update = await adapter.check(true);
     assert.equal(update.version, "0.14.12");
     assert.equal(update.source, "HOME_ASSISTANT_SUPERVISOR");
+    assert.equal(adapter.addonSlug, SUPERVISOR_ADDON_SLUG);
     assert.equal(adapter.installedVersion, "0.14.11");
     assert.equal(adapter.latestVersion, "0.14.12");
     assert.deepEqual(calls.map((item) => [item.method, new URL(item.url).pathname]), [
@@ -83,13 +87,14 @@ test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates i
       return response({
         result: "ok",
         data: {
+          slug: SUPERVISOR_ADDON_SLUG,
           version: "0.14.11",
           version_latest: "0.14.12",
           update_available: true
         }
       });
     }
-    if (String(url).endsWith("/store/addons/self/update")) {
+    if (String(url).endsWith(`/store/addons/${SUPERVISOR_ADDON_SLUG}/update`)) {
       return response({ result: "ok", data: { job_id: "job-123" } });
     }
     throw new Error(`Unexpected request ${url}`);
@@ -113,10 +118,12 @@ test("Supervisor-managed service preserves DOWNLOAD then INSTALL and delegates i
     await settle();
     assert.equal(service.progress(updateId).state, "DONE");
 
-    const updateCall = calls.find((item) => item.url.endsWith("/store/addons/self/update"));
-    assert.ok(updateCall, "Supervisor update endpoint was not called");
+    const updatePath = `/store/addons/${SUPERVISOR_ADDON_SLUG}/update`;
+    const updateCall = calls.find((item) => item.url.endsWith(updatePath));
+    assert.ok(updateCall, "Supervisor update endpoint was not called with the resolved add-on slug");
     assert.equal(updateCall.method, "POST");
     assert.deepEqual(JSON.parse(updateCall.body), { backup: false, background: true });
+    assert.equal(calls.some((item) => item.url.endsWith("/store/addons/self/update")), false);
   } finally {
     globalThis.fetch = previousFetch;
     if (previousManaged === undefined) delete process.env.UCVR_SUPERVISOR_MANAGED;
