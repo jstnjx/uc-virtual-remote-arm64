@@ -16,6 +16,7 @@ import { MediaService } from "./media/service.js";
 import { VoiceAssistantService } from "./voice/service.js";
 import { BluetoothHidService } from "./bluetooth-hid/service.js";
 import { registerApiParityPlatform } from "./api/api-parity-compatibility.js";
+import { registerCurrentRestPlatform } from "./api/rest-current-compatibility.js";
 import { DockService } from "./docks/service.js";
 import { SystemUpdateService } from "./system-update/service.js";
 import { SystemBackupService } from "./system-backup/service.js";
@@ -181,6 +182,7 @@ export class VirtualRemotePlatform {
       options.factoryReset || {},
     );
     registerApiParityPlatform(this);
+    registerCurrentRestPlatform(this);
     this.stopped = false;
   }
 
