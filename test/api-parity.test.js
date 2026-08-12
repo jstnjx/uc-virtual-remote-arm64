@@ -25,19 +25,21 @@ test("current REST compatibility covers voice and the post-0.32 log web-app API"
   assert.match(rest, /password_hash/);
 });
 
-test("current WebSocket compatibility covers new configuration, profile, Dock, Bluetooth and Wi-Fi messages", () => {
+test("current WebSocket compatibility covers new configuration, profile, Dock and Bluetooth messages", () => {
   const parity = source("src/api/api-parity-compatibility.js");
-  const hardware = source("src/api/ws-hardware-compatibility.js");
   for (const marker of [
     "get_voice_assistants",
     "reset_network_cfg",
     "get_battery_charger",
-    "create_standby_inhibitor",
     "bt_pairing_response",
     "active_profile_change",
     "dock_port_mode",
     "execute_entity_command",
   ]) assert.ok(parity.includes(marker), `missing WS parity marker ${marker}`);
+});
+
+test("native Core WebSocket facade covers Wi-Fi and standby management", () => {
+  const websocket = source("src/core/websocket-facade.js");
   for (const marker of [
     "get_wifi_status",
     "wifi_command",
@@ -51,7 +53,10 @@ test("current WebSocket compatibility covers new configuration, profile, Dock, B
     "update_wifi_network",
     "wifi_network_command",
     "del_wifi_network",
-  ]) assert.ok(hardware.includes(marker), `missing Wi-Fi WS marker ${marker}`);
+    "create_standby_inhibitor",
+    "del_standby_inhibitor",
+    "del_all_standby_inhibitors",
+  ]) assert.ok(websocket.includes(marker), `missing native Core WS marker ${marker}`);
 });
 
 test("voice and Bluetooth HID runtime dependencies are built into the appliance", () => {
@@ -61,7 +66,6 @@ test("voice and Bluetooth HID runtime dependencies are built into the appliance"
   }
   const index = source("src/index.js");
   assert.match(index, /installApiParityCompatibility\(\)/);
-  assert.match(index, /installCurrentHardwareWebSocketCompatibility\(\)/);
   assert.match(index, /installCurrentRestCompatibility\(\)/);
   assert.match(index, /installIntegrationRuntimeInfoCompatibility\(\)/);
 });
