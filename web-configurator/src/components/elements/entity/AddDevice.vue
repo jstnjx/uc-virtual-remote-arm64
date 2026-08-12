@@ -81,8 +81,11 @@ const deviceMenu = computed(() => [
 
 watch(showModal, async (val) => {
   if (val) {
-    await startDiscover();
+    // Clear the previous modal session before discovery starts. Never clear the
+    // field after awaiting discovery: the user may already be typing while the
+    // discovery request is in flight.
     searchText.value = "";
+    await startDiscover();
     discoverIntervalId.value = setInterval(() => {
       void startDiscover();
     }, 40000); // 40 sec
