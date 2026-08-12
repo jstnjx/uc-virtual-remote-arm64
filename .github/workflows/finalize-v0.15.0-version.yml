@@ -1,0 +1,104 @@
+name: Finalize corrected v0.15.0
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/finalize-v0.15.0-version.yml
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  VERSION: 0.15.0
+  TAG: v0.15.0
+  TARGET: 1ef19b0ea40d6310f68754c4c1627bafb248376f
+  ARCHIVE_ROOT: uc-virtual-remote-arm64-0.15.0
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate corrected release target
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION="$(git show "$TARGET:package.json" | node --input-type=module -e "let s=''; for await (const c of process.stdin) s+=c; process.stdout.write(JSON.parse(s).version)")"
+          VERSION_FILE="$(git show "$TARGET:VERSION" | tr -d '\r\n')"
+          test "$PACKAGE_VERSION" = "$VERSION"
+          test "$VERSION_FILE" = "$VERSION"
+          test "$(git ls-tree -r --name-only "$TARGET" | grep -c '^.github/workflows/finalize-v0.15.0-version.yml$' || true)" = "0"
+
+      - name: Retag corrected release commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f -a "$TAG" "$TARGET" -m "UC Virtual Remote $TAG"
+          git push --force origin "refs/tags/$TAG"
+
+      - name: Build corrected release archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          git archive --format=zip --prefix="$ARCHIVE_ROOT/" --output="dist/$ARCHIVE_ROOT.zip" "$TARGET"
+          git archive --format=tar --prefix="$ARCHIVE_ROOT/" "$TARGET" | gzip -9 > "dist/$ARCHIVE_ROOT.tar.gz"
+          (cd dist && sha256sum "$ARCHIVE_ROOT.zip" "$ARCHIVE_ROOT.tar.gz" > SHA256SUMS)
+
+      - name: Build release notes
+        shell: bash
+        run: |
+          cat > dist/RELEASE_NOTES.md <<'EOF'
+          ## Highlights
+
+          - Adds full Voice Assistant support with `voice_assistant` entities, assistant lifecycle events, binary protobuf voice streaming, and manual, ALSA, HTTP(S), and RTSP(S) audio inputs.
+          - Updates advertised compatibility to REST Core API `0.46.0`, WebSocket Core API `0.35.3-beta`, and Integration API `0.15.4-beta`, including current runtime-info, active-profile, voice, Bluetooth, logging, Dock, media, Wi-Fi, standby, and activity-button semantics.
+          - Adds real Bluetooth LE HID over GATT/HOGP using BlueZ, with keyboard, mouse, consumer/media, system-control, modifiers, raw HID usages, `remote.send_cmd`, `remote.send_key`, and US-ASCII text support.
+          - Adds current Dock `SET_VOLUME` handling with persisted/clamped volume state and events.
+          - Expands regression coverage for Voice Assistant protobuf/WebSocket transport, input sources, Bluetooth LE HID reports and command grammar, Integration API runtime info, active-profile events, API parity, Dock volume behavior, and release-version metadata consistency.
+
+          **Full changelog:** https://github.com/jstnjx/uc-virtual-remote-arm64/compare/v0.14.17...v0.15.0
+          EOF
+
+      - name: Replace release assets and notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" \
+            "dist/$ARCHIVE_ROOT.zip" \
+            "dist/$ARCHIVE_ROOT.tar.gz" \
+            dist/SHA256SUMS \
+            --clobber
+          gh release edit "$TAG" \
+            --title "UC Virtual Remote ARM64 $TAG" \
+            --notes-file dist/RELEASE_NOTES.md
+
+      - name: Remove one-shot finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/finalize-v0.15.0-version.yml
+          git commit -m "Remove corrected v0.15.0 finalizer"
+          git push origin HEAD:main
+
+      - name: Publish corrected GHCR version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' '{"event_type":"publish-release","client_payload":{"tag":"v0.15.0","version":"0.15.0","major_minor":"0.15","major":"0","stable":"true"}}' \
+            | gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" --input -
