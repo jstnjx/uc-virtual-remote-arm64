@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { installApiParityCompatibility } from "./api/api-parity-compatibility.js";
 import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
@@ -46,6 +47,7 @@ function relaunchWithSqliteFlag() {
 
 async function bootstrap() {
   installPublicResourceCompatibility();
+  installApiParityCompatibility();
 
   if (await hasSqliteBuiltin()) {
     await import("./main.js");
