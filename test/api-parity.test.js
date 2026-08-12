@@ -65,6 +65,7 @@ test("voice and Bluetooth HID runtime dependencies are built into the appliance"
     assert.ok(dockerfile.includes(dependency), `missing runtime dependency ${dependency}`);
   }
   const index = source("src/index.js");
+  assert.match(index, /installBluetoothHidIntegrationCommands\(\)/);
   assert.match(index, /installApiParityCompatibility\(\)/);
   assert.match(index, /installCurrentRestCompatibility\(\)/);
   assert.match(index, /installIntegrationRuntimeInfoCompatibility\(\)/);
