@@ -1,0 +1,55 @@
+name: Publish v0.15.1 updater fix
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-v0.15.1.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: 0.15.1
+      TAG: v0.15.1
+      TARGET: 70c3339c3557a90c6efb4ed44ee86dd285588d27
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate release target
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION="$(git show "$TARGET:package.json" | node --input-type=module -e "let s=''; for await (const c of process.stdin) s+=c; process.stdout.write(JSON.parse(s).version)")"
+          LOCK_VERSION="$(git show "$TARGET:package-lock.json" | node --input-type=module -e "let s=''; for await (const c of process.stdin) s+=c; const p=JSON.parse(s); process.stdout.write(p.version + ':' + p.packages[''].version)")"
+          VERSION_FILE="$(git show "$TARGET:VERSION" | tr -d '\r\n')"
+          test "$PACKAGE_VERSION" = "$VERSION"
+          test "$LOCK_VERSION" = "$VERSION:$VERSION"
+          test "$VERSION_FILE" = "$VERSION"
+          test "$(git ls-tree -r --name-only "$TARGET" | grep -c '^.github/workflows/publish-v0.15.1.yml$' || true)" = "0"
+
+      - name: Create release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" "$TARGET" -m "UC Virtual Remote $TAG"
+          git push origin "refs/tags/$TAG"
+
+      - name: Remove one-shot publisher
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/publish-v0.15.1.yml
+          git commit -m "Remove v0.15.1 publisher"
+          git push origin HEAD:main
