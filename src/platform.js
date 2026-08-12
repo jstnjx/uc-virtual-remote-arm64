@@ -13,6 +13,9 @@ import { SequenceEngine } from "./engine/sequence-engine.js";
 import { ConfigurationService } from "./core/configuration.js";
 import { WebConfiguratorManager } from "./web-configurator.js";
 import { MediaService } from "./media/service.js";
+import { VoiceAssistantService } from "./voice/service.js";
+import { BluetoothHidService } from "./bluetooth-hid/service.js";
+import { registerApiParityPlatform } from "./api/api-parity-compatibility.js";
 import { DockService } from "./docks/service.js";
 import { SystemUpdateService } from "./system-update/service.js";
 import { SystemBackupService } from "./system-backup/service.js";
@@ -94,9 +97,9 @@ export class VirtualRemotePlatform {
       process.env.UCVR_ACTIVE_RELEASE_CHANNEL === "TESTING" && activeCommit
         ? `${bundledVersion}-beta.${activeCommit.slice(0, 7)}`
         : bundledVersion;
-    this.restCoreApiVersion = "0.32.0";
-    this.coreWebSocketApiVersion = "0.25.0-beta";
-    this.integrationApiVersion = "0.10.0-beta";
+    this.restCoreApiVersion = "0.46.0";
+    this.coreWebSocketApiVersion = "0.35.3-beta";
+    this.integrationApiVersion = "0.15.4-beta";
     this.remoteUiCompatibilityVersion = "0.38.4";
     this.locale = process.env.UCVR_LOCALE || "en-US";
     this.timezone =
@@ -140,6 +143,7 @@ export class VirtualRemotePlatform {
       "select",
       "sensor",
       "switch",
+      "voice_assistant",
     ];
     configureLogger({
       file: path.join(this.dataDir, "logs", "uc-virtual-remote.log"),
@@ -153,6 +157,7 @@ export class VirtualRemotePlatform {
     this.demo = new DemoModeService(this);
     this.integrations = new IntegrationManager(this);
     this.media = new MediaService(this);
+    this.voice = new VoiceAssistantService(this);
     this.docks = new DockService(this);
     this.systemUpdate = new SystemUpdateService(this);
     this.systemBackup = new SystemBackupService(this);
@@ -167,10 +172,15 @@ export class VirtualRemotePlatform {
       options.nativeIntegrations || {},
     );
     this.hardware = new HardwareService(this, options.hardware || {});
+    this.bluetoothHid = new BluetoothHidService(
+      this,
+      options.bluetoothHid || {},
+    );
     this.factoryReset = new FactoryResetService(
       this,
       options.factoryReset || {},
     );
+    registerApiParityPlatform(this);
     this.stopped = false;
   }
 
@@ -246,6 +256,13 @@ export class VirtualRemotePlatform {
     await this.nativeIntegrations.start();
     await this.demo.start();
     await this.integrations.start();
+    if (this.bluetoothHid.hasConfiguredRemote()) {
+      await this.bluetoothHid
+        .start({ optional: true })
+        .catch((error) =>
+          log.warn("Unable to start Bluetooth HID peripheral:", error.message),
+        );
+    }
     await this.syncMode.start();
     log.info(
       `Virtual Remote Core ready: configured_integrations=${visibleIntegrations(this.db.listIntegrations()).length}, configurator=${this.webConfigurator.status().installed ? "installed" : "not-installed"}`,
@@ -257,6 +274,9 @@ export class VirtualRemotePlatform {
     this.stopped = true;
     log.info("Stopping Virtual Remote Core services");
     await this.syncMode.stop();
+    await this.bluetoothHid.stop().catch((error) =>
+      log.warn("Unable to stop Bluetooth HID peripheral:", error.message),
+    );
     await this.nativeIntegrations.stop();
     await this.externalIntegrations.stop();
     await this.demo.stop();
@@ -359,6 +379,8 @@ export class VirtualRemotePlatform {
         queues: mediaQueues,
         cached_artwork: cachedArtwork,
       },
+      voice: this.voice.status(),
+      bluetooth_hid: this.bluetoothHid.status(),
       web_configurator: this.webConfigurator.status(),
       software_update: this.systemUpdate.status(),
       external_integrations: this.externalIntegrations.status(),
