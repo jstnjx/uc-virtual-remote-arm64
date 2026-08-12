@@ -2,21 +2,41 @@
 import argparse
 import base64
 import json
-import os
 import signal
-import socket
-import subprocess
 import sys
-import threading
 import time
-from html import escape
 
-HID_UUID = "00001124-0000-1000-8000-00805f9b34fb"
-PROFILE_PATH = "/com/unfoldedcircle/virtualremote/hid"
-PSM_CONTROL = 0x11
-PSM_INTERRUPT = 0x13
+BLUEZ = "org.bluez"
+DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
+DBUS_OBJECT_MANAGER = "org.freedesktop.DBus.ObjectManager"
+GATT_MANAGER = "org.bluez.GattManager1"
+GATT_SERVICE = "org.bluez.GattService1"
+GATT_CHARACTERISTIC = "org.bluez.GattCharacteristic1"
+GATT_DESCRIPTOR = "org.bluez.GattDescriptor1"
+ADVERTISEMENT_MANAGER = "org.bluez.LEAdvertisingManager1"
+ADVERTISEMENT = "org.bluez.LEAdvertisement1"
+AGENT_MANAGER = "org.bluez.AgentManager1"
+AGENT = "org.bluez.Agent1"
+ADAPTER = "org.bluez.Adapter1"
 
-# Composite keyboard + 5-button relative mouse + consumer-control descriptor.
+APP_PATH = "/com/unfoldedcircle/virtualremote"
+ADVERTISEMENT_PATH = APP_PATH + "/advertisement0"
+AGENT_PATH = APP_PATH + "/agent0"
+
+HID_SERVICE_UUID = "00001812-0000-1000-8000-00805f9b34fb"
+HID_INFORMATION_UUID = "00002a4a-0000-1000-8000-00805f9b34fb"
+REPORT_MAP_UUID = "00002a4b-0000-1000-8000-00805f9b34fb"
+HID_CONTROL_POINT_UUID = "00002a4c-0000-1000-8000-00805f9b34fb"
+REPORT_UUID = "00002a4d-0000-1000-8000-00805f9b34fb"
+PROTOCOL_MODE_UUID = "00002a4e-0000-1000-8000-00805f9b34fb"
+REPORT_REFERENCE_UUID = "00002908-0000-1000-8000-00805f9b34fb"
+
+# Bluetooth LE Appearance: Generic HID.
+HID_APPEARANCE = 0x03C0
+
+# Composite keyboard + 5-button relative mouse + consumer + system control.
+# Report IDs are retained in the map; Report Reference descriptors map each
+# GATT Report characteristic to its report ID and type.
 REPORT_DESCRIPTOR = bytes.fromhex(
     "05010906a1018501"
     "050719e029e715002501750195088102"
@@ -28,6 +48,8 @@ REPORT_DESCRIPTOR = bytes.fromhex(
     "05010930093109381581257f750895038106c0c0"
     "050c0901a1018503"
     "150026ff0319002aff03751095018100c0"
+    "05010980a1018504"
+    "150025ff190029ff750895018100c0"
 )
 
 
@@ -35,58 +57,33 @@ def emit(event_type, **data):
     print(json.dumps({"type": event_type, **data}, separators=(",", ":")), flush=True)
 
 
-def sdp_record(name):
-    descriptor = REPORT_DESCRIPTOR.hex()
-    safe_name = escape(name, quote=True)
-    return f'''<?xml version="1.0" encoding="UTF-8" ?>
-<record>
-  <attribute id="0x0001"><sequence><uuid value="0x1124" /></sequence></attribute>
-  <attribute id="0x0004"><sequence>
-    <sequence><uuid value="0x0100" /><uint16 value="0x0011" /></sequence>
-    <sequence><uuid value="0x0011" /></sequence>
-  </sequence></attribute>
-  <attribute id="0x0005"><sequence><uuid value="0x1002" /></sequence></attribute>
-  <attribute id="0x0006"><sequence><uint16 value="0x656e" /><uint16 value="0x006a" /><uint16 value="0x0100" /></sequence></attribute>
-  <attribute id="0x0009"><sequence><sequence><uuid value="0x1124" /><uint16 value="0x0101" /></sequence></sequence></attribute>
-  <attribute id="0x000d"><sequence><sequence>
-    <sequence><uuid value="0x0100" /><uint16 value="0x0013" /></sequence>
-    <sequence><uuid value="0x0011" /></sequence>
-  </sequence></sequence></attribute>
-  <attribute id="0x0100"><text value="{safe_name}" /></attribute>
-  <attribute id="0x0101"><text value="UC Virtual Remote Bluetooth HID" /></attribute>
-  <attribute id="0x0102"><text value="Unfolded.Tools" /></attribute>
-  <attribute id="0x0200"><uint16 value="0x0100" /></attribute>
-  <attribute id="0x0201"><uint16 value="0x0111" /></attribute>
-  <attribute id="0x0202"><uint8 value="0xc0" /></attribute>
-  <attribute id="0x0203"><uint8 value="0x00" /></attribute>
-  <attribute id="0x0204"><boolean value="true" /></attribute>
-  <attribute id="0x0205"><boolean value="true" /></attribute>
-  <attribute id="0x0206"><sequence><sequence><uint8 value="0x22" /><text encoding="hex" value="{descriptor}" /></sequence></sequence></attribute>
-  <attribute id="0x0207"><sequence><sequence><uint16 value="0x0409" /><uint16 value="0x0100" /></sequence></sequence></attribute>
-  <attribute id="0x0208"><boolean value="false" /></attribute>
-  <attribute id="0x0209"><boolean value="false" /></attribute>
-  <attribute id="0x020a"><boolean value="true" /></attribute>
-  <attribute id="0x020b"><uint16 value="0x0100" /></attribute>
-  <attribute id="0x020c"><uint16 value="0x0c80" /></attribute>
-  <attribute id="0x020d"><boolean value="true" /></attribute>
-  <attribute id="0x020e"><boolean value="true" /></attribute>
-</record>'''
+def byte_array(dbus, value):
+    return dbus.Array([dbus.Byte(item) for item in bytes(value)], signature="y")
 
 
 class HidPeripheral:
     def __init__(self, address, adapter, name):
-        self.address = address
+        self.address = address.upper()
         self.adapter = adapter
         self.name = name
         self.bus = None
-        self.manager = None
-        self.profile = None
         self.mainloop = None
-        self.listeners = {}
-        self.connections = {}
-        self.connection_lock = threading.Lock()
-        self.running = True
+        self.dbus = None
+        self.GLib = None
+        self.adapter_path = None
+        self.gatt_manager = None
+        self.advertisement_manager = None
+        self.agent_manager = None
+        self.application = None
+        self.advertisement = None
+        self.agent = None
+        self.report_characteristics = {}
         self.registered = False
+        self.advertising = False
+        self.agent_registered = False
+        self.running = True
+        self.notify_count = 0
+        self.protocol_mode = 1
 
     def setup(self):
         try:
@@ -95,198 +92,353 @@ class HidPeripheral:
             from dbus.mainloop.glib import DBusGMainLoop
             from gi.repository import GLib
         except Exception as exc:
-            raise RuntimeError(f"Bluetooth HID requires python3-dbus and python3-gi: {exc}") from exc
+            raise RuntimeError(f"Bluetooth LE HID requires python3-dbus and python3-gi: {exc}") from exc
 
         self.dbus = dbus
-        self.dbus_service = dbus.service
         self.GLib = GLib
         DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SystemBus()
         self.mainloop = GLib.MainLoop()
+        self.adapter_path = self._find_adapter_path()
+        if not self.adapter_path:
+            raise RuntimeError(f"Bluetooth adapter {self.adapter or self.address} was not found in BlueZ")
+
+        adapter_object = self.bus.get_object(BLUEZ, self.adapter_path)
+        self.gatt_manager = dbus.Interface(adapter_object, GATT_MANAGER)
+        self.advertisement_manager = dbus.Interface(adapter_object, ADVERTISEMENT_MANAGER)
+        self._configure_adapter(adapter_object)
 
         peripheral = self
 
-        class Profile(dbus.service.Object):
-            @dbus.service.method("org.bluez.Profile1", in_signature="", out_signature="")
+        class PropertiesObject(dbus.service.Object):
+            @dbus.service.signal(DBUS_PROPERTIES, signature="sa{sv}as")
+            def PropertiesChanged(self, interface, changed, invalidated):
+                pass
+
+        class Service(PropertiesObject):
+            def __init__(self, bus, index, uuid, primary=True):
+                self.path = f"{APP_PATH}/service{index}"
+                self.uuid = uuid
+                self.primary = primary
+                self.characteristics = []
+                super().__init__(bus, self.path)
+
+            def properties(self):
+                return {
+                    "UUID": dbus.String(self.uuid),
+                    "Primary": dbus.Boolean(self.primary),
+                    "Includes": dbus.Array([], signature="o"),
+                }
+
+            def managed(self):
+                return {GATT_SERVICE: self.properties()}
+
+            @dbus.service.method(DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
+            def GetAll(self, interface):
+                if interface != GATT_SERVICE:
+                    raise dbus.exceptions.DBusException("org.freedesktop.DBus.Error.InvalidArgs")
+                return self.properties()
+
+        class Characteristic(PropertiesObject):
+            def __init__(self, service, index, uuid, flags, value=b"", readable=True, writable=False):
+                self.service = service
+                self.path = f"{service.path}/char{index}"
+                self.uuid = uuid
+                self.flags = flags
+                self.value = bytes(value)
+                self.readable = readable
+                self.writable = writable
+                self.notifying = False
+                self.descriptors = []
+                service.characteristics.append(self)
+                super().__init__(peripheral.bus, self.path)
+
+            def properties(self):
+                return {
+                    "Service": dbus.ObjectPath(self.service.path),
+                    "UUID": dbus.String(self.uuid),
+                    "Flags": dbus.Array([dbus.String(item) for item in self.flags], signature="s"),
+                    "Descriptors": dbus.Array([dbus.ObjectPath(item.path) for item in self.descriptors], signature="o"),
+                    "Notifying": dbus.Boolean(self.notifying),
+                    "Value": byte_array(dbus, self.value),
+                }
+
+            def managed(self):
+                return {GATT_CHARACTERISTIC: self.properties()}
+
+            @dbus.service.method(DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
+            def GetAll(self, interface):
+                if interface != GATT_CHARACTERISTIC:
+                    raise dbus.exceptions.DBusException("org.freedesktop.DBus.Error.InvalidArgs")
+                return self.properties()
+
+            @dbus.service.method(GATT_CHARACTERISTIC, in_signature="a{sv}", out_signature="ay")
+            def ReadValue(self, options):
+                if not self.readable:
+                    raise dbus.exceptions.DBusException("org.bluez.Error.NotPermitted")
+                return byte_array(dbus, self.value)
+
+            @dbus.service.method(GATT_CHARACTERISTIC, in_signature="aya{sv}", out_signature="")
+            def WriteValue(self, value, options):
+                if not self.writable:
+                    raise dbus.exceptions.DBusException("org.bluez.Error.NotPermitted")
+                self.value = bytes(value)
+                self.on_write(self.value)
+
+            def on_write(self, value):
+                pass
+
+            @dbus.service.method(GATT_CHARACTERISTIC, in_signature="", out_signature="")
+            def StartNotify(self):
+                if "notify" not in self.flags:
+                    raise dbus.exceptions.DBusException("org.bluez.Error.NotSupported")
+                if self.notifying:
+                    return
+                self.notifying = True
+                peripheral.notify_count += 1
+                self.PropertiesChanged(GATT_CHARACTERISTIC, {"Notifying": dbus.Boolean(True)}, [])
+                if peripheral.notify_count == 1:
+                    emit("connected", peer=None, transport="ble-hogp")
+
+            @dbus.service.method(GATT_CHARACTERISTIC, in_signature="", out_signature="")
+            def StopNotify(self):
+                if not self.notifying:
+                    return
+                self.notifying = False
+                peripheral.notify_count = max(0, peripheral.notify_count - 1)
+                self.PropertiesChanged(GATT_CHARACTERISTIC, {"Notifying": dbus.Boolean(False)}, [])
+                if peripheral.notify_count == 0:
+                    emit("disconnected", peer=None, transport="ble-hogp")
+
+            def notify(self, value):
+                self.value = bytes(value)
+                if not self.notifying:
+                    raise RuntimeError(f"HID report characteristic {self.path} has no notification subscriber")
+                self.PropertiesChanged(GATT_CHARACTERISTIC, {"Value": byte_array(dbus, self.value)}, [])
+
+        class ProtocolModeCharacteristic(Characteristic):
+            def __init__(self, service, index):
+                super().__init__(service, index, PROTOCOL_MODE_UUID,
+                                 ["read", "write-without-response"], b"\x01", True, True)
+
+            def on_write(self, value):
+                if not value or value[0] not in (0, 1):
+                    raise dbus.exceptions.DBusException("org.bluez.Error.InvalidValueLength")
+                peripheral.protocol_mode = int(value[0])
+
+        class ControlPointCharacteristic(Characteristic):
+            def __init__(self, service, index):
+                super().__init__(service, index, HID_CONTROL_POINT_UUID,
+                                 ["write-without-response"], b"\x01", False, True)
+
+            def on_write(self, value):
+                if value and value[0] == 0:
+                    emit("suspend")
+                elif value and value[0] == 1:
+                    emit("resume")
+
+        class ReportCharacteristic(Characteristic):
+            def __init__(self, service, index, report_id, size):
+                self.report_id = report_id
+                super().__init__(service, index, REPORT_UUID, ["read", "notify"], bytes(size), True, False)
+                ReportReferenceDescriptor(self, 0, report_id, 1)
+                peripheral.report_characteristics[report_id] = self
+
+        class Descriptor(PropertiesObject):
+            def __init__(self, characteristic, index, uuid, flags, value):
+                self.characteristic = characteristic
+                self.path = f"{characteristic.path}/desc{index}"
+                self.uuid = uuid
+                self.flags = flags
+                self.value = bytes(value)
+                characteristic.descriptors.append(self)
+                super().__init__(peripheral.bus, self.path)
+
+            def properties(self):
+                return {
+                    "Characteristic": dbus.ObjectPath(self.characteristic.path),
+                    "UUID": dbus.String(self.uuid),
+                    "Flags": dbus.Array([dbus.String(item) for item in self.flags], signature="s"),
+                    "Value": byte_array(dbus, self.value),
+                }
+
+            def managed(self):
+                return {GATT_DESCRIPTOR: self.properties()}
+
+            @dbus.service.method(DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
+            def GetAll(self, interface):
+                if interface != GATT_DESCRIPTOR:
+                    raise dbus.exceptions.DBusException("org.freedesktop.DBus.Error.InvalidArgs")
+                return self.properties()
+
+            @dbus.service.method(GATT_DESCRIPTOR, in_signature="a{sv}", out_signature="ay")
+            def ReadValue(self, options):
+                return byte_array(dbus, self.value)
+
+        class ReportReferenceDescriptor(Descriptor):
+            def __init__(self, characteristic, index, report_id, report_type):
+                super().__init__(characteristic, index, REPORT_REFERENCE_UUID, ["read"], bytes([report_id, report_type]))
+
+        class Application(dbus.service.Object):
+            def __init__(self, bus):
+                self.path = APP_PATH
+                self.services = []
+                super().__init__(bus, self.path)
+
+            @dbus.service.method(DBUS_OBJECT_MANAGER, out_signature="a{oa{sa{sv}}}")
+            def GetManagedObjects(self):
+                objects = {}
+                for service in self.services:
+                    objects[dbus.ObjectPath(service.path)] = service.managed()
+                    for characteristic in service.characteristics:
+                        objects[dbus.ObjectPath(characteristic.path)] = characteristic.managed()
+                        for descriptor in characteristic.descriptors:
+                            objects[dbus.ObjectPath(descriptor.path)] = descriptor.managed()
+                return objects
+
+        class Advertisement(dbus.service.Object):
+            def __init__(self, bus):
+                self.path = ADVERTISEMENT_PATH
+                super().__init__(bus, self.path)
+
+            def properties(self):
+                return {
+                    "Type": dbus.String("peripheral"),
+                    "ServiceUUIDs": dbus.Array([dbus.String(HID_SERVICE_UUID)], signature="s"),
+                    "LocalName": dbus.String(peripheral.name),
+                    "Appearance": dbus.UInt16(HID_APPEARANCE),
+                    "Discoverable": dbus.Boolean(True),
+                    "Includes": dbus.Array([dbus.String("tx-power")], signature="s"),
+                }
+
+            @dbus.service.method(DBUS_PROPERTIES, in_signature="s", out_signature="a{sv}")
+            def GetAll(self, interface):
+                if interface != ADVERTISEMENT:
+                    raise dbus.exceptions.DBusException("org.freedesktop.DBus.Error.InvalidArgs")
+                return self.properties()
+
+            @dbus.service.method(ADVERTISEMENT, in_signature="", out_signature="")
             def Release(self):
-                peripheral.running = False
-                if peripheral.mainloop:
-                    peripheral.mainloop.quit()
+                peripheral.advertising = False
 
-            @dbus.service.method("org.bluez.Profile1", in_signature="oha{sv}", out_signature="")
-            def NewConnection(self, device, fd, properties):
-                descriptor = fd.take()
-                conn = socket.socket(fileno=descriptor)
-                peripheral._adopt_connection(conn, str(device), "bluez-profile")
+        class Agent(dbus.service.Object):
+            def __init__(self, bus):
+                super().__init__(bus, AGENT_PATH)
 
-            @dbus.service.method("org.bluez.Profile1", in_signature="o", out_signature="")
-            def RequestDisconnection(self, device):
-                peripheral._disconnect_peer(str(device))
+            @dbus.service.method(AGENT, in_signature="", out_signature="")
+            def Release(self):
+                pass
 
-            @dbus.service.method("org.bluez.Profile1", in_signature="o", out_signature="")
-            def Cancel(self, device):
-                peripheral._disconnect_peer(str(device))
+            @dbus.service.method(AGENT, in_signature="o", out_signature="s")
+            def RequestPinCode(self, device):
+                return "000000"
 
-        self.profile = Profile(self.bus, PROFILE_PATH)
-        manager_object = self.bus.get_object("org.bluez", "/org/bluez")
-        self.manager = dbus.Interface(manager_object, "org.bluez.ProfileManager1")
-        options = {
-            "Name": dbus.String(self.name),
-            "Role": dbus.String("server"),
-            "RequireAuthentication": dbus.Boolean(True),
-            "RequireAuthorization": dbus.Boolean(False),
-            "AutoConnect": dbus.Boolean(True),
-            "ServiceRecord": dbus.String(sdp_record(self.name)),
-            "Version": dbus.UInt16(0x0101),
-            "Features": dbus.UInt16(0),
-        }
-        self.manager.RegisterProfile(PROFILE_PATH, HID_UUID, options)
+            @dbus.service.method(AGENT, in_signature="o", out_signature="u")
+            def RequestPasskey(self, device):
+                return dbus.UInt32(0)
+
+            @dbus.service.method(AGENT, in_signature="ouq", out_signature="")
+            def DisplayPasskey(self, device, passkey, entered):
+                pass
+
+            @dbus.service.method(AGENT, in_signature="os", out_signature="")
+            def DisplayPinCode(self, device, pincode):
+                pass
+
+            @dbus.service.method(AGENT, in_signature="ou", out_signature="")
+            def RequestConfirmation(self, device, passkey):
+                return
+
+            @dbus.service.method(AGENT, in_signature="o", out_signature="")
+            def RequestAuthorization(self, device):
+                return
+
+            @dbus.service.method(AGENT, in_signature="os", out_signature="")
+            def AuthorizeService(self, device, uuid):
+                return
+
+            @dbus.service.method(AGENT, in_signature="", out_signature="")
+            def Cancel(self):
+                pass
+
+        self.application = Application(self.bus)
+        hid = Service(self.bus, 0, HID_SERVICE_UUID, True)
+        self.application.services.append(hid)
+        Characteristic(hid, 0, HID_INFORMATION_UUID, ["read"], b"\x11\x01\x00\x03", True, False)
+        Characteristic(hid, 1, REPORT_MAP_UUID, ["read"], REPORT_DESCRIPTOR, True, False)
+        ControlPointCharacteristic(hid, 2)
+        ProtocolModeCharacteristic(hid, 3)
+        # GATT Report values do not include the Report ID; the Report Reference
+        # descriptor carries it for HOGP clients.
+        ReportCharacteristic(hid, 4, 1, 8)  # keyboard: modifiers,reserved,6 keys
+        ReportCharacteristic(hid, 5, 2, 4)  # mouse: buttons,x,y,wheel
+        ReportCharacteristic(hid, 6, 3, 2)  # consumer usage
+        ReportCharacteristic(hid, 7, 4, 1)  # system usage
+
+        self.advertisement = Advertisement(self.bus)
+        self.agent = Agent(self.bus)
+        self._register_agent()
+        self.gatt_manager.RegisterApplication(self.application.path, {})
         self.registered = True
-
-        self._set_alias()
-        self._set_device_class()
-        self._start_raw_listener(PSM_CONTROL)
-        self._start_raw_listener(PSM_INTERRUPT)
+        self.advertisement_manager.RegisterAdvertisement(self.advertisement.path, {})
+        self.advertising = True
         GLib.io_add_watch(sys.stdin, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, self._stdin_ready)
-        emit("ready", address=self.address, adapter=self.adapter, registered=True)
+        emit("ready", address=self.address, adapter=self.adapter, registered=True,
+             transport="ble-hogp", service_uuid=HID_SERVICE_UUID)
 
-    def _set_alias(self):
-        if not self.adapter:
-            return
-        try:
-            object_path = f"/org/bluez/{self.adapter}"
-            adapter_object = self.bus.get_object("org.bluez", object_path)
-            props = self.dbus.Interface(adapter_object, "org.freedesktop.DBus.Properties")
-            props.Set("org.bluez.Adapter1", "Alias", self.dbus.String(self.name))
-        except Exception as exc:
-            emit("warning", message=f"Unable to set Bluetooth alias: {exc}")
-
-    def _set_device_class(self):
-        if not self.adapter:
-            return
-        try:
-            subprocess.run(
-                ["hciconfig", self.adapter, "class", "0x0025c0"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=3,
-                check=False,
-            )
-        except Exception:
-            pass
-
-    def _start_raw_listener(self, psm):
-        try:
-            listener = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_SEQPACKET, socket.BTPROTO_L2CAP)
-            listener.bind((self.address, psm))
-            listener.listen(4)
-            listener.settimeout(1.0)
-            self.listeners[psm] = listener
-            thread = threading.Thread(target=self._accept_loop, args=(psm, listener), daemon=True)
-            thread.start()
-        except OSError as exc:
-            # BlueZ may own the PSM after RegisterProfile. In that case
-            # Profile1.NewConnection delivers the authorized file descriptor.
-            if getattr(exc, "errno", None) not in (98, 48, 10048):
-                emit("warning", message=f"Unable to bind HID PSM 0x{psm:02x}: {exc}")
-
-    def _accept_loop(self, psm, listener):
-        while self.running:
-            try:
-                conn, peer = listener.accept()
-            except socket.timeout:
+    def _find_adapter_path(self):
+        objects = self.dbus.Interface(self.bus.get_object(BLUEZ, "/"), DBUS_OBJECT_MANAGER).GetManagedObjects()
+        requested_adapter = str(self.adapter or "").strip()
+        for object_path, interfaces in objects.items():
+            props = interfaces.get(ADAPTER)
+            if not props:
                 continue
-            except OSError:
-                break
-            self._adopt_connection(conn, peer[0] if isinstance(peer, tuple) else str(peer), "raw-l2cap", psm)
-
-    def _socket_psm(self, conn):
-        try:
-            local = conn.getsockname()
-            if isinstance(local, tuple) and len(local) > 1:
-                return int(local[1])
-        except OSError:
-            pass
+            path = str(object_path)
+            address = str(props.get("Address", "")).upper()
+            if requested_adapter and path.endswith("/" + requested_adapter):
+                return path
+            if address == self.address:
+                return path
         return None
 
-    def _adopt_connection(self, conn, peer, source, psm=None):
-        psm = psm or self._socket_psm(conn)
-        if psm not in (PSM_CONTROL, PSM_INTERRUPT):
-            with self.connection_lock:
-                if PSM_CONTROL not in self.connections:
-                    psm = PSM_CONTROL
-                elif PSM_INTERRUPT not in self.connections:
-                    psm = PSM_INTERRUPT
-                else:
-                    psm = PSM_INTERRUPT
-        conn.settimeout(1.0)
-        with self.connection_lock:
-            previous = self.connections.get(psm)
-            if previous:
-                try:
-                    previous[0].close()
-                except OSError:
-                    pass
-            self.connections[psm] = (conn, peer)
-        emit("connected", peer=peer, psm=psm, source=source)
-        thread = threading.Thread(target=self._read_loop, args=(psm, conn, peer), daemon=True)
-        thread.start()
-
-    def _read_loop(self, psm, conn, peer):
-        while self.running:
+    def _configure_adapter(self, adapter_object):
+        props = self.dbus.Interface(adapter_object, DBUS_PROPERTIES)
+        for name, value in (
+            ("Powered", self.dbus.Boolean(True)),
+            ("Pairable", self.dbus.Boolean(True)),
+            ("Discoverable", self.dbus.Boolean(True)),
+            ("PairableTimeout", self.dbus.UInt32(0)),
+            ("DiscoverableTimeout", self.dbus.UInt32(0)),
+            ("Alias", self.dbus.String(self.name)),
+        ):
             try:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                if psm == PSM_CONTROL:
-                    self._handle_control(conn, data)
-            except socket.timeout:
-                continue
-            except OSError:
-                break
-        with self.connection_lock:
-            current = self.connections.get(psm)
-            if current and current[0] is conn:
-                self.connections.pop(psm, None)
-        try:
-            conn.close()
-        except OSError:
-            pass
-        emit("disconnected", peer=peer, psm=psm)
+                props.Set(ADAPTER, name, value)
+            except Exception as exc:
+                emit("warning", message=f"Unable to set adapter {name}: {exc}")
 
-    def _handle_control(self, conn, data):
-        if not data:
-            return
-        message_type = data[0] & 0xF0
+    def _register_agent(self):
         try:
-            if message_type in (0x50, 0x70):
-                conn.send(b"\x00")  # HID handshake: successful
-            elif message_type == 0x60:
-                conn.send(b"\xa1\x01")  # DATA / report protocol
-            elif message_type == 0x40:
-                conn.send(b"\x03")  # HID handshake: unsupported request
-        except OSError:
-            pass
-
-    def _disconnect_peer(self, peer):
-        with self.connection_lock:
-            targets = [(psm, value) for psm, value in self.connections.items() if value[1] == peer or peer in str(value[1])]
-        for psm, (conn, _) in targets:
+            manager = self.dbus.Interface(self.bus.get_object(BLUEZ, "/org/bluez"), AGENT_MANAGER)
+            manager.RegisterAgent(AGENT_PATH, "NoInputNoOutput")
+            self.agent_manager = manager
+            self.agent_registered = True
             try:
-                conn.close()
-            except OSError:
-                pass
-            with self.connection_lock:
-                self.connections.pop(psm, None)
+                manager.RequestDefaultAgent(AGENT_PATH)
+            except Exception as exc:
+                emit("warning", message=f"Unable to make HID pairing agent default: {exc}")
+        except Exception as exc:
+            emit("warning", message=f"Unable to register HID pairing agent: {exc}")
 
     def send_report(self, report):
-        with self.connection_lock:
-            value = self.connections.get(PSM_INTERRUPT)
-        if not value:
-            raise RuntimeError("No Bluetooth HID interrupt connection is active")
-        conn, peer = value
-        conn.send(b"\xa1" + report)
-        return peer
+        data = bytes(report)
+        if len(data) < 2:
+            raise RuntimeError("HID report must include a report ID and payload")
+        report_id = int(data[0])
+        characteristic = self.report_characteristics.get(report_id)
+        if characteristic is None:
+            raise RuntimeError(f"Unknown HID report ID {report_id}")
+        characteristic.notify(data[1:])
+        return None
 
     def _stdin_ready(self, source, condition):
         if condition & (self.GLib.IO_HUP | self.GLib.IO_ERR):
@@ -302,17 +454,19 @@ class HidPeripheral:
             if action == "sequence":
                 reports = [base64.b64decode(item, validate=True) for item in command.get("reports", [])]
                 delay = max(0, min(0.5, float(command.get("delay_ms", 0)) / 1000.0))
-                peer = None
                 for index, report in enumerate(reports):
-                    peer = self.send_report(report)
+                    self.send_report(report)
                     if delay and index + 1 < len(reports):
                         time.sleep(delay)
-                emit("sent", count=len(reports), peer=peer)
+                emit("sent", count=len(reports), peer=None)
             elif action == "status":
-                with self.connection_lock:
-                    connected = PSM_INTERRUPT in self.connections
-                    peer = self.connections.get(PSM_INTERRUPT, (None, None))[1]
-                emit("status", state={"registered": self.registered, "connected": connected, "peer": peer})
+                emit("status", state={
+                    "registered": self.registered,
+                    "advertising": self.advertising,
+                    "connected": self.notify_count > 0,
+                    "peer": None,
+                    "transport": "ble-hogp",
+                })
             elif action == "stop":
                 self.shutdown()
                 return False
@@ -328,25 +482,24 @@ class HidPeripheral:
                 self.mainloop.quit()
             return
         self.running = False
-        for listener in list(self.listeners.values()):
+        if self.advertising and self.advertisement_manager and self.advertisement:
             try:
-                listener.close()
-            except OSError:
+                self.advertisement_manager.UnregisterAdvertisement(self.advertisement.path)
+            except Exception:
                 pass
-        with self.connection_lock:
-            values = list(self.connections.values())
-            self.connections.clear()
-        for conn, _peer in values:
+        self.advertising = False
+        if self.registered and self.gatt_manager and self.application:
             try:
-                conn.close()
-            except OSError:
-                pass
-        if self.registered and self.manager:
-            try:
-                self.manager.UnregisterProfile(PROFILE_PATH)
+                self.gatt_manager.UnregisterApplication(self.application.path)
             except Exception:
                 pass
         self.registered = False
+        if self.agent_registered and self.agent_manager:
+            try:
+                self.agent_manager.UnregisterAgent(AGENT_PATH)
+            except Exception:
+                pass
+        self.agent_registered = False
         if self.mainloop:
             self.mainloop.quit()
 
@@ -357,7 +510,7 @@ class HidPeripheral:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="UC Virtual Remote Bluetooth HID peripheral")
+    parser = argparse.ArgumentParser(description="UC Virtual Remote Bluetooth LE HID peripheral")
     parser.add_argument("--address", required=True)
     parser.add_argument("--adapter", default=None)
     parser.add_argument("--name", default="UC Virtual Remote")
