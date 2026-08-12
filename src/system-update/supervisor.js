@@ -25,6 +25,7 @@ export class SupervisorUpdateAdapter {
     this.token = String(options.token || process.env.SUPERVISOR_TOKEN || "").trim();
     this.installedVersion = null;
     this.latestVersion = null;
+    this.addonSlug = null;
   }
 
   #headers(json = false) {
@@ -61,6 +62,7 @@ export class SupervisorUpdateAdapter {
   async check(force = false) {
     if (force) await this.#request("/store/reload", { method: "POST" });
     const info = await this.#request("/addons/self/info");
+    this.addonSlug = String(info?.slug || "").trim() || null;
     this.installedVersion = normalizedVersion(info?.version || info?.installed);
     this.latestVersion = normalizedVersion(info?.version_latest);
     const available = Boolean(info?.update_available)
@@ -81,7 +83,14 @@ export class SupervisorUpdateAdapter {
   }
 
   async install() {
-    return await this.#request("/store/addons/self/update", {
+    if (!this.addonSlug) {
+      const info = await this.#request("/addons/self/info");
+      this.addonSlug = String(info?.slug || "").trim() || null;
+    }
+    if (!this.addonSlug) {
+      throw Object.assign(new Error("Unable to determine Home Assistant add-on slug"), { status: 500 });
+    }
+    return await this.#request(`/store/addons/${encodeURIComponent(this.addonSlug)}/update`, {
       method: "POST",
       body: { backup: false, background: true },
       timeoutMs: 30_000
