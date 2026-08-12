@@ -5,6 +5,7 @@ import { installApiParityCompatibility } from "./api/api-parity-compatibility.js
 import { installCurrentHardwareWebSocketCompatibility } from "./api/ws-hardware-compatibility.js";
 import { installCurrentRestCompatibility } from "./api/rest-current-compatibility.js";
 import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
+import { installIntegrationRuntimeInfoCompatibility } from "./integrations/runtime-info-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
 const reexecMarker = "UCVR_SQLITE_REEXEC";
@@ -52,6 +53,7 @@ async function bootstrap() {
   installApiParityCompatibility();
   installCurrentHardwareWebSocketCompatibility();
   installCurrentRestCompatibility();
+  installIntegrationRuntimeInfoCompatibility();
 
   if (await hasSqliteBuiltin()) {
     await import("./main.js");
