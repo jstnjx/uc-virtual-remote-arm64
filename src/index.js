@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { installApiParityCompatibility } from "./api/api-parity-compatibility.js";
 import { installCurrentRestCompatibility } from "./api/rest-current-compatibility.js";
 import { installPublicResourceCompatibility } from "./api/public-resource-compatibility.js";
+import { installBluetoothHidIntegrationCommands } from "./bluetooth-hid/integration-commands.js";
 import { installIntegrationRuntimeInfoCompatibility } from "./integrations/runtime-info-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
@@ -49,6 +50,7 @@ function relaunchWithSqliteFlag() {
 
 async function bootstrap() {
   installPublicResourceCompatibility();
+  installBluetoothHidIntegrationCommands();
   installApiParityCompatibility();
   installCurrentRestCompatibility();
   installIntegrationRuntimeInfoCompatibility();
