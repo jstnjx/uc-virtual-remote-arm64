@@ -1,0 +1,49 @@
+name: Publish v0.15.0
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-v0.15.0.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node --input-type=module -e "import pkg from './package.json' with { type: 'json' }; process.stdout.write(pkg.version)")"
+          test "$VERSION" = "0.15.0"
+          if git rev-parse -q --verify refs/tags/v0.15.0 >/dev/null; then
+            echo "v0.15.0 already exists" >&2
+            exit 1
+          fi
+
+      - name: Create release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a v0.15.0 "$GITHUB_SHA" -m "UC Virtual Remote v0.15.0"
+          git push origin refs/tags/v0.15.0
+
+      - name: Dispatch release workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' '{"event_type":"publish-release","client_payload":{"tag":"v0.15.0","version":"0.15.0"}}' \
+            | gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" --input -
