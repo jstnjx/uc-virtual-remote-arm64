@@ -242,7 +242,12 @@ export class PlatformHttpServer {
   constructor(platform, publicDir) {
     this.platform = platform;
     this.publicDir = publicDir;
-    this.sessions = new Map();
+    // Share Web Configurator login sessions with the dedicated Core WebSocket
+    // listener on port 946. Public deployments commonly terminate HTTPS at a
+    // reverse proxy, send REST/configurator traffic to 11090 and /ws to 946.
+    // Both listeners must therefore validate the same ucvr_session cookie.
+    this.sessions = platform.webConfiguratorSessions || new Map();
+    platform.webConfiguratorSessions = this.sessions;
     this.coreWs = new CoreWebSocketFacade(platform);
     this.sockets = new Set();
     this.server = http.createServer((request, response) => this.#request(request, response));
