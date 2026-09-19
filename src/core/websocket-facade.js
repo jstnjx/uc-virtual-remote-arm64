@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { localEntityId, nowIso, sha256 } from "../shared/util.js";
 import { entityCommandMetadata } from "./device-metadata.js";
 import { normalizeActivityAction } from "../engine/activity-command.js";
+import { virtualPowerModeStatus } from "./virtual-power.js";
 import {
   availableEntity,
   coreEntity,
@@ -260,8 +261,10 @@ export class CoreWebSocketFacade {
           throw Object.assign(new Error(`Unsupported system command ${command || "UNKNOWN"}`), { status: 400 });
         }
         if (command === "STANDBY" || command === "POWER_OFF") {
-          const current = db.getSetting("power_mode", { mode: "NORMAL", battery: { capacity: 100, status: "FULL", power_supply: true } });
-          const next = { ...current, mode: command === "STANDBY" ? "SUSPEND" : "LOW_POWER", battery: normalizeBattery(current.battery) };
+          // A virtual Remote is a continuously running server process. Keep the
+          // native commands API-compatible, but never transition it into a
+          // handheld suspend/low-power state.
+          const next = virtualPowerModeStatus();
           db.setSetting("power_mode", next);
           this.platform.events.publish("power.mode", next);
         } else if (command === "RESTART_UI") {
@@ -295,12 +298,16 @@ export class CoreWebSocketFacade {
         return response(peer, id, "result", successMessage());
       }
       case "get_power_mode": {
-        const current = db.getSetting("power_mode", { mode: "NORMAL", battery: { capacity: 100, status: "FULL", power_supply: true } });
-        return response(peer, id, "power_mode", { mode: normalizePowerMode(current.mode), battery: normalizeBattery(current.battery) });
+        // Normalize any stale persisted SUSPEND/LOW_POWER value from older
+        // builds back to the only meaningful state for a virtual appliance.
+        const current = virtualPowerModeStatus();
+        db.setSetting("power_mode", current);
+        return response(peer, id, "power_mode", current);
       }
       case "set_power_mode": {
-        const current = db.getSetting("power_mode", { mode: "NORMAL", battery: { capacity: 100, status: "FULL", power_supply: true } });
-        const next = { ...current, mode: normalizePowerMode(data.mode), battery: normalizeBattery(current.battery) };
+        // Keep the API writable for client compatibility while enforcing the
+        // always-awake invariant.
+        const next = virtualPowerModeStatus();
         db.setSetting("power_mode", next);
         this.platform.events.publish("power.mode", next);
         return response(peer, id, "result", successMessage());
