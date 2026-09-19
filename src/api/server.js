@@ -336,7 +336,9 @@ export class PlatformHttpServer {
 
   #upgrade(request, socket, head) {
     const url = new URL(request.url, "http://localhost");
-    if (url.pathname !== "/ws") return rejectWebSocketUpgrade(socket, 404, "Not Found");
+    if (!["/ws", "/configurator/ws"].includes(url.pathname)) {
+      return rejectWebSocketUpgrade(socket, 404, "Not Found");
+    }
     const peer = acceptWebSocketUpgrade(request, socket, head);
     if (!peer) return;
     const authorization = String(request.headers.authorization || "");
