@@ -5,6 +5,22 @@ import { logger } from "../shared/logger.js";
 
 const log = logger("websocket-server");
 
+function cookies(request) {
+  const values = {};
+  for (const item of String(request.headers.cookie || "").split(";")) {
+    const index = item.indexOf("=");
+    if (index < 0) continue;
+    const key = item.slice(0, index).trim();
+    if (!key) continue;
+    try {
+      values[key] = decodeURIComponent(item.slice(index + 1).trim());
+    } catch {
+      values[key] = item.slice(index + 1).trim();
+    }
+  }
+  return values;
+}
+
 export class PlatformWebSocketServer {
   constructor(platform) {
     this.platform = platform;
@@ -76,7 +92,11 @@ export class PlatformWebSocketServer {
     const authorization = String(request.headers.authorization || "");
     const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : null;
     const token = request.headers["api-key"] || bearer || url.searchParams.get("token") || null;
+    const session = cookies(request).ucvr_session;
+    const authenticated = Boolean(
+      session && this.platform.webConfiguratorSessions?.has(session)
+    );
     const peer = acceptWebSocketUpgrade(request, socket, head);
-    if (peer) this.coreWs.attach(peer, { token });
+    if (peer) this.coreWs.attach(peer, { token, authenticated });
   }
 }
