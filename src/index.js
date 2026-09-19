@@ -7,6 +7,7 @@ import { installPublicResourceCompatibility } from "./api/public-resource-compat
 import { installBluetoothHidIntegrationCommands } from "./bluetooth-hid/integration-commands.js";
 import { installCurrentDockApiCompatibility } from "./docks/current-api-compatibility.js";
 import { installIntegrationRuntimeInfoCompatibility } from "./integrations/runtime-info-compatibility.js";
+import { installPassiveActivityStatePersistence } from "./storage/activity-state-compatibility.js";
 
 const entrypoint = fileURLToPath(import.meta.url);
 const reexecMarker = "UCVR_SQLITE_REEXEC";
@@ -56,6 +57,7 @@ async function bootstrap() {
   installCurrentRestCompatibility();
   installCurrentDockApiCompatibility();
   installIntegrationRuntimeInfoCompatibility();
+  installPassiveActivityStatePersistence();
 
   if (await hasSqliteBuiltin()) {
     await import("./main.js");
