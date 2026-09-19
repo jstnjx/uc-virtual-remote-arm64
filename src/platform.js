@@ -25,6 +25,7 @@ import { SyncModeService } from "./sync-mode/service.js";
 import { installSyncModeConfigurationAdapter } from "./sync-mode/config-adapter.js";
 import { configureLogger, logger } from "./shared/logger.js";
 import { visibleIntegrations } from "./core/models.js";
+import { virtualPowerModeStatus } from "./core/virtual-power.js";
 
 const log = logger("platform");
 const applicationRoot = path.resolve(
@@ -190,6 +191,10 @@ export class VirtualRemotePlatform {
     log.info(
       `Starting Virtual Remote Core ${this.version}: id=${this.id}, rest=${this.restPort}, websocket=${this.websocketPort}, data=${this.dataDir}`,
     );
+    // A virtual appliance has no handheld sleep state. Normalize databases
+    // created by older releases before any API client or integration can
+    // observe a persisted SUSPEND/LOW_POWER value.
+    this.db.setSetting("power_mode", virtualPowerModeStatus());
     const internalOwner = this.db.getIntegration("uc.main");
     if (internalOwner) {
       this.db.updateIntegration("uc.main", {
