@@ -6,6 +6,7 @@ import { displayName, localEntityId, parseJson, sha256, slug } from "../shared/u
 import { RESOURCE_RULES, decodeDataUrl, extensionForMime, mimeFromFilename, normalizeResourceId, resourceIdFromFilename, validateResource } from "../resources.js";
 import { CORE_SERVICE, formatLogRecords, logBoots, logger, logServices, queryLogRecords, queryLogs } from "../shared/logger.js";
 import { CoreWebSocketFacade } from "../core/websocket-facade.js";
+import { virtualBatteryStatus, virtualPowerModeStatus, virtualRestPowerStatus } from "../core/virtual-power.js";
 import { acceptWebSocketUpgrade, rejectWebSocketUpgrade } from "../protocol/websocket.js";
 import { convertIrCode } from "../core/ir-converter.js";
 import { buttonLayout, entityCommandMetadata, iconMapping, normalizeButtonMappings, screenLayout } from "../core/device-metadata.js";
@@ -2506,14 +2507,21 @@ export class PlatformHttpServer {
       const result = this.platform.systemBackup.restore(upload.buffer, { merge: url.searchParams.get("merge") === "true", filename: upload.filename });
       return json(response, 200, { code: "OK", restored: true, format: result.format });
     }
-    if (pathname === "/system/power" && method === "GET") return json(response, 200, db.getSetting("power_mode", {
-      mode: "ON", battery: { capacity: 100, status: "CHARGING" }
-    }));
+    if (pathname === "/system/power" && method === "GET") {
+      // The virtual appliance is permanently mains-powered. Do not expose a
+      // persisted handheld standby state: the Web Configurator treats that as
+      // a sleeping Remote and drops into its reconnect lifecycle.
+      db.setSetting("power_mode", virtualPowerModeStatus());
+      return json(response, 200, virtualRestPowerStatus());
+    }
     if (pathname === "/system/power" && method === "PUT") {
-      const input = await body(request);
-      const value = { ...db.getSetting("power_mode", {}), ...input };
+      // Accept the native API call for compatibility, but a server-backed
+      // virtual Remote cannot actually suspend or power off.
+      await body(request);
+      const value = virtualPowerModeStatus();
       db.setSetting("power_mode", value);
-      return json(response, 200, value);
+      this.platform.events.publish("power.mode", value);
+      return json(response, 200, virtualRestPowerStatus());
     }
     if (pathname === "/system/power/standby_inhibitors" && method === "GET") return json(response, 200, db.getSetting("standby_inhibitors", []));
     if (pathname === "/system/power/standby_inhibitors" && method === "DELETE") { db.setSetting("standby_inhibitors", []); return ok(response); }
@@ -2543,7 +2551,7 @@ export class PlatformHttpServer {
       db.setSetting("standby_inhibitors", values);
       return ok(response);
     }
-    if (pathname === "/system/power/battery" && method === "GET") return json(response, 200, { capacity: 100, status: "CHARGING" });
+    if (pathname === "/system/power/battery" && method === "GET") return json(response, 200, virtualBatteryStatus());
     if (pathname === "/system/sensors/ambient_light" && method === "GET") return json(response, 200, { intensity: Math.max(0, Math.min(65535, Number(db.getSetting("ambient_light", 0)) || 0)) });
     if (pathname === "/system/wifi" && method === "GET") return json(response, 200, await this.platform.hardware.wifiStatus());
     if (pathname === "/system/wifi" && method === "PUT") return json(response, 200, await this.platform.hardware.wifiCommand(url.searchParams.get("cmd")));
