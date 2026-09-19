@@ -32,3 +32,29 @@ test("HTTP and dedicated WebSocket listeners share Web Configurator sessions", (
     /this\.coreWs\.attach\(peer, \{ token, authenticated \}\)/,
   );
 });
+
+
+test("bundled configurator bypasses the public Core /ws route", () => {
+  const httpServer = source("src/api/server.js");
+  const bootstrap = source(
+    "web-configurator/public/assets/unfolded-simulator-bootstrap.js",
+  );
+  const socket = source("web-configurator/src/api/connection/socket.ts");
+
+  assert.match(
+    httpServer,
+    /\["\/ws", "\/configurator\/ws"\]\.includes\(url\.pathname\)/,
+  );
+  assert.match(
+    bootstrap,
+    /__UCVR_CONFIGURATOR_WS_URL__/,
+  );
+  assert.match(
+    bootstrap,
+    /\/configurator\/ws/,
+  );
+  assert.match(
+    socket,
+    /window\.__UCVR_CONFIGURATOR_WS_URL__/,
+  );
+});
