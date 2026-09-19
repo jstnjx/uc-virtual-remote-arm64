@@ -39,7 +39,9 @@ test("virtual Remote power contract is permanently awake and externally powered"
 test("REST and WebSocket power APIs enforce the always-awake contract", () => {
   const server = source("src/api/server.js");
   const websocket = source("src/core/websocket-facade.js");
+  const platform = source("src/platform.js");
 
+  assert.match(platform, /db\.setSetting\("power_mode", virtualPowerModeStatus\(\)\)/);
   assert.match(server, /virtualRestPowerStatus\(\)/);
   assert.match(server, /virtualBatteryStatus\(\)/);
   assert.match(websocket, /const next = virtualPowerModeStatus\(\)/);
