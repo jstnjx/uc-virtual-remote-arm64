@@ -58,6 +58,13 @@ export default class ConnectionWebSocket implements WsTransport {
 
   constructor(config: ConnectionSetup) {
     this._config = { ...config };
+
+    const dedicatedConfiguratorUrl = window.__UCVR_CONFIGURATOR_WS_URL__;
+    if (dedicatedConfiguratorUrl) {
+      this._host = dedicatedConfiguratorUrl;
+      return;
+    }
+
     let url = this._config.baseUrl;
     if (url === "/") {
       url = location.protocol + "//" + location.host;
