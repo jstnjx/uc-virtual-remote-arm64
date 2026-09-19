@@ -38,6 +38,13 @@
     enumerable: false,
     writable: false,
   });
+  const websocketProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  Object.defineProperty(window, "__UCVR_CONFIGURATOR_WS_URL__", {
+    value: `${websocketProtocol}//${window.location.host}${basePath}/configurator/ws`,
+    configurable: false,
+    enumerable: false,
+    writable: false,
+  });
   Object.defineProperty(window, "__UCVR_SIMULATOR__", {
     value: Object.freeze({
       enabled: true,

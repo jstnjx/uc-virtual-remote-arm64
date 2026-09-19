@@ -86,6 +86,22 @@ function openTransport(ws: ConnectionWebSocket): MockWebSocket {
   return sock;
 }
 
+describe("WebSocket endpoint selection", () => {
+  test("uses the dedicated bundled-configurator endpoint when provided", () => {
+    window.__UCVR_CONFIGURATOR_WS_URL__ =
+      "wss://review-remote.unfolded.tools/configurator/ws";
+    try {
+      const ws = makeTransport();
+      ws.connect();
+      expect(MockWebSocket.last.url).toBe(
+        "wss://review-remote.unfolded.tools/configurator/ws",
+      );
+    } finally {
+      delete window.__UCVR_CONFIGURATOR_WS_URL__;
+    }
+  });
+});
+
 async function expectPingError(p: Promise<void>): Promise<PingError> {
   try {
     await p;

@@ -16,6 +16,7 @@ export type SimulatorConfig = {
 declare global {
   interface Window {
     __UCVR_BASE_PATH__?: string;
+    __UCVR_CONFIGURATOR_WS_URL__?: string;
     __UCVR_SIMULATOR__?: SimulatorConfig;
   }
 }
