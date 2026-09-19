@@ -162,8 +162,10 @@ watch(
         console.log("RemoteStatus: Sleep flag reset");
       }, 1000);
     } else if (!newValue && prevValue && isAuthenticated.value) {
-      // Device disconnected (likely going to sleep), stop timer if it was running
-      console.log("RemoteStatus: Device going to sleep, stopping timer");
+      // Connectivity can drop for many reasons (startup handshake, proxy/LAN
+      // interruption, browser suspension). Do not label every disconnect as
+      // the physical Remote entering sleep.
+      console.log("RemoteStatus: WebSocket disconnected, stopping standby timer");
       if (remainingSeconds.value > 0) {
         stopTimer();
       }
