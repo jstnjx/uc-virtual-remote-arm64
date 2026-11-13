@@ -25,6 +25,19 @@ The community build is not an Unfolded Circle product and is not affiliated with
 - Replaced hardware-dependent values with safe virtual responses where appropriate.
 - Replaced public Wi-Fi status with a synthetic disconnected state to prevent host network details from being exposed by the hosted simulator.
 
+## Number entities, slider and number widgets
+
+Implemented by UC Virtual Remote from the public Core-API documentation (number entity, user interface widgets, `EntityOptionsUpdate`, touch slider `EntityFeatureTarget`). No code from later, unpublished Web Configurator releases was used.
+
+- Added the `number` entity type to entity lists, filters, live entity updates and entity icons.
+- Added a **Number** activity widget that shows a number entity as slider or stepper, with entity name, display mode and widget step settings.
+- Enabled the **Slider** activity widget for slider-capable entity features: number value, light brightness and color temperature, media-player volume, cover position and tilt position, and climate target temperature. The editor offers the feature, entity name, value display, style, update mode, color, fill, end icons, and optional limits.
+- Added editor previews for both widgets, including vertical sliders and the bar, buttons, gradient, centre-fill and marker-only variants.
+- Added a value control and display overrides (`options.user.decimals` for sensors and numbers, `options.user.display_mode` for numbers) to the entity detail page.
+- Sensor and number values now use the effective decimal places, user override first, and keep trailing zeros.
+- Extended the touch-slider target selection to light color temperature, cover tilt, climate target temperature, and bounded number entities.
+- Rendered and made interactive the slider and number widgets and number entities in the Remote Simulator, including live update mode and touch-slider feature targets.
+
 ## Navigation and interface behavior
 
 - Changed the post-authentication default route to the Home section.

@@ -224,6 +224,8 @@ export function useEditorCrud(ctx: EditorCrudContext) {
       }),
       ...(newValues.sensor && { sensor: newValues.sensor }),
       ...(newValues.select && { select: newValues.select }),
+      ...(newValues.slider && { slider: newValues.slider }),
+      ...(newValues.number && { number: newValues.number }),
     };
 
     if (newValues.type === "text") {
@@ -242,7 +244,12 @@ export function useEditorCrud(ctx: EditorCrudContext) {
       }
     }
 
-    if (newValues.type === "sensor" || newValues.type === "select") {
+    if (
+      newValues.type === "sensor" ||
+      newValues.type === "select" ||
+      newValues.type === "slider" ||
+      newValues.type === "number"
+    ) {
       item.text = newValues.text;
 
       if (!newValues.text || newValues.text.length < 1) {
@@ -254,7 +261,9 @@ export function useEditorCrud(ctx: EditorCrudContext) {
     if (
       newValues.type !== "media_player" &&
       newValues.type !== "sensor" &&
-      newValues.type !== "select"
+      newValues.type !== "select" &&
+      newValues.type !== "slider" &&
+      newValues.type !== "number"
     ) {
       saveableItem.value = true;
     } else if (
@@ -273,6 +282,18 @@ export function useEditorCrud(ctx: EditorCrudContext) {
       newValues.type === "select" &&
       newValues.select?.select_id &&
       newValues.select?.select_id.length > 0
+    ) {
+      saveableItem.value = true;
+    } else if (
+      newValues.type === "slider" &&
+      newValues.slider?.entity_id &&
+      newValues.slider.entity_id.length > 0
+    ) {
+      saveableItem.value = true;
+    } else if (
+      newValues.type === "number" &&
+      newValues.number?.number_id &&
+      newValues.number.number_id.length > 0
     ) {
       saveableItem.value = true;
     }

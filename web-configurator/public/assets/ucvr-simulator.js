@@ -738,7 +738,7 @@
       return;
     }
     const entityType = String(item.data?.entity_type || "").toLowerCase();
-    if (["cover", "light", "climate", "select", "media_player", "switch", "button"].includes(entityType)) {
+    if (["cover", "light", "climate", "select", "media_player", "switch", "button", "number"].includes(entityType)) {
       openEntityControl(item.data);
       return;
     }
@@ -957,7 +957,7 @@
       <div class="entity-item__icon ucvr-remoteui-entity-card__icon${inactive ? " entity-item__icon--inactive" : ""}${unavailable ? " entity-item__icon--unavailable" : ""}${media?.artwork ? " has-artwork" : ""}">${artwork}</div>
       <div class="entity-item__meta ucvr-remoteui-entity-card__meta">
         <span class="entity-item__title${inactive ? " entity-item__title--inactive" : ""}" title="${escapeHtml(title)}">${escapeHtml(title)}</span>
-        <span class="entity-item__state">${escapeHtml(type === "media_player" ? (media.artist || media.title || stateOf(data)) : stateOf(data))}</span>
+        <span class="entity-item__state">${escapeHtml(type === "media_player" ? (media.artist || media.title || stateOf(data)) : type === "number" ? formatNumber(numberEntityData(data).value, numberEntityData(data).decimals, numberEntityData(data).unit) : stateOf(data))}</span>
       </div>
       ${quickActionMarkup(data)}
     </div>`;
@@ -1009,7 +1009,7 @@
   }
 
   function activityWidgetEntity(widget) {
-    const id = widget?.sensor?.sensor_id || widget?.select?.select_id || widget?.media_player_id || widget?.light_id || widget?.cover_id || widget?.climate_id || widget?.light?.entity_id || widget?.cover?.entity_id || widget?.climate?.entity_id || widget?.entity_id || widget?.command?.entity_id || "";
+    const id = widget?.slider?.entity_id || widget?.number?.number_id || widget?.sensor?.sensor_id || widget?.select?.select_id || widget?.media_player_id || widget?.light_id || widget?.cover_id || widget?.climate_id || widget?.light?.entity_id || widget?.cover?.entity_id || widget?.climate?.entity_id || widget?.entity_id || widget?.command?.entity_id || "";
     if (!id) return null;
     const direct = state.entities.get(String(id));
     if (direct) return direct;
@@ -1041,7 +1041,11 @@
   }
 
   function sensorValue(widget, entity) {
-    const value = entityAttribute(entity, "value", "state");
+    let value = entityAttribute(entity, "value", "state");
+    const decimals = sensorDecimals(entity);
+    if (decimals !== null && value !== "" && Number.isFinite(Number(value))) {
+      value = Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
     const showUnit = widget?.sensor?.show_unit !== false;
     const unit = showUnit ? entityAttribute(entity, "unit", "unit_of_measurement", "measurement_unit") : "";
     return `${value === "" ? "—" : value}${unit ? ` ${unit}` : ""}`;
@@ -1156,6 +1160,10 @@
 
   function lightTemperatureData(entity) {
     const attributes = entity?.attributes || {};
+    if (attributes.color_temp_kelvin == null && attributes.min_color_temp_kelvin == null && attributes.color_temperature != null && Number(attributes.color_temperature) <= 100) {
+      // Core-API light color temperature: 0 = warm, 100 = cold.
+      return { min: 0, max: 100, value: Math.round(finiteNumber(attributes.color_temperature, 50)), unit: "%", step: 1 };
+    }
     const min = finiteNumber(attributes.min_color_temp_kelvin ?? attributes.min_color_temp ?? entity?.options?.min_color_temp, 2000);
     const max = finiteNumber(attributes.max_color_temp_kelvin ?? attributes.max_color_temp ?? entity?.options?.max_color_temp, 6500);
     const value = Math.max(min, Math.min(max, finiteNumber(attributes.color_temp_kelvin ?? attributes.color_temperature ?? attributes.color_temp ?? attributes.temperature, Math.round((min + max) / 2))));
@@ -1221,6 +1229,172 @@
     return { current, target, mode, modes, unit, step };
   }
 
+  // Number entities and slider-capable entity features (Core-API number
+  // entity, `slider` and `number` UI widgets, touch slider feature targets).
+  const NUMBER_DEVICE_CLASS_UNITS = {
+    temperature: "°C", humidity: "%", battery: "%", power: "W", energy: "kWh", voltage: "V", current: "A",
+    duration: "s", distance: "m", speed: "km/h", illuminance: "lx", audio_level: "dB", percentage: "%"
+  };
+  const AUTO_SLIDER_MAX_POSITIONS = 256;
+
+  function optionalNumber(value) {
+    if (value === undefined || value === null || value === "") return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function decimalPlaces(value) {
+    const text = String(value ?? "");
+    if (!/^-?\d+(\.\d+)?(e-?\d+)?$/i.test(text)) return 0;
+    const [mantissa, exponent] = text.toLowerCase().split("e");
+    const places = (mantissa.split(".")[1] || "").length - Number(exponent || 0);
+    return Math.max(0, Math.min(6, places));
+  }
+
+  function numberEntityData(entity) {
+    const options = entity?.options || {};
+    const user = options.user || {};
+    const min = options.min === null ? null : optionalNumber(options.min ?? 0);
+    const max = options.max === null ? null : optionalNumber(options.max ?? 100);
+    const rawStep = optionalNumber(options.step);
+    const step = rawStep !== null && rawStep >= 0.000001 ? rawStep : 1;
+    const configuredDecimals = Number.isInteger(user.decimals) ? user.decimals : Number.isInteger(options.decimals) ? options.decimals : null;
+    const decimals = configuredDecimals ?? Math.max(decimalPlaces(step), decimalPlaces(min ?? 0), decimalPlaces(max ?? 0));
+    const unit = String(options.unit || NUMBER_DEVICE_CLASS_UNITS[String(entity?.device_class || "")] || "");
+    const value = optionalNumber(entity?.attributes?.value);
+    const displayMode = ["slider", "stepper"].includes(user.display_mode) ? user.display_mode
+      : ["slider", "stepper"].includes(options.display_mode) ? options.display_mode : "auto";
+    return { min, max, step, decimals, unit, value, displayMode, readable: options.readable !== false, bounded: min !== null && max !== null };
+  }
+
+  function numberRepresentation(entity, widgetMode = "auto") {
+    const data = numberEntityData(entity);
+    if (!data.bounded) return "stepper";
+    const mode = ["slider", "stepper"].includes(widgetMode) ? widgetMode : data.displayMode;
+    if (mode !== "auto") return mode;
+    return (data.max - data.min) / data.step <= AUTO_SLIDER_MAX_POSITIONS ? "slider" : "stepper";
+  }
+
+  function formatNumber(value, decimals = 0, unit = "") {
+    if (value === null || value === undefined || value === "" || !Number.isFinite(Number(value))) return "—";
+    const text = Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    return unit ? `${text} ${unit}` : text;
+  }
+
+  function sensorDecimals(entity) {
+    const decimals = entity?.options?.user?.decimals ?? entity?.options?.decimals;
+    return Number.isInteger(decimals) ? decimals : null;
+  }
+
+  // Resolve a slider-capable feature of an entity: range, current value, unit
+  // and the entity command with the parameter that sets it.
+  function sliderFeatureData(entity, requestedFeature = "") {
+    const type = String(entity?.entity_type || "").toLowerCase();
+    const attributes = entity?.attributes || {};
+    const feature = String(requestedFeature || {
+      number: "value", light: "dim", media_player: "volume", cover: "position", climate: "target_temperature"
+    }[type] || "");
+    if (type === "number" && feature === "value") {
+      const data = numberEntityData(entity);
+      if (!data.bounded) return null;
+      return { feature, min: data.min, max: data.max, step: data.step, value: data.value ?? data.min, unit: data.unit, decimals: data.decimals, command: "number.set_value", param: "value", stepUp: "number.increment", stepDown: "number.decrement" };
+    }
+    if (type === "light" && feature === "dim") {
+      return { feature, min: 0, max: 255, step: 1, value: finiteNumber(attributes.brightness, 0), unit: "%", decimals: 0, percent: true, command: "light.on", param: "brightness" };
+    }
+    if (type === "light" && feature === "color_temperature") {
+      const steps = finiteNumber(entity?.options?.color_temperature_steps, 0);
+      return { feature, min: 0, max: 100, step: steps > 1 ? 100 / (steps - 1) : 1, value: finiteNumber(attributes.color_temperature, 50), unit: "%", decimals: 0, command: "light.on", param: "color_temperature" };
+    }
+    if (type === "media_player" && feature === "volume") {
+      const steps = finiteNumber(entity?.options?.volume_steps, 100);
+      return { feature, min: 0, max: 100, step: steps > 0 ? 100 / steps : 1, value: finiteNumber(attributes.volume, 0), unit: "", decimals: 0, command: "media_player.volume", param: "volume", stepUp: "media_player.volume_up", stepDown: "media_player.volume_down" };
+    }
+    if (type === "media_player" && feature === "seek") {
+      const duration = finiteNumber(attributes.media_duration, 0);
+      return { feature, min: 0, max: Math.max(1, duration), step: 1, value: finiteNumber(attributes.media_position, 0), unit: "s", decimals: 0, command: "media_player.seek", param: "media_position" };
+    }
+    if (type === "cover" && feature === "position") {
+      return { feature, min: 0, max: 100, step: 1, value: normalizedCoverPosition(entity), unit: "%", decimals: 0, command: "cover.position", param: "position" };
+    }
+    if (type === "cover" && feature === "tilt_position") {
+      return { feature, min: 0, max: 100, step: 1, value: finiteNumber(attributes.tilt_position, 0), unit: "%", decimals: 0, command: "cover.tilt", param: "tilt_position" };
+    }
+    if (type === "climate" && feature === "target_temperature") {
+      const climate = climateData(entity);
+      const min = finiteNumber(entity?.options?.min_temperature ?? attributes.min_temperature, 10);
+      const max = finiteNumber(entity?.options?.max_temperature ?? attributes.max_temperature, 30);
+      return { feature, min, max, step: climate.step, value: finiteNumber(climate.target, min), unit: climate.unit, decimals: decimalPlaces(climate.step), command: "climate.target_temperature", param: "temperature" };
+    }
+    return null;
+  }
+
+  function sliderValueText(data, value) {
+    if (data.percent) return `${Math.round(Number(value) / data.max * 100)}%`;
+    return formatNumber(value, data.decimals, data.unit);
+  }
+
+  function rangeMarkup(entityId, data, { live = false, className = "", label = "" } = {}) {
+    const min = optionalNumber(data.rangeMin) ?? data.min;
+    const max = optionalNumber(data.rangeMax) ?? data.max;
+    const value = Math.max(min, Math.min(max, finiteNumber(data.value, min)));
+    return `<input type="range" class="${escapeHtml(className)}" min="${min}" max="${max}" step="${data.step}" value="${value}" data-control-range data-control-entity="${escapeHtml(entityId)}" data-control-command="${escapeHtml(data.command)}" data-control-param="${escapeHtml(data.param)}" data-control-decimals="${data.decimals}" data-control-unit="${escapeHtml(data.unit)}" data-control-percent-of="${data.percent ? data.max : ""}"${live ? " data-control-live" : ""}${label ? ` aria-label="${escapeHtml(label)}"` : ""}>`;
+  }
+
+  function stepperMarkup(entityId, data, step = null) {
+    const params = step ? { step } : {};
+    const atMin = data.min !== null && data.value !== null && data.value <= data.min;
+    const atMax = data.max !== null && data.value !== null && data.value >= data.max;
+    return `<span class="ucvr-sim-stepper">
+      <button type="button" class="ucvr-sim-stepper__button" data-command-entity="${escapeHtml(entityId)}" data-command-id="number.decrement" data-command-params="${escapeHtml(JSON.stringify(params))}" aria-label="Decrease"${atMin ? " disabled" : ""}><i class="fa-light fa-minus"></i></button>
+      <output class="ucvr-sim-stepper__value">${escapeHtml(data.readable ? formatNumber(data.value, data.decimals, data.unit) : "—")}</output>
+      <button type="button" class="ucvr-sim-stepper__button" data-command-entity="${escapeHtml(entityId)}" data-command-id="number.increment" data-command-params="${escapeHtml(JSON.stringify(params))}" aria-label="Increase"${atMax ? " disabled" : ""}><i class="fa-light fa-plus"></i></button>
+    </span>`;
+  }
+
+  function sliderWidgetMarkup(widget, entity, label) {
+    const config = widget?.slider || {};
+    const entityId = idOf(entity) || String(config.entity_id || "");
+    const data = entity ? sliderFeatureData(entity, config.feature) : null;
+    // The item `text` is the label, unless `show_name` asks for the entity name.
+    const labelText = config.show_name ? nameOf(entity?.name, String(widget?.text || "")) : String(widget?.text || "");
+    const name = labelText ? `<span class="ucvr-sim-widget__label">${escapeHtml(labelText)}</span>` : "";
+    const vertical = finiteNumber(widget?.size?.height, 1) > finiteNumber(widget?.size?.width, 1);
+    if (!data) return `${name}<span class="ucvr-sim-widget__label">Unavailable</span>`;
+    data.rangeMin = config.min;
+    data.rangeMax = config.max;
+    const style = ["bar", "buttons"].includes(config.style) ? config.style : "default";
+    const value = config.show_value === false ? "" : `<output class="ucvr-sim-slider__value">${escapeHtml(sliderValueText(data, data.value))}</output>`;
+    const iconMin = config.icon_min ? `<span class="ucvr-sim-slider__icon">${iconMarkup({ icon: config.icon_min, entity_type: "button" })}</span>` : "";
+    const iconMax = config.icon_max ? `<span class="ucvr-sim-slider__icon">${iconMarkup({ icon: config.icon_max, entity_type: "button" })}</span>` : "";
+    const range = rangeMarkup(entityId, data, { live: config.update_mode === "live", className: "ucvr-sim-slider__range", label: label || nameOf(entity?.name, "Slider") });
+    let control = `${iconMin}${range}${iconMax}`;
+    if (style === "buttons") {
+      const next = (direction) => {
+        const target = Math.max(optionalNumber(config.min) ?? data.min, Math.min(optionalNumber(config.max) ?? data.max, Number((data.value + direction * data.step).toPrecision(12))));
+        return commandButton(entityId, data.command, direction > 0 ? "Increase" : "Decrease", direction > 0 ? "fa-plus" : "fa-minus", { [data.param]: target });
+      };
+      control = `${next(-1)}${control}${next(1)}`;
+    }
+    return `<span class="ucvr-sim-slider ucvr-sim-slider--${style}${vertical && style !== "buttons" ? " ucvr-sim-slider--vertical" : ""} ucvr-sim-slider--fill-${escapeHtml(config.fill || "auto")} ucvr-sim-slider--color-${escapeHtml(config.color || "auto")}">${name}${value}<span class="ucvr-sim-slider__track">${control}</span></span>`;
+  }
+
+  function numberWidgetMarkup(widget, entity, label) {
+    const config = widget?.number || {};
+    const entityId = idOf(entity) || String(config.number_id || "");
+    const labelText = config.show_name ? nameOf(entity?.name, String(widget?.text || "")) : String(widget?.text || "");
+    const name = labelText ? `<span class="ucvr-sim-widget__label">${escapeHtml(labelText)}</span>` : "";
+    if (!entity) return `${name}<span class="ucvr-sim-widget__label">Unavailable</span>`;
+    const data = numberEntityData(entity);
+    const step = optionalNumber(config.step);
+    if (numberRepresentation(entity, config.display_mode) === "slider") {
+      const slider = sliderFeatureData(entity, "value");
+      if (step) slider.step = step;
+      return `<span class="ucvr-sim-slider ucvr-sim-slider--default">${name}<output class="ucvr-sim-slider__value">${escapeHtml(data.readable ? formatNumber(data.value, data.decimals, data.unit) : "—")}</output><span class="ucvr-sim-slider__track">${rangeMarkup(entityId, slider, { className: "ucvr-sim-slider__range", label: label || nameOf(entity?.name, "Number") })}</span></span>`;
+    }
+    return `<span class="ucvr-sim-number">${name}${stepperMarkup(entityId, data, step)}</span>`;
+  }
+
   function entityVisualData(entity) {
     const type = String(entity?.entity_type || entity?.type || "").toLowerCase();
     const base = {
@@ -1232,7 +1406,8 @@
       state: stateOf(entity)
     };
     if (type === "media_player") return { ...base, media: mediaPlayerData(entity) };
-    if (type === "sensor") return { ...base, value: entityAttribute(entity, "value", "state"), unit: entityAttribute(entity, "unit", "unit_of_measurement", "measurement_unit") };
+    if (type === "number") return { ...base, number: numberEntityData(entity) };
+    if (type === "sensor") return { ...base, decimals: sensorDecimals(entity), value: entityAttribute(entity, "value", "state"), unit: entityAttribute(entity, "unit", "unit_of_measurement", "measurement_unit") };
     if (type === "select") return { ...base, selected: entityAttribute(entity, "current_option", "selected", "value", "state"), options: normalizedOptions(entity?.attributes?.options || entity?.attributes?.available_options || entity?.options?.options || entity?.options?.items) };
     if (type === "light") return { ...base, brightness: normalizedBrightness(entity), colorTemperature: entityAttribute(entity, "color_temperature", "color_temp", "temperature"), color: stableVisualValue(entityAttribute(entity, "color", "hs_color", "rgb_color")) };
     if (type === "cover") return { ...base, position: normalizedCoverPosition(entity) };
@@ -1427,6 +1602,10 @@
       body = mediaPlayerMarkup(entity, label);
     } else if (["cover", "light", "climate"].includes(type)) {
       body = compactEntityWidgetMarkup(type, entity, label);
+    } else if (type === "slider") {
+      body = sliderWidgetMarkup(widget, entity, label);
+    } else if (type === "number") {
+      body = numberWidgetMarkup(widget, entity, label);
     } else if (type === "numpad") {
       body = numpadMarkup(widget);
     } else {
@@ -1438,7 +1617,7 @@
       command = { entity_id: widget.media_player_id, cmd_id: "media_player.play_pause", params: {} };
     }
     const actionable = Boolean(command?.cmd_id && command?.entity_id);
-    const tag = ["numpad", "select", "cover", "light", "climate"].includes(type) ? "div" : "button";
+    const tag = ["numpad", "select", "cover", "light", "climate", "slider", "number"].includes(type) ? "div" : "button";
     const accessibleLabel = label || (type === "icon" ? "Command" : "");
     return `<${tag}${tag === "button" ? ' type="button"' : ""}${accessibleLabel ? ` title="${escapeHtml(accessibleLabel)}" aria-label="${escapeHtml(accessibleLabel)}"` : ""} class="ucvr-sim-activity-widget ucvr-sim-activity-widget--${escapeHtml(type)}${actionable ? " is-actionable" : ""}" style="${style}" data-activity-widget="${index}"${actionable ? ` data-command-entity="${escapeHtml(command.entity_id)}" data-command-id="${escapeHtml(command.cmd_id)}" data-command-params="${escapeHtml(JSON.stringify(command.params || {}))}"` : ""}>${body}</${tag}>`;
   }
@@ -1511,7 +1690,7 @@
       if (feature === "power") {
         featureBody = `<div class="ucvr-remoteui-power"><strong>${isOn ? "On" : "Off"}</strong><button type="button" class="ucvr-remoteui-square-control${isOn ? " is-active" : ""}" data-command-entity="${escapeHtml(entityId)}" data-command-id="${isOn ? "light.off" : "light.on"}" data-command-params="{}" aria-label="Turn ${isOn ? "off" : "on"}"><span></span></button></div>`;
       } else if (feature === "brightness") {
-        const temperatureControl = supportsLightControl(entity, "temperature") ? `<label class="ucvr-remoteui-vertical-slider is-temperature"><span>${temperature.value} K</span><input type="range" min="${temperature.min}" max="${temperature.max}" step="50" value="${temperature.value}" data-control-range data-control-entity="${escapeHtml(entityId)}" data-control-command="light.color_temperature" data-control-param="temperature" data-control-suffix=" K"><output>${temperature.value} K</output></label>` : "";
+        const temperatureControl = supportsLightControl(entity, "temperature") ? `<label class="ucvr-remoteui-vertical-slider is-temperature"><span>${temperature.value}${temperature.unit || " K"}</span><input type="range" min="${temperature.min}" max="${temperature.max}" step="${temperature.step || 50}" value="${temperature.value}" data-control-range data-control-entity="${escapeHtml(entityId)}" data-control-command="light.color_temperature" data-control-param="temperature" data-control-suffix="${temperature.unit || " K"}"><output>${temperature.value}${temperature.unit || " K"}</output></label>` : "";
         featureBody = `<div class="ucvr-remoteui-light-level"><strong>${brightness}%</strong><div class="ucvr-remoteui-light-level__sliders"><label class="ucvr-remoteui-vertical-slider is-brightness"><span>Brightness</span><input type="range" min="0" max="100" step="1" value="${brightness}" data-control-range data-control-entity="${escapeHtml(entityId)}" data-control-command="light.brightness" data-control-param="brightness" data-control-suffix="%"><output>${brightness}%</output></label>${temperatureControl}</div></div>`;
       } else {
         const color = lightColorHex(entity);
@@ -1529,6 +1708,12 @@
       const next = target + climate.step;
       const isOn = entityIsActive(entity);
       body = `<div class="ucvr-remoteui-climate"><button type="button" class="ucvr-remoteui-climate__step is-plus" data-command-entity="${escapeHtml(entityId)}" data-command-id="climate.set_temperature" data-command-params='${escapeHtml(JSON.stringify({temperature: next}))}' aria-label="Raise target"><i class="fa-light fa-plus"></i></button><div class="ucvr-remoteui-climate__tumbler"><span>${escapeHtml(`${previous}${climate.unit}`)}</span><strong>${escapeHtml(`${target}${climate.unit}`)}</strong><span>${escapeHtml(`${next}${climate.unit}`)}</span></div><button type="button" class="ucvr-remoteui-climate__step is-minus" data-command-entity="${escapeHtml(entityId)}" data-command-id="climate.set_temperature" data-command-params='${escapeHtml(JSON.stringify({temperature: previous}))}' aria-label="Lower target"><i class="fa-light fa-minus"></i></button><div class="ucvr-remoteui-climate__footer"><span><small>Current</small><strong>${escapeHtml(climate.current === "" ? "—" : `${climate.current}${climate.unit}`)}</strong></span>${climate.modes.length ? `<label class="ucvr-remoteui-select"><span>Mode</span><select data-control-select data-control-entity="${escapeHtml(entityId)}" data-control-command="climate.set_mode" data-control-param="mode">${normalizedOptions([climate.mode, ...climate.modes]).map((mode) => `<option value="${escapeHtml(mode)}"${mode === climate.mode ? " selected" : ""}>${escapeHtml(mode)}</option>`).join("")}</select></label>` : ""}<button type="button" class="ucvr-remoteui-round-power${isOn ? " is-active" : ""}" data-command-entity="${escapeHtml(entityId)}" data-command-id="${isOn ? "climate.off" : "climate.on"}" data-command-params="{}" aria-label="Turn ${isOn ? "off" : "on"}"><i class="fa-light fa-power-off"></i></button></div></div>`;
+    } else if (type === "number") {
+      const data = numberEntityData(entity);
+      const control = numberRepresentation(entity) === "slider"
+        ? `<label class="ucvr-remoteui-horizontal-slider"><span>${escapeHtml(data.bounded ? `${formatNumber(data.min, data.decimals)} – ${formatNumber(data.max, data.decimals, data.unit)}` : "")}</span>${rangeMarkup(entityId, sliderFeatureData(entity, "value"), { label: title })}<output>${escapeHtml(formatNumber(data.value, data.decimals, data.unit))}</output></label>`
+        : stepperMarkup(entityId, data);
+      body = `<div class="ucvr-sim-entity-control__hero"><i class="fa-light fa-input-numeric"></i><strong>${escapeHtml(data.readable ? formatNumber(data.value, data.decimals, data.unit) : "—")}</strong><span>${escapeHtml(entity.device_class ? String(entity.device_class).replaceAll("_", " ") : "Value")}</span></div><div class="ucvr-sim-number-control">${control}</div>`;
     } else if (type === "switch") {
       const isOn = entityIsActive(entity);
       body = `<div class="ucvr-remoteui-power"><strong>${isOn ? "On" : "Off"}</strong><button type="button" class="ucvr-remoteui-square-control${isOn ? " is-active" : ""}" data-command-entity="${escapeHtml(entityId)}" data-command-id="switch.toggle" data-command-params="{}" aria-label="Toggle switch"><span></span></button></div>`;
@@ -1658,13 +1843,33 @@
     bindOnce(closeControl, "close-control", () => closeControl.addEventListener("click", closeEntityControl));
     for (const range of display.querySelectorAll("[data-control-range]")) {
       bindOnce(range, "control-range", () => {
-        const output = range.closest("label")?.querySelector("output");
-        const updateOutput = () => { if (output) output.textContent = `${range.value}${range.dataset.controlSuffix || ""}`; };
-        range.addEventListener("input", updateOutput);
+        const output = range.closest("label, .ucvr-sim-slider")?.querySelector("output");
+        const formatted = () => {
+          if (range.dataset.controlPercentOf) return `${Math.round(Number(range.value) / Number(range.dataset.controlPercentOf) * 100)}%`;
+          if (range.dataset.controlDecimals !== undefined) return formatNumber(range.value, Number(range.dataset.controlDecimals) || 0, range.dataset.controlUnit || "");
+          return `${range.value}${range.dataset.controlSuffix || ""}`;
+        };
+        const updateOutput = () => { if (output) output.textContent = formatted(); };
+        const send = () => sendEntityCommand(range.dataset.controlEntity, range.dataset.controlCommand, { [range.dataset.controlParam]: Number(range.value) });
+        // `update_mode: live` sends while dragging, throttled; otherwise the
+        // value is sent when the slider is released.
+        let liveTimer = null;
+        range.addEventListener("pointerdown", () => { state.selectInteraction = true; });
+        range.addEventListener("input", () => {
+          updateOutput();
+          if (range.dataset.controlLive === undefined || liveTimer) return;
+          liveTimer = setTimeout(() => {
+            liveTimer = null;
+            send().catch((error) => toast(error.message, true));
+          }, 250);
+        });
         range.addEventListener("change", async () => {
           updateOutput();
+          if (liveTimer) clearTimeout(liveTimer);
+          liveTimer = null;
+          state.selectInteraction = false;
           try {
-            await sendEntityCommand(range.dataset.controlEntity, range.dataset.controlCommand, { [range.dataset.controlParam]: Number(range.value) });
+            await send();
             await refreshAfterCommand();
           } catch (error) { toast(error.message, true); }
         });
@@ -2056,19 +2261,37 @@
   let sliderDrag = null;
   let sliderCommandChain = Promise.resolve();
 
+  function touchSliderConfig() {
+    return state.activeActivity?.options?.touch_slider || state.activeActivity?.touch_slider || {};
+  }
+
   function touchSliderTarget() {
     if (!activityControlContext()) return "";
-    const config = state.activeActivity?.options?.touch_slider || state.activeActivity?.touch_slider || {};
+    const config = touchSliderConfig();
     return config?.enabled === false ? "" : String(config?.target?.entity_id || config?.entity_id || "");
   }
 
   function queueSliderStep(direction) {
     const target = touchSliderTarget();
     if (!target) return;
-    const command = direction > 0 ? "media_player.volume_up" : "media_player.volume_down";
+    const entity = state.entities.get(target);
+    const data = entity ? sliderFeatureData(entity, touchSliderConfig()?.target?.feature) : null;
+    let command = direction > 0 ? "media_player.volume_up" : "media_player.volume_down";
+    let params = {};
+    if (data && data.feature !== "volume") {
+      // Feature targets without relative commands get an absolute value. The
+      // pending value is kept across the drag so fast moves accumulate.
+      if (sliderDrag && sliderDrag.value === undefined) sliderDrag.value = data.value;
+      const current = sliderDrag?.value ?? data.value;
+      const step = data.feature === "dim" ? 255 / 20 : data.feature === "seek" ? 5 : data.step;
+      const next = Math.max(data.min, Math.min(data.max, Number((current + direction * step).toPrecision(12))));
+      if (sliderDrag) sliderDrag.value = next;
+      command = data.command;
+      params = { [data.param]: data.feature === "dim" ? Math.round(next) : next };
+    }
     sliderCommandChain = sliderCommandChain
       .catch(() => {})
-      .then(() => sendEntityCommand(target, command, {}))
+      .then(() => sendEntityCommand(target, command, params))
       .catch((error) => toast(error.message, true));
   }
 
@@ -2125,7 +2348,7 @@
 
   let screenSwipe = null;
   display.addEventListener("pointerdown", (event) => {
-    if (event.target.closest(".entity-item,button")) return;
+    if (event.target.closest(".entity-item,button,input,select")) return;
     screenSwipe = { x: event.clientX, y: event.clientY };
   });
   display.addEventListener("pointerup", (event) => {
@@ -2149,6 +2372,29 @@
     .ucvr-sim-compact-control{display:flex;width:100%;height:100%;min-width:0;min-height:0;box-sizing:border-box;flex-direction:column;align-items:center;justify-content:center;gap:.18rem}.ucvr-sim-compact-control__value{font-size:1.15rem;font-weight:600}.ucvr-sim-compact-control__buttons{display:flex;gap:.2rem}.ucvr-sim-control-button{display:inline-flex;width:2.45rem;height:2.45rem;align-items:center;justify-content:center;padding:0;border:0;border-radius:50%;background:#222725;color:#f7f7f5;font-size:1rem;cursor:pointer}.ucvr-sim-control-button:active,.ucvr-sim-control-button--primary{background:#f7f7f5;color:#000}.ucvr-sim-compact-control .ucvr-sim-control-button{width:1.8rem;height:1.8rem;font-size:.75rem}.ucvr-sim-entity-control{z-index:65}.ucvr-sim-entity-control__body{display:flex;min-height:0;flex:1;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:.7rem;overflow:hidden;padding:.7rem .85rem}.ucvr-sim-entity-control__hero{display:flex;flex-direction:column;align-items:center;gap:.25rem;text-align:center}.ucvr-sim-entity-control__hero>i{font-size:4rem}.ucvr-sim-entity-control__hero>strong{font-size:2rem;font-weight:500}.ucvr-sim-entity-control__hero>span{color:#a9b4b2}.ucvr-sim-entity-control__actions{display:flex;align-items:center;justify-content:center;gap:.75rem}.ucvr-sim-control-range,.ucvr-sim-control-select,.ucvr-sim-control-color{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:.4rem;color:#a9b4b2}.ucvr-sim-control-range input,.ucvr-sim-control-select select,.ucvr-sim-control-color input{grid-column:1/-1;width:100%;box-sizing:border-box}.ucvr-sim-control-color input{height:2.4rem;padding:0;border:0;border-radius:.4rem;background:#1d201f}.ucvr-sim-control-select select{padding:.55rem;border:0;border-radius:.4rem;background:#1d201f;color:#f7f7f5;font:inherit}.ucvr-sim-control-empty{margin:0;color:#a9b4b2;text-align:center}.ucvr-sim-entity-control__body--media{justify-content:stretch;overflow:hidden!important;padding:.4rem .65rem .55rem}.ucvr-sim-media-control{display:grid;width:100%;height:100%;min-width:0;min-height:0;box-sizing:border-box;grid-template-rows:minmax(3.5rem,1fr) auto auto auto auto auto;align-items:center;gap:.22rem;overflow:hidden}.ucvr-sim-media-control__artwork{display:flex;width:100%;height:100%;min-height:0;max-height:100%;justify-self:stretch;align-self:stretch;align-items:center;justify-content:center;overflow:hidden;border-radius:.55rem;background:#111;color:#a9b4b2;font-size:2.4rem}.ucvr-sim-media-control__artwork img{display:block;width:100%;height:100%;object-fit:cover}.ucvr-sim-media-control .ucvr-sim-media__title{font-size:1.15rem;font-weight:600;line-height:1.15;text-align:center}.ucvr-sim-media-control .ucvr-sim-media__meta{color:#a9b4b2;font-size:.82rem;line-height:1.2;text-align:center}.ucvr-sim-media-control .ucvr-sim-media__progress{display:block;height:.55rem;overflow:hidden;border-radius:999px;background:#2b302e}.ucvr-sim-media-control__source{margin-top:0}.ucvr-sim-climate-target{display:flex;flex-direction:column;align-items:center;gap:.45rem}.ucvr-sim-climate-target>span{color:#a9b4b2}.ucvr-sim-climate-target>div{display:flex;align-items:center;gap:.75rem}.ucvr-sim-climate-target strong{min-width:5rem;font-size:1.8rem;font-weight:500;text-align:center}.ucvr-sim-profile-selector{position:absolute;inset:0;z-index:55;display:flex;flex-direction:column;background:#000;color:#f7f7f5;animation:ucvr-profile-open .26s cubic-bezier(.2,.8,.2,1) both}@keyframes ucvr-profile-open{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}.ucvr-sim-profile-selector__header{display:grid;height:3.75rem;min-height:3.75rem;grid-template-columns:3.75rem 1fr 3.75rem;align-items:center;border-bottom:1px solid #ffffff18}.ucvr-sim-profile-selector__header button{display:flex;width:3.75rem;height:3.75rem;align-items:center;justify-content:center;border:0;background:transparent;color:#f7f7f5;font-size:1.4rem}.ucvr-sim-profile-selector__header strong{grid-column:2;text-align:center;font-size:1.35rem;font-weight:500}.ucvr-sim-profile-selector__list{width:100%;max-width:100%;min-height:0;box-sizing:border-box;flex:1;overflow-x:hidden;overflow-y:auto;padding:.35rem}.ucvr-sim-profile-item{display:grid;width:100%;min-width:0;max-width:100%;min-height:4rem;box-sizing:border-box;grid-template-columns:3rem minmax(0,1fr) 2rem;align-items:center;gap:.55rem;padding:.35rem .55rem;border:0;border-radius:.45rem;background:transparent;color:#f7f7f5;text-align:left}.ucvr-sim-profile-item.is-selected{background:#ffffff16}.ucvr-sim-profile-item.is-active{color:var(--uc-theme-accent,#769990)}.ucvr-sim-profile-item__icon{display:flex;width:2.65rem;height:2.65rem;align-items:center;justify-content:center;overflow:hidden}.ucvr-sim-profile-item__icon .selected-icon,.ucvr-sim-profile-item__icon .vue-load-image{display:flex!important;width:100%!important;height:100%!important;align-items:center!important;justify-content:center!important}.ucvr-sim-profile-item__icon img{display:block!important;width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}.ucvr-sim-profile-item__name{overflow:hidden;font-size:1rem;text-overflow:ellipsis;white-space:nowrap}
     .ucvr-sim-mapping-panel{display:flex;width:min(44rem,42vw);min-width:20rem;height:100%;min-height:0;flex:0 0 min(44rem,42vw);overflow:hidden;margin-left:1rem;border:1px solid var(--uc-theme-color-20,#202424);border-radius:1rem;background:var(--uc-bg-bg-surface-1,var(--uc-bg-bg-surface,#111))}.ucvr-sim-mapping-panel .button-list__header{flex:0 0 auto}.ucvr-sim-mapping-panel .button-list__header__instruction{margin:0}.ucvr-sim-mapping-panel .button-list__body{position:relative!important;min-height:0;flex:1 1 auto;overflow:auto}.ucvr-sim-mapping-panel .button-list__item__config__expanded{display:flex;flex-direction:column;gap:.3rem}.ucvr-sim-mapping-panel .button-press__command{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ucvr-sim-mapping-item--active{background:color-mix(in srgb,var(--uc-theme-accent,#769990) 16%,transparent)!important}.ucvr-sim-button-press--active{outline:1px solid var(--uc-theme-accent,#769990);background:color-mix(in srgb,var(--uc-theme-accent,#769990) 24%,transparent)!important}.ucvr-sim-mapping-panel .config-touch-slider__item__feature{opacity:1}.ucvr-sim-mapping-panel strong{font-weight:500;color:var(--uc-text-text-primary)}
     .ucvr-sim-toast{position:absolute;z-index:60;right:1rem;bottom:1rem;left:1rem;padding:.65rem .8rem;border-radius:.375rem;background:var(--uc-success-success,#a2d4bf);color:var(--uc-black,#000);opacity:0;transform:translateY(.5rem);transition:.18s;pointer-events:none;box-shadow:0 .35rem 1.25rem #0008}.ucvr-sim-toast.is-visible{opacity:1;transform:none}.ucvr-sim-toast.is-error{background:var(--uc-error-error-40,#ff8978)}.ucvr-sim-page.is-busy{cursor:progress}.ucvr-sim-page.is-busy .remote-button-layout__item,.ucvr-sim-page.is-busy .entity-item{pointer-events:none}
+
+    /* Slider and number widgets (number entity, slider widget, number widget) */
+    .ucvr-sim-slider,.ucvr-sim-number{display:flex;width:100%;height:100%;min-width:0;min-height:0;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:.25rem;padding:.25rem .5rem}
+    .ucvr-sim-slider .ucvr-sim-widget__label,.ucvr-sim-number .ucvr-sim-widget__label{text-align:center}
+    .ucvr-sim-slider__value{display:block;font-size:1.05rem;font-weight:600;text-align:center}
+    .ucvr-sim-slider__track{display:flex;min-width:0;align-items:center;gap:.35rem}
+    .ucvr-sim-slider__icon{display:flex;flex:0 0 auto;font-size:1rem;opacity:.75}
+    .ucvr-sim-slider__range{width:100%;min-width:0;flex:1 1 auto;margin:0;accent-color:var(--uc-theme-color,#f7f7f5);cursor:pointer}
+    .ucvr-sim-slider--bar .ucvr-sim-slider__range{height:1.6rem;appearance:none;-webkit-appearance:none;border-radius:.45rem;background:#ffffff26;overflow:hidden}
+    .ucvr-sim-slider--bar .ucvr-sim-slider__range::-webkit-slider-thumb{width:.2rem;height:1.6rem;-webkit-appearance:none;background:#f7f7f5;box-shadow:-40rem 0 0 39.8rem #ffffffa6}
+    .ucvr-sim-slider--bar .ucvr-sim-slider__range::-moz-range-progress{height:1.6rem;background:#ffffffa6}
+    .ucvr-sim-slider--color-neutral .ucvr-sim-slider__range{accent-color:#bdbdbd}
+    .ucvr-sim-slider--color-gradient .ucvr-sim-slider__range{accent-color:#ffb35c}
+    .ucvr-sim-slider--buttons .ucvr-sim-control-button{flex:0 0 auto}
+    .ucvr-sim-slider--vertical .ucvr-sim-slider__track{flex:1 1 auto;flex-direction:column-reverse;justify-content:center;min-height:0}
+    .ucvr-sim-slider--vertical .ucvr-sim-slider__range{width:auto;height:100%;min-height:3rem;writing-mode:vertical-lr;direction:rtl}
+    .ucvr-sim-stepper{display:flex;width:100%;min-width:0;align-items:center;justify-content:space-between;gap:.35rem}
+    .ucvr-sim-stepper__button{display:flex;width:2.4rem;height:2.4rem;flex:0 0 auto;align-items:center;justify-content:center;padding:0;border:0;border-radius:.5rem;background:#ffffff1f;color:inherit;font-size:1rem;cursor:pointer}
+    .ucvr-sim-stepper__button:hover{background:#ffffff33}.ucvr-sim-stepper__button:disabled{opacity:.35;cursor:default}
+    .ucvr-sim-stepper__value{min-width:0;overflow:hidden;font-size:1.1rem;font-weight:600;text-align:center;text-overflow:ellipsis;white-space:nowrap}
+    .ucvr-sim-number-control{display:flex;width:100%;box-sizing:border-box;flex-direction:column;align-items:stretch;padding:1rem 1.25rem}
+    .ucvr-sim-number-control .ucvr-sim-stepper__button{width:3.25rem;height:3.25rem;font-size:1.3rem}
+    .ucvr-sim-number-control .ucvr-sim-stepper__value{font-size:1.5rem}
 
     /* Remote UI entity cards and detail controls */
     .ucvr-remoteui-entity-card,.ucvr-remoteui-group{position:relative!important;display:grid!important;width:calc(100% - .7rem)!important;min-height:5.15rem!important;grid-template-columns:4.25rem minmax(0,1fr) 2.8rem!important;align-items:center!important;gap:.45rem!important;margin:.25rem .35rem!important;padding:.28rem .42rem!important;border:1px solid transparent!important;border-radius:.48rem!important;background:#000!important;color:#f7f7f5!important}

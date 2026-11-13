@@ -208,6 +208,10 @@ export function applyDemoCommand(entityRecord, commandId, params = {}) {
       attributes.hs_color = [attributes.hue, attributes.saturation];
       attributes.color = { hue: attributes.hue, saturation: attributes.saturation };
       break;
+    case "tilt":
+      attributes.tilt_position = Math.round(clamp(params.tilt_position ?? params.position ?? 0, 0, 100));
+      break;
+    case "target_temperature":
     case "set_temperature": attributes.target_temperature = rounded(params.temperature ?? params.target_temperature, 1); break;
     case "set_mode":
       attributes.hvac_mode = String(params.mode);

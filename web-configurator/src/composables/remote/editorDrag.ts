@@ -229,7 +229,9 @@ export function useEditorDrag(ctx: EditorDragContext) {
     saveableItem.value =
       element.type === "media_player" ||
       element.type === "sensor" ||
-      element.type === "select"
+      element.type === "select" ||
+      element.type === "slider" ||
+      element.type === "number"
         ? false
         : true;
     if (mouseInGrid) {
@@ -319,7 +321,9 @@ export function useEditorDrag(ctx: EditorDragContext) {
     saveableItem.value =
       element.type === "media_player" ||
       element.type === "sensor" ||
-      element.type === "select"
+      element.type === "select" ||
+      element.type === "slider" ||
+      element.type === "number"
         ? false
         : true;
     findLoop: for (let y = 0; y < gridSize.height; y++) {

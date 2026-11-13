@@ -30,7 +30,17 @@ import { deepClone, useDataHelper } from "@/composables/dataHelper";
 import { getBinarySensorState } from "@/composables/activities";
 import { normalizeState } from "@/utils/state";
 
+import {
+  NUMBER_DISPLAY_MODES,
+  formatNumber,
+  numberEntityData,
+  numberRepresentation,
+  sensorDecimals,
+} from "@/composables/numberEntity";
+import { useTranslation } from "i18next-vue";
+
 import UCInput from "@/components/ui/UCInput.vue";
+import WidgetOptionSelect from "@/components/ui/WidgetOptionSelect.vue";
 import SelectedIcon from "@/components/elements/icon/SelectedIcon.vue";
 import IconSelect from "@/components/elements/icon/IconSelect.vue";
 
@@ -61,6 +71,83 @@ const entityValues = ref<Record<string, any>>({});
 const formWrapper = useTemplateRef<HTMLDivElement>("formWrapper");
 
 const loading = ref(false);
+
+const { t } = useTranslation();
+
+// Number entity control and display overrides (Core-API `options.user`).
+const isNumber = computed(
+  () => entity.value?.entity_type === EntityType.number,
+);
+const supportsDisplayOverrides = computed(
+  () =>
+    entity.value?.entity_type === EntityType.number ||
+    entity.value?.entity_type === EntityType.sensor,
+);
+const numberData = computed(() => numberEntityData(entity.value));
+const numberControl = computed(() => numberRepresentation(entity.value));
+const numberSliderValue = ref<number>(0);
+const userOverrides = computed(
+  () => (entity.value?.options?.user ?? {}) as Record<string, unknown>,
+);
+const effectiveDecimals = computed(() =>
+  isNumber.value ? numberData.value.decimals : sensorDecimals(entity.value),
+);
+const decimalsOptions = computed(() => [
+  { label: t("entity.display.default"), value: "default" },
+  ...[0, 1, 2, 3, 4, 5, 6].map((value) => ({
+    label: String(value),
+    value: String(value),
+  })),
+]);
+const displayModeOptions = computed(() => [
+  { label: t("entity.display.default"), value: "default" },
+  ...NUMBER_DISPLAY_MODES.map((value) => ({
+    label: t(`widget.popup.number.display_mode_option.${value}`, value),
+    value,
+  })),
+]);
+const numberValueText = computed(() =>
+  numberData.value.readable
+    ? formatNumber(
+        numberData.value.value,
+        numberData.value.decimals,
+        numberData.value.unit,
+      )
+    : "—",
+);
+const numberRangeText = computed(() => {
+  const { min, max, decimals, unit, step } = numberData.value;
+  const bound = (value: number | null) =>
+    value === null ? "∞" : formatNumber(value, decimals);
+  return `${bound(min)} – ${bound(max)}${unit ? ` ${unit}` : ""} · ${t("entity.display.step")} ${formatNumber(step, decimals)}`;
+});
+
+async function changeUserOverride(key: string, value: string) {
+  if (!entity.value) return;
+  const override =
+    value === "default" ? null : key === "decimals" ? Number(value) : value;
+  try {
+    const newValues = await storage.updateEntity(entity.value.entity_id, {
+      options: { user: { [key]: override } },
+    });
+    setEntity(newValues);
+  } catch (e) {
+    addErrorBottom(e, "entity.update", formWrapper.value ?? undefined);
+  }
+}
+
+async function sendNumberCommand(cmdId: string, params?: object) {
+  if (!entity.value) return;
+  try {
+    await integrationsApi.executeEntityCommand(
+      entity.value.entity_id,
+      cmdId,
+      params,
+    );
+  } catch (e) {
+    addErrorBottom(e, "entity.execute_command", formWrapper.value ?? undefined);
+  }
+}
 
 storage.$onAction(({ name, args, after }) => {
   if (name !== "socketUpdate") {
@@ -112,6 +199,11 @@ const showCommandButton = computed(() => {
     return true;
   }
 
+  // Number entities are controlled with the value control.
+  if (entity.value?.entity_type === EntityType.number) {
+    return false;
+  }
+
   return (
     entity.value && entity.value.features && entity.value.features.length > 0
   );
@@ -149,6 +241,8 @@ function setEntity(newValue: ConfiguredEntity, onInit = false) {
     entityValues.value.description?.langCode ?? getCurrentLocale();
 
   entity.value = newValue;
+  const numberValue = numberEntityData(newValue).value;
+  if (numberValue !== null) numberSliderValue.value = numberValue;
 
   const entityName = getValueByLang(newValue.name, nameLang, !onInit);
   const entityDescr = getValueByLang(newValue.description, descLang, !onInit);
@@ -415,7 +509,7 @@ onMounted(async () => {
                     getItemAttrValue(
                       entity.attributes?.value,
                       timeFormat24h,
-                      entity.options?.decimals as number | undefined,
+                      effectiveDecimals,
                     )
                   }}
                   <template
@@ -443,8 +537,134 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="ep-settings__no-settings panel-col panel-col--60">
+    <div
+      v-if="entity && supportsDisplayOverrides"
+      v-overflow-indicator
+      class="ep-settings__form panel-col panel-col--60"
+    >
+      <div class="ep-settings__form__wrapper ep-settings__display">
+        <template v-if="isNumber">
+          <h3 class="ep-settings__display__title">
+            {{ $t("entity.display.value") }}
+          </h3>
+          <div class="ep-settings__display__value">
+            <strong>{{ numberValueText }}</strong>
+            <small>{{ numberRangeText }}</small>
+          </div>
+          <div
+            v-if="numberControl === 'slider'"
+            class="ep-settings__display__slider"
+          >
+            <input
+              v-model.number="numberSliderValue"
+              type="range"
+              :min="numberData.min ?? 0"
+              :max="numberData.max ?? 100"
+              :step="numberData.step"
+              :aria-label="$t('entity.display.value')"
+              @change="
+                sendNumberCommand('number.set_value', {
+                  value: numberSliderValue,
+                })
+              "
+            />
+          </div>
+          <div v-else class="ep-settings__display__stepper">
+            <button
+              class="button button--secondary button--icon button--icon--medium"
+              :aria-label="$t('entity.display.decrease')"
+              @click="sendNumberCommand('number.decrement')"
+            >
+              <i class="fa-regular fa-minus"></i>
+            </button>
+            <span>{{ numberValueText }}</span>
+            <button
+              class="button button--secondary button--icon button--icon--medium"
+              :aria-label="$t('entity.display.increase')"
+              @click="sendNumberCommand('number.increment')"
+            >
+              <i class="fa-regular fa-plus"></i>
+            </button>
+          </div>
+        </template>
+        <h3 class="ep-settings__display__title">
+          {{ $t("entity.display.title") }}
+        </h3>
+        <p class="ep-settings__display__description">
+          {{ $t("entity.display.description") }}
+        </p>
+        <WidgetOptionSelect
+          :label="$t('entity.display.decimals')"
+          :value="
+            userOverrides.decimals !== undefined
+              ? String(userOverrides.decimals)
+              : 'default'
+          "
+          :options="decimalsOptions"
+          @change="(value: string) => changeUserOverride('decimals', value)"
+        />
+        <WidgetOptionSelect
+          v-if="isNumber"
+          :label="$t('widget.popup.number.display_mode')"
+          :value="(userOverrides.display_mode as string) || 'default'"
+          :options="displayModeOptions"
+          :disabled="!numberData.bounded"
+          @change="(value: string) => changeUserOverride('display_mode', value)"
+        />
+      </div>
+    </div>
+    <div v-else class="ep-settings__no-settings panel-col panel-col--60">
       <p>{{ $t("entity.no_other_settings") }}</p>
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.ep-settings__display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__title {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--uc-theme-color-70);
+  }
+
+  &__value {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    strong {
+      font-size: 1.75rem;
+      font-weight: 400;
+    }
+
+    small {
+      color: var(--uc-theme-color-70);
+    }
+  }
+
+  &__slider input {
+    width: 100%;
+    accent-color: var(--uc-foreground);
+  }
+
+  &__stepper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    span {
+      min-width: 6rem;
+      text-align: center;
+      font-size: 1.25rem;
+    }
+  }
+}
+</style>

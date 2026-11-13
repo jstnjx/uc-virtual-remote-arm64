@@ -254,6 +254,13 @@ export type EntityRequest = {
   name?: LanguageText;
   description?: LanguageText;
   icon?: IconIdentifier;
+  /**
+   * Core-API `EntityOptionsUpdate`: only the user overrides can be changed.
+   * A `null` value removes one override, `user: null` removes all of them.
+   */
+  options?: {
+    user?: Record<string, number | string | null> | null;
+  };
 };
 
 export type IntegrationDiscovery = {

@@ -166,7 +166,8 @@ export type ActivityUserInterfaceItem = {
     | "slider"
     | "jump"
     | "sensor"
-    | "select";
+    | "select"
+    | "number";
   icon?: IconIdentifier;
   text?: string;
   media_player_id?: string;
@@ -179,12 +180,38 @@ export type ActivityUserInterfaceItem = {
     select_id: string;
     show_name?: boolean;
   };
+  slider?: ActivityUserInterfaceSlider;
+  number?: ActivityUserInterfaceNumber;
   command?: EntityCommand;
   short_press?: EntityCommand;
   double_press?: EntityCommand;
   long_press?: EntityCommand;
   location: GridLocation;
   size: GridItemSize;
+};
+
+/** Slider widget bound to a slider-capable entity feature. */
+export type ActivityUserInterfaceSlider = {
+  entity_id: string;
+  feature?: string;
+  show_name?: boolean;
+  show_value?: boolean;
+  icon_min?: IconIdentifier;
+  icon_max?: IconIdentifier;
+  min?: number;
+  max?: number;
+  update_mode?: "on_release" | "live";
+  style?: "default" | "bar" | "buttons";
+  color?: "auto" | "neutral" | "entity" | "gradient";
+  fill?: "auto" | "start" | "center" | "cursor";
+};
+
+/** Number widget showing a number entity as slider or stepper. */
+export type ActivityUserInterfaceNumber = {
+  number_id: string;
+  show_name?: boolean;
+  display_mode?: "auto" | "slider" | "stepper";
+  step?: number;
 };
 
 export type ActivityUserInterfaceGrid = {

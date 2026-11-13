@@ -97,6 +97,7 @@ export enum EntityType {
   sensor = "sensor",
   switch = "switch",
   select = "select",
+  number = "number",
   activity = "activity",
   macro = "macro",
   remote = "remote",

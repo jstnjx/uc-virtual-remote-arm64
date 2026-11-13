@@ -215,6 +215,9 @@ const COMMANDS = [
 
   command("climate.on", "climate", "on", "Turn on", ["on_off"]),
   command("climate.off", "climate", "off", "Turn off", ["on_off"]),
+  command("climate.target_temperature", "climate", "target_temperature", "Set target temperature", ["target_temperature"], [
+    param("temperature", "Temperature", "number")
+  ]),
   command("climate.set_temperature", "climate", "set_temperature", "Set temperature", ["target_temperature", "set_temperature"], [
     param("temperature", "Temperature", "number")
   ]),

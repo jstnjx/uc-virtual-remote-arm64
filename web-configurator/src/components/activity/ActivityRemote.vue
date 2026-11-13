@@ -1218,7 +1218,9 @@ onMounted(async () => {
                         :class="{
                           'ui-page__item__test--disabled':
                             item.item.type === 'media_player' ||
-                            item.item.type === 'sensor',
+                            item.item.type === 'sensor' ||
+                            item.item.type === 'slider' ||
+                            item.item.type === 'number',
                         }"
                         @click="executeButtonCommand(item.item)"
                       >

@@ -20,6 +20,7 @@ import { getBinarySensorState } from "@/composables/activities";
 import { normalizeState } from "@/utils/state";
 
 import SelectedIcon from "@/components/elements/icon/SelectedIcon.vue";
+import { numberEntityData, sensorDecimals } from "@/composables/numberEntity";
 
 const triggeringTypes = [
   "button",
@@ -138,7 +139,9 @@ const stateAttribute = computed(() => {
         ? getItemAttrValue(
             rawValue,
             timeFormat24h.value,
-            item?.value?.options?.decimals as number | undefined,
+            item?.value?.entity_type === EntityType.number
+              ? numberEntityData(item.value).decimals
+              : sensorDecimals(item?.value),
           )
         : "";
     return [formattedValue, unit].filter(Boolean).join(" ");

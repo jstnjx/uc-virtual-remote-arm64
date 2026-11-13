@@ -64,9 +64,19 @@ export function pageSlice(items, input = {}) {
   return { items: items.slice(start, start + meta.limit), paging: meta };
 }
 
+// Number entity `min` / `max`: `null` means unbounded, which differs from an
+// absent option (default 0 / 100). `clean` must not drop them.
+function withNumberLimits(value, options) {
+  if (!value?.options || !options || typeof options !== "object") return value;
+  for (const key of ["min", "max"]) {
+    if (options[key] === null) value.options[key] = null;
+  }
+  return value;
+}
+
 export function coreEntity(entity) {
   if (!entity) return null;
-  return clean({
+  return withNumberLimits(clean({
     entity_id: entity.entity_id || entity.id,
     entity_type: entity.entity_type,
     integration_id: entity.integration_id,
@@ -84,12 +94,12 @@ export function coreEntity(entity) {
     attributes: entity.attributes || {},
     entities: entity.entities,
     included_entities: entity.included_entities || entity.options?.included_entities
-  });
+  }), entity.entity_type === "number" ? entity.options : null);
 }
 
 export function availableEntity(entity) {
   if (!entity) return null;
-  return clean({
+  return withNumberLimits(clean({
     entity_id: entity.local_id || entity.entity_id || entity.id,
     entity_type: entity.entity_type,
     integration_id: entity.integration_id,
@@ -102,7 +112,7 @@ export function availableEntity(entity) {
     device_class: entity.device_class,
     device_id: entity.device_id,
     options: entity.options
-  });
+  }), entity.entity_type === "number" ? entity.options : null);
 }
 
 export function coreProfile(profile) {
