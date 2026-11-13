@@ -12,7 +12,53 @@ export function paging(input = {}, count = 0) {
   return { page, limit, count: Number(count) };
 }
 
+function localizedName(value, lang) {
+  if (value === null || value === undefined) return "";
+  if (typeof value !== "object") return String(value);
+  const entries = Object.entries(value).filter(([, text]) => typeof text === "string");
+  if (!entries.length) return "";
+  const culture = String(lang || "").replace("-", "_");
+  const base = culture.split("_")[0];
+  const pick = (predicate) => entries.find(([key]) => predicate(key))?.[1];
+  return pick((key) => key === culture)
+    ?? pick((key) => key === base)
+    ?? pick((key) => key.split("_")[0] === base && base)
+    ?? pick((key) => key === "en")
+    ?? pick((key) => key.startsWith("en_"))
+    ?? entries[0][1];
+}
+
+// Core-API `sort` / `order` / `lang` collection parameters. Without `sort`
+// and `order` the storage order is kept.
+export function sortItems(items, input = {}) {
+  const sort = input.sort ? String(input.sort) : "";
+  const order = input.order ? String(input.order).toLowerCase() : "";
+  if (!sort && !order) return items;
+  if (sort && !["name", "created"].includes(sort)) {
+    throw Object.assign(new Error(`Invalid sort field ${sort}`), { status: 400, errorCode: "BAD_REQUEST", code: "BAD_REQUEST" });
+  }
+  if (order && !["asc", "desc"].includes(order)) {
+    throw Object.assign(new Error(`Invalid sort order ${order}`), { status: 400, errorCode: "BAD_REQUEST", code: "BAD_REQUEST" });
+  }
+  const direction = order === "desc" ? -1 : 1;
+  const collator = new Intl.Collator(String(input.lang || "en").replace("_", "-").split("-")[0] || "en", { sensitivity: "base", numeric: true });
+  const keyed = items.map((item, index) => ({ item, index }));
+  keyed.sort((left, right) => {
+    let result = 0;
+    if (sort === "created") {
+      result = String(left.item.created_at || "").localeCompare(String(right.item.created_at || "")) || left.index - right.index;
+    } else {
+      const leftName = localizedName(left.item.name ?? left.item.display_name ?? left.item.entity_id ?? left.item.id, input.lang);
+      const rightName = localizedName(right.item.name ?? right.item.display_name ?? right.item.entity_id ?? right.item.id, input.lang);
+      result = collator.compare(leftName, rightName) || left.index - right.index;
+    }
+    return result * direction;
+  });
+  return keyed.map((entry) => entry.item);
+}
+
 export function pageSlice(items, input = {}) {
+  items = sortItems(items, input || {});
   const meta = paging(input, items.length);
   const start = (meta.page - 1) * meta.limit;
   return { items: items.slice(start, start + meta.limit), paging: meta };

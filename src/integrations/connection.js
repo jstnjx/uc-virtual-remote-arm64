@@ -238,8 +238,11 @@ export class IntegrationConnection extends EventEmitter {
     return this.request("search_media", { entity_id: entityId, ...parameters }, 60_000);
   }
 
-  async startSetup(reconfigure = false, setupData = {}) {
-    return this.request("setup_driver", { reconfigure: Boolean(reconfigure), setup_data: setupData }, 30_000);
+  async startSetup(reconfigure = false, setupData = {}, language = undefined) {
+    // Integration-API 0.17: optional user interface `language` (e.g. `de_CH`).
+    const payload = { reconfigure: Boolean(reconfigure), setup_data: setupData };
+    if (language) payload.language = String(language);
+    return this.request("setup_driver", payload, 30_000);
   }
 
   async submitSetup(input) {

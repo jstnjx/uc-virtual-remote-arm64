@@ -95,7 +95,7 @@ export function createStandaloneDemoIntegration(options = {}) {
         req_id: 0,
         msg: "authentication",
         code: 200,
-        msg_data: { version: { api: "0.15.4", driver: "1.0.0" } }
+        msg_data: { version: { api: "0.17.1", driver: "1.0.0" } }
       });
 
       peer.on("message", (raw) => {
@@ -105,7 +105,7 @@ export function createStandaloneDemoIntegration(options = {}) {
         const data = request.msg_data || {};
         switch (request.msg) {
           case "get_driver_version":
-            response(peer, request, "driver_version", { name: "Demo integration", version: { api: "0.15.4", driver: "1.0.0" } });
+            response(peer, request, "driver_version", { name: "Demo integration", version: { api: "0.17.1", driver: "1.0.0" } });
             break;
           case "get_driver_metadata":
             response(peer, request, "driver_metadata", {

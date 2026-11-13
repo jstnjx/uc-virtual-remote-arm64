@@ -3,8 +3,25 @@ import { discoverIntegrations } from "./mdns.js";
 import { displayName, localEntityId, qualifiedEntityId, sleep } from "../shared/util.js";
 import { logger } from "../shared/logger.js";
 import { entityCommandMetadata } from "../core/device-metadata.js";
+import { clampNumber, driverOptions, mergeDriverOptions, numberOptions } from "../core/entity-options.js";
 
 const log = logger("integration-manager");
+
+// The `value` of `set_value` must be within the `min` and `max` options.
+function prepareNumberCommand(entity, commandId, params) {
+  if (!params || typeof params !== "object") return;
+  if (commandId === "set_value") {
+    const value = clampNumber(params.value, entity.options || {});
+    if (value === null) {
+      throw Object.assign(new Error("set_value requires a numeric value"), { status: 400 });
+    }
+    params.value = value;
+  } else if (["increment", "decrement"].includes(commandId) && params.step !== undefined) {
+    const step = Number(params.step);
+    if (!Number.isFinite(step) || step < 0.000001) delete params.step;
+    else params.step = step;
+  }
+}
 
 function commandDefinition(entity, commandId) {
   const type = String(entity?.entity_type || "");
@@ -184,7 +201,7 @@ export class IntegrationManager {
   }
 
   async register(input) {
-    if (!input.url) throw new Error("Integration URL is required");
+    if (!input.url) throw Object.assign(new Error("Integration URL is required"), { status: 400 });
     let url = String(input.url).trim();
     if (!/^wss?:\/\//i.test(url)) url = `ws://${url}`;
     const record = this.platform.db.saveIntegration({ ...input, url, configured: input.configured ?? false });
@@ -282,7 +299,34 @@ export class IntegrationManager {
     const entities = await connection.getAvailableEntities();
     const stored = this.platform.db.replaceAvailableEntities(namespaceId, entities);
     this.platform.events.publish("entities.available", { integration_id: namespaceId, count: stored.length });
+    for (const entity of entities || []) this.#applyDriverDefinition(namespaceId, entity);
     return stored;
+  }
+
+  // An updated entity definition of the driver replaces the features, options
+  // and device class of the configured entity. The user overrides in
+  // `options.user`, the name and the icon chosen by the user are kept.
+  #applyDriverDefinition(namespaceId, entity) {
+    const localId = String(entity?.entity_id || entity?.id || "");
+    if (!localId) return;
+    const configured = this.platform.db.getConfiguredEntityByLocal(namespaceId, localEntityId(namespaceId, localId))
+      || this.platform.db.getConfiguredEntityByLocal(namespaceId, localId);
+    if (!configured || configured.entity_type !== entity.entity_type) return;
+    const patch = {};
+    if (Array.isArray(entity.features) && JSON.stringify(entity.features) !== JSON.stringify(configured.features)) patch.features = entity.features;
+    if (entity.device_class !== undefined && entity.device_class !== configured.device_class) patch.device_class = entity.device_class;
+    if (entity.options && typeof entity.options === "object") {
+      const preserved = {};
+      // Remote-owned option keys that are not part of a driver definition.
+      for (const key of ["button_mapping", "user_interface"]) {
+        if (configured.options?.[key] !== undefined && entity.options[key] === undefined) preserved[key] = configured.options[key];
+      }
+      const options = { ...mergeDriverOptions(configured.options, entity.options, configured.entity_type), ...preserved };
+      if (JSON.stringify(options) !== JSON.stringify(configured.options || {})) patch.options = options;
+    }
+    if (!Object.keys(patch).length) return;
+    const updated = this.platform.db.updateConfiguredEntity(configured.entity_id, patch);
+    if (updated) this.platform.events.publish("entity.change", updated);
   }
 
   async configureEntity(integrationId, localId, overrides = {}) {
@@ -338,12 +382,15 @@ export class IntegrationManager {
 
   async command(entityId, commandId, params = undefined) {
     const entity = this.platform.db.getConfiguredEntity(entityId);
-    if (!entity) throw new Error(`Configured entity ${entityId} not found`);
+    if (!entity) throw Object.assign(new Error(`Configured entity ${entityId} not found`), { status: 404 });
     const definition = commandDefinition(entity, commandId);
     const driverCommandId = definition?.cmd_id || commandId;
     const completedParams = completeCommandParams(entity, definition, params);
+    if (entity.entity_type === "number") prepareNumberCommand(entity, driverCommandId, completedParams);
     if (this.platform.demo?.isIntegration(entity.integration_id)) {
-      return this.platform.demo.command(entityId, driverCommandId, completedParams);
+      const demoResult = await this.platform.demo.command(entityId, driverCommandId, completedParams);
+      this.#afterNumberCommand(entity, driverCommandId, completedParams);
+      return demoResult;
     }
     const connection = await this.#connection(entity.integration_id);
     const result = await connection.command(
@@ -352,6 +399,7 @@ export class IntegrationManager {
       completedParams,
       entity.entity_type
     );
+    this.#afterNumberCommand(entity, driverCommandId, completedParams);
     this.platform.events.publish("entity.command", {
       entity_id: entityId,
       command_id: commandId,
@@ -359,6 +407,24 @@ export class IntegrationManager {
       params: completedParams || null
     });
     return result?.msg_data || { code: result?.code || 200 };
+  }
+
+  // A number entity with `readable: false` never reports its value: the Remote
+  // keeps the last value sent, and shows increment / decrement as the last
+  // value plus or minus the step, clamped at the limits (display only).
+  #afterNumberCommand(entity, commandId, params = {}) {
+    if (entity.entity_type !== "number" || entity.options?.readable !== false) return;
+    const options = numberOptions(entity.options, entity.device_class);
+    const current = Number(entity.attributes?.value);
+    let value;
+    if (commandId === "set_value") value = clampNumber(params?.value, options);
+    else if (["increment", "decrement"].includes(commandId) && Number.isFinite(current)) {
+      const step = Number(params?.step) > 0 ? Number(params.step) : options.step;
+      value = clampNumber(current + (commandId === "increment" ? step : -step), options);
+    }
+    if (value === undefined || value === null) return;
+    const updated = this.platform.db.updateEntityAttributes(entity.entity_id, { value });
+    if (updated) this.platform.events.publish("entity.change", updated);
   }
 
   async browseMedia(entityId, parameters = {}) {
@@ -379,7 +445,7 @@ export class IntegrationManager {
     return connection.searchMedia(entity.local_id, parameters);
   }
 
-  async startSetup(id, reconfigure = false, setupData = {}) {
+  async startSetup(id, reconfigure = false, setupData = {}, language = undefined) {
     const connection = await this.#connection(id);
     const record = this.platform.db.updateIntegration(id, { setup_state: "SETUP", setup_action: null, last_error: null });
     this.platform.events.publish("integration.setup", {
@@ -388,7 +454,8 @@ export class IntegrationManager {
       event_type: "START",
       state: "SETUP"
     });
-    await connection.startSetup(reconfigure, setupData);
+    const uiLanguage = language || this.platform.configuration?.get?.("localization")?.language_code;
+    await connection.startSetup(reconfigure, setupData, uiLanguage);
     return this.platform.db.getIntegration(id);
   }
 
@@ -464,7 +531,11 @@ export class IntegrationManager {
         const state = String(data.state || "SETUP");
         const action = state === "WAIT_USER_ACTION" ? setupAction(data) : null;
         const patch = { setup_state: state, setup_action: action };
-        if (state === "ERROR") patch.last_error = String(data.error || "Integration setup failed");
+        // Integration-API 0.17: optional driver-provided `error_message`, and
+        // `WAIT_USER_ACTION` with `error: INVALID_INPUT` to correct input in place.
+        const errorMessage = data.error_message === undefined ? undefined : data.error_message;
+        if (state === "ERROR") patch.last_error = String((typeof errorMessage === "string" ? errorMessage : null) || data.error || "Integration setup failed");
+        if (state === "WAIT_USER_ACTION" && data.error) patch.last_error = String((typeof errorMessage === "string" ? errorMessage : null) || data.error);
         if (state === "OK") {
           patch.configured = true;
           patch.last_error = null;
@@ -477,7 +548,9 @@ export class IntegrationManager {
           event_type: ["OK", "ERROR"].includes(state) ? "STOP" : "SETUP",
           state,
           ...(action ? { require_user_action: action } : {}),
-          ...(state === "ERROR" ? { error: String(data.error || "OTHER") } : {})
+          ...(state === "ERROR" ? { error: String(data.error || "OTHER") } : {}),
+          ...(state === "WAIT_USER_ACTION" && data.error ? { error: String(data.error) } : {}),
+          ...(errorMessage !== undefined ? { error_message: errorMessage } : {})
         });
         if (state === "OK") {
           this.platform.events.publish("integration.created", updated);
@@ -495,6 +568,7 @@ export class IntegrationManager {
           for (const namespaceId of this.#namespacesForConnection(id)) {
             const stored = this.platform.db.upsertAvailableEntity(namespaceId, entity);
             this.platform.events.publish("entity.available", stored);
+            this.#applyDriverDefinition(namespaceId, entity);
           }
         } catch (error) { log.warn(`${id} invalid entity_available:`, error.message); }
         break;

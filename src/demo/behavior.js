@@ -90,14 +90,15 @@ export function randomizeDemoAttributes(entityRecord) {
       break;
     case "light":
       if (String(attributes.state).toUpperCase() === "ON") {
-        attributes.brightness = Math.round(clamp(Number(attributes.brightness || 50) + randomInteger(-8, 8), 1, 100));
+        // Core-API light brightness: 0..255.
+        attributes.brightness = Math.round(clamp(Number(attributes.brightness || 128) + randomInteger(-12, 12), 1, 255));
         if ("hue" in attributes || "hs_color" in attributes) {
           attributes.hue = Math.round((Number(attributes.hue || 0) + randomInteger(-12, 12) + 360) % 360);
           attributes.saturation = Math.round(clamp(Number(attributes.saturation || 60) + randomInteger(-5, 5), 0, 100));
           attributes.hs_color = [attributes.hue, attributes.saturation];
           attributes.color = { hue: attributes.hue, saturation: attributes.saturation };
         }
-        if ("color_temperature" in attributes) attributes.color_temperature = Math.round(clamp(Number(attributes.color_temperature || 3200) + randomInteger(-150, 150), 2200, 6500));
+        if ("color_temperature" in attributes) attributes.color_temperature = Math.round(clamp(Number(attributes.color_temperature ?? 50) + randomInteger(-5, 5), 0, 100));
       }
       if (chance(0.04)) attributes.state = String(attributes.state).toUpperCase() === "ON" ? "OFF" : "ON";
       break;
@@ -168,7 +169,15 @@ export function applyDemoCommand(entityRecord, commandId, params = {}) {
   const attributes = { ...(entityRecord.attributes || {}) };
   const id = String(commandId || "").replace(/^[^.]+\./, "");
   switch (id) {
-    case "on": attributes.state = "ON"; break;
+    case "on":
+      attributes.state = "ON";
+      if (entityRecord.entity_type === "light") {
+        if (params?.brightness !== undefined) attributes.brightness = Math.round(clamp(params.brightness, 0, 255));
+        if (params?.color_temperature !== undefined) attributes.color_temperature = Math.round(clamp(params.color_temperature, 0, 100));
+        if (params?.hue !== undefined) attributes.hue = Math.round(clamp(params.hue, 0, 360));
+        if (params?.saturation !== undefined) attributes.saturation = Math.round(clamp(params.saturation, 0, 255));
+      }
+      break;
     case "off": attributes.state = "OFF"; break;
     case "toggle": attributes.state = String(attributes.state).toUpperCase() === "ON" ? "OFF" : "ON"; break;
     case "start":
@@ -191,8 +200,8 @@ export function applyDemoCommand(entityRecord, commandId, params = {}) {
       attributes.position = attributes.current_position;
       attributes.state = attributes.current_position === 100 ? "OPEN" : attributes.current_position === 0 ? "CLOSED" : "STOPPED";
       break;
-    case "brightness": attributes.brightness = Math.round(clamp(params.brightness, 0, 100)); break;
-    case "color_temperature": attributes.color_temperature = Math.round(clamp(params.temperature ?? params.color_temperature, 1_500, 10_000)); break;
+    case "brightness": attributes.brightness = Math.round(clamp(params.brightness, 0, 100) * 2.55); break;
+    case "color_temperature": attributes.color_temperature = Math.round(clamp(params.temperature ?? params.color_temperature, 0, 100)); break;
     case "color":
       attributes.hue = Math.round(clamp(params.hue, 0, 360));
       attributes.saturation = Math.round(clamp(params.saturation, 0, 100));
@@ -204,6 +213,24 @@ export function applyDemoCommand(entityRecord, commandId, params = {}) {
       attributes.hvac_mode = String(params.mode);
       attributes.state = String(params.mode).toUpperCase();
       break;
+    case "set_value":
+    case "increment":
+    case "decrement": {
+      if (entityRecord.entity_type !== "number") {
+        attributes.last_command = id;
+        attributes.last_command_at = isoNow();
+        break;
+      }
+      const options = entityRecord.options || {};
+      const min = options.min === null ? -Infinity : Number(options.min ?? 0);
+      const max = options.max === null ? Infinity : Number(options.max ?? 100);
+      const step = Number(params.step) > 0 ? Number(params.step) : Number(options.step) > 0 ? Number(options.step) : 1;
+      const current = Number(attributes.value ?? 0);
+      const next = id === "set_value" ? Number(params.value) : current + (id === "increment" ? step : -step);
+      if (Number.isFinite(next)) attributes.value = Number(Math.min(max, Math.max(min, next)).toPrecision(15));
+      attributes.state = "ON";
+      break;
+    }
     case "select_option":
       attributes.current_option = String(params.option);
       attributes.state = attributes.current_option;

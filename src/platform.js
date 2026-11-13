@@ -19,6 +19,7 @@ import { registerApiParityPlatform } from "./api/api-parity-compatibility.js";
 import { registerCurrentRestPlatform } from "./api/rest-current-compatibility.js";
 import { DockService } from "./docks/service.js";
 import { SystemUpdateService } from "./system-update/service.js";
+import { BackupJobService } from "./system-backup/jobs.js";
 import { SystemBackupService } from "./system-backup/service.js";
 import { DemoModeService } from "./demo/service.js";
 import { SyncModeService } from "./sync-mode/service.js";
@@ -99,9 +100,9 @@ export class VirtualRemotePlatform {
       process.env.UCVR_ACTIVE_RELEASE_CHANNEL === "TESTING" && activeCommit
         ? `${bundledVersion}-beta.${activeCommit.slice(0, 7)}`
         : bundledVersion;
-    this.restCoreApiVersion = "0.46.0";
-    this.coreWebSocketApiVersion = "0.35.3-beta";
-    this.integrationApiVersion = "0.15.4-beta";
+    this.restCoreApiVersion = "0.57.2";
+    this.coreWebSocketApiVersion = "0.50.3";
+    this.integrationApiVersion = "0.17.1-beta";
     this.remoteUiCompatibilityVersion = "0.38.4";
     this.locale = process.env.UCVR_LOCALE || "en-US";
     this.timezone =
@@ -141,6 +142,7 @@ export class VirtualRemotePlatform {
       "light",
       "macro",
       "media_player",
+      "number",
       "remote",
       "select",
       "sensor",
@@ -163,6 +165,7 @@ export class VirtualRemotePlatform {
     this.docks = new DockService(this);
     this.systemUpdate = new SystemUpdateService(this);
     this.systemBackup = new SystemBackupService(this);
+    this.backupJobs = new BackupJobService(this);
     this.engine = new SequenceEngine(this);
     this.webConfigurator = new WebConfiguratorManager(this.dataDir);
     this.externalIntegrations = new ExternalIntegrationService(
@@ -280,6 +283,7 @@ export class VirtualRemotePlatform {
     if (this.stopped) return;
     this.stopped = true;
     log.info("Stopping Virtual Remote Core services");
+    this.backupJobs?.stop();
     await this.syncMode.stop();
     await this.bluetoothHid.stop().catch((error) =>
       log.warn("Unable to stop Bluetooth HID peripheral:", error.message),

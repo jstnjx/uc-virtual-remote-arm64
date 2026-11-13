@@ -116,7 +116,26 @@ const COMMANDS = [
   command("activity.start", "activity", "start", "Start", ["start"]),
   command("activity.on", "activity", "on", "Turn on", ["on_off"]),
   command("activity.off", "activity", "off", "Turn off", ["on_off"]),
+  command("activity.stop", "activity", "stop", "Stop sequence", ["start", "on_off"]),
   command("macro.start", "macro", "start", "Run", ["start"]),
+  command("macro.run", "macro", "run", "Run", ["start"]),
+  command("macro.stop", "macro", "stop", "Stop sequence", ["start"]),
+
+  // Number entity (Core-API doc/entities/entity_number.md). The limits of the
+  // number parameters are loaded from the entity the command is configured for.
+  command("number.set_value", "number", "set_value", "Set value", ["value"], [
+    param("value", "Value", "number", { min: 0, max: 100, step: 1, limits: { source: "options", min: "min", max: "max", step: "step", unit: "unit" } })
+  ]),
+  command("number.set_value_transition", "number", "set_value", "Set value with transition", ["transition"], [
+    param("value", "Value", "number", { min: 0, max: 100, step: 1, limits: { source: "options", min: "min", max: "max", step: "step", unit: "unit" } }),
+    param("duration", "Transition time", "number", { min: 0, unit: "ms" })
+  ]),
+  command("number.increment", "number", "increment", "Increase value", ["value"], [
+    param("step", "Step", "number", { optional: true, min: 0.000001, limits: { source: "options", step: "step" } })
+  ]),
+  command("number.decrement", "number", "decrement", "Decrease value", ["value"], [
+    param("step", "Step", "number", { optional: true, min: 0.000001, limits: { source: "options", step: "step" } })
+  ]),
   command("button.push", "button", "push", "Push", ["push"]),
 
   command("switch.on", "switch", "on", "Turn on", ["on_off"]),
@@ -236,7 +255,16 @@ export function entityCommandIds(entity) {
     for (const id of ["select.select_option", "select.select_first", "select.select_last", "select.select_next", "select.select_previous"]) always.add(id);
   }
   if (type === "activity" && features.has("start")) always.add("activity.start");
-  if (type === "macro") always.add("macro.start");
+  if (type === "macro") {
+    always.add("macro.start");
+    always.add("macro.stop");
+  }
+  if (type === "activity") always.add("activity.stop");
+  if (type === "number") {
+    // `value` is always present, even if not specified.
+    for (const id of ["number.set_value", "number.increment", "number.decrement"]) always.add(id);
+    if (features.has("transition")) always.add("number.set_value_transition");
+  }
 
   for (const item of COMMANDS) {
     if (item.entity_type !== type) continue;

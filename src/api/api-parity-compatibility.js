@@ -187,7 +187,7 @@ async function compatibilityWsRequest(platform, peer, id, msg, data) {
       wsResponse(peer, id, "event_channels", { channels: [
         "all", "configuration", "entities", "entity_button", "entity_switch", "entity_climate", "entity_cover",
         "entity_light", "entity_media_player", "entity_sensor", "entity_activity", "entity_macro", "entity_remote",
-        "entity_select", "entity_ir_emitter", "entity_voice_assistant", "activity_groups", "integrations", "profiles",
+        "entity_select", "entity_number", "entity_ir_emitter", "entity_voice_assistant", "activity_groups", "backup_jobs", "integrations", "profiles",
         "emitters", "docks", "software_update", "power_mode", "battery_status", "ambient_light", "wifi", "media", "assistant"
       ] });
       return true;
@@ -216,7 +216,7 @@ async function compatibilityWsRequest(platform, peer, id, msg, data) {
       wsResponse(peer, id, "entity_commands", {
         entity_id: data.entity_id,
         entity_type: "voice_assistant",
-        commands: [{ cmd_id: "voice_start" }, { cmd_id: "voice_end" }],
+        commands: ["voice_assistant.voice_start", "voice_assistant.voice_end"],
       });
       return true;
     }
