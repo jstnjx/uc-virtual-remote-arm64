@@ -2,10 +2,12 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
+import { Readable } from "node:stream";
 import { displayName, localEntityId, parseJson, sha256, slug } from "../shared/util.js";
 import { RESOURCE_RULES, decodeDataUrl, extensionForMime, mimeFromFilename, normalizeResourceId, resourceIdFromFilename, validateResource } from "../resources.js";
 import { CORE_SERVICE, formatLogRecords, logBoots, logger, logServices, queryLogRecords, queryLogs } from "../shared/logger.js";
 import { CoreWebSocketFacade } from "../core/websocket-facade.js";
+import { handleCurrentCoreRest } from "./core-rest-current.js";
 import { virtualBatteryStatus, virtualPowerModeStatus, virtualRestPowerStatus } from "../core/virtual-power.js";
 import { acceptWebSocketUpgrade, rejectWebSocketUpgrade } from "../protocol/websocket.js";
 import { convertIrCode } from "../core/ir-converter.js";
@@ -67,7 +69,13 @@ function fileDownload(response, filename, downloadName, contentType = "applicati
 }
 
 function paginationInput(url) {
-  return { page: Number(url.searchParams.get("page") || 1), limit: Number(url.searchParams.get("limit") || 100) };
+  return {
+    page: Number(url.searchParams.get("page") || 1),
+    limit: Number(url.searchParams.get("limit") || 100),
+    sort: url.searchParams.get("sort") || undefined,
+    order: url.searchParams.get("order") || undefined,
+    lang: url.searchParams.get("lang") || undefined
+  };
 }
 
 function paginated(response, items, url, status = 200) {
@@ -256,6 +264,72 @@ export class PlatformHttpServer {
       socket.once("close", () => this.sockets.delete(socket));
     });
     this.server.on("upgrade", (request, socket, head) => this.#upgrade(request, socket, head));
+    // In-process REST Core-API dispatcher. WebSocket Core-API messages with a
+    // REST counterpart are executed through it, so both APIs share one
+    // implementation including the compatibility layers wrapping the listener.
+    this.internalToken = crypto.randomBytes(32).toString("base64url");
+    platform.restDispatch = (method, route, options = {}) => this.dispatch(method, route, options);
+  }
+
+  dispatch(method, route, { query = null, body: payload = undefined, headers = {} } = {}) {
+    const search = query && String(query) ? `?${String(query)}` : "";
+    const data = payload === undefined ? Buffer.alloc(0) : Buffer.from(JSON.stringify(payload));
+    const request = Readable.from(data.length ? [data] : []);
+    Object.assign(request, {
+      url: `/api${route}${search}`,
+      method: String(method || "GET").toUpperCase(),
+      headers: {
+        host: "localhost",
+        authorization: `Bearer ${this.internalToken}`,
+        "content-type": "application/json",
+        "content-length": String(data.length),
+        "x-ucvr-internal": "1",
+        ...headers,
+      },
+      socket: { remoteAddress: "127.0.0.1" },
+      connection: { remoteAddress: "127.0.0.1" },
+    });
+    return new Promise((resolve) => {
+      const chunks = [];
+      let status = 200;
+      let responseHeaders = {};
+      const response = {
+        headersSent: false,
+        statusCode: 200,
+        setHeader(name, value) { responseHeaders[String(name).toLowerCase()] = value; },
+        getHeader(name) { return responseHeaders[String(name).toLowerCase()]; },
+        removeHeader(name) { delete responseHeaders[String(name).toLowerCase()]; },
+        writeHead(code, messageOrHeaders, maybeHeaders) {
+          status = Number(code) || 200;
+          this.statusCode = status;
+          const values = typeof messageOrHeaders === "object" && messageOrHeaders ? messageOrHeaders : maybeHeaders || {};
+          for (const [name, value] of Object.entries(values)) responseHeaders[name.toLowerCase()] = value;
+          this.headersSent = true;
+          return this;
+        },
+        write(chunk, encoding) {
+          if (chunk !== undefined && chunk !== null) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding));
+          return true;
+        },
+        end(chunk, encoding) {
+          if (chunk !== undefined && chunk !== null && typeof chunk !== "function") this.write(chunk, encoding);
+          if (!this.headersSent) status = this.statusCode || status;
+          this.headersSent = true;
+          const raw = Buffer.concat(chunks);
+          let json;
+          if (raw.length && /json/i.test(String(responseHeaders["content-type"] || "application/json"))) {
+            try { json = JSON.parse(raw.toString("utf8")); } catch {}
+          }
+          resolve({ status, headers: responseHeaders, body: raw, json });
+          return this;
+        },
+        on() { return this; },
+        once() { return this; },
+        off() { return this; },
+        emit() { return false; },
+      };
+      this.server.emit("request", request, response);
+    });
   }
 
   async listen() {
@@ -302,6 +376,7 @@ export class PlatformHttpServer {
     const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7) : null;
     const queryToken = new URL(request.url, "http://localhost").searchParams.get("token");
     const key = request.headers["api-key"] || bearer || queryToken;
+    if (key && this.internalToken && key === this.internalToken) return true;
     if (this.platform.adminToken && key === this.platform.adminToken) return true;
     return Boolean(key && this.platform.db.findApiKey(sha256(key)));
   }
@@ -445,8 +520,20 @@ export class PlatformHttpServer {
       let publicResource = match(pathname, "/api/resources/:type/:id/content");
       if (publicResource && request.method === "GET") return binary(response, this.platform.db.getResource(publicResource.type, publicResource.id), true);
 
-      if (["/health", "/pub/health_check"].includes(pathname)) return json(response, 200, { status: "OK" });
-      if (pathname === "/pub/status") return json(response, 200, this.platform.status());
+      if (pathname === "/health") return json(response, 200, { status: "OK" });
+      if (["/pub/health_check", "/api/pub/health_check"].includes(pathname)) {
+        // Core-API health check: db, ui and storage as Healthy / Degraded / Unhealthy.
+        let db = "Healthy";
+        try { this.platform.db.getSetting("power_mode", null); } catch { db = "Unhealthy"; }
+        let storage = "Healthy";
+        try {
+          const stats = fs.statfsSync?.(this.platform.dataDir);
+          if (stats && stats.bavail * stats.bsize < 100 * 1024 * 1024) storage = "Degraded";
+        } catch { storage = "Degraded"; }
+        const ui = this.platform.webConfigurator.status().installed ? "Healthy" : "Degraded";
+        return json(response, 200, { status: "OK", db, ui, storage });
+      }
+      if (["/pub/status", "/api/pub/status"].includes(pathname)) return json(response, 200, this.platform.status());
       if (pathname === "/pub/version" || pathname === "/api/pub/version") return json(response, 200, {
         device_name: this.platform.name,
         hostname: this.platform.hostname,
@@ -878,7 +965,7 @@ export class PlatformHttpServer {
       if (macro) {
         const result = this.platform.demo?.isIntegration(macro.integration_id)
           ? await this.platform.demo.command(params.id, commandId || "start", input.params)
-          : await this.platform.engine.runMacro(params.id);
+          : /(^|\.)stop$/i.test(String(commandId || "")) ? await this.platform.engine.stop(params.id) : await this.platform.engine.runMacro(params.id);
         return json(response, 200, result);
       }
       return json(response, 200, await this.platform.integrations.command(params.id, commandId, input.params));
@@ -1070,6 +1157,8 @@ export class PlatformHttpServer {
     const method = request.method;
     const integrations = () => visibleIntegrations(db.listIntegrations());
     let params;
+
+    if (await handleCurrentCoreRest(this, request, response, pathname, url, { json, body, ok, multipartFile, text })) return;
 
     // Simulator settings are consumed by the patched official configurator,
     // which is authenticated and therefore reaches the Core compatibility
@@ -1349,7 +1438,8 @@ export class PlatformHttpServer {
     if (pathname === "/intg/setup" && method === "GET") return json(response, 200, integrations().filter((item) => item.setup_state !== "IDLE").map(integrationSetupInfo));
     if (pathname === "/intg/setup" && method === "DELETE") {
       for (const record of integrations().filter((item) => item.setup_state !== "IDLE")) await this.platform.integrations.abortSetup(record.id).catch(() => {});
-      for (const job of this.platform.externalIntegrations.jobs?.() || []) this.platform.externalIntegrations.stopSetup?.(job.id);
+      const setupJobs = typeof this.platform.externalIntegrations.setupJobs === "function" ? this.platform.externalIntegrations.setupJobs() : [];
+      for (const job of Array.isArray(setupJobs) ? setupJobs : []) this.platform.externalIntegrations.stopSetup?.(job.id);
       return ok(response);
     }
     if (pathname === "/intg/setup" && method === "POST") {
@@ -1359,8 +1449,16 @@ export class PlatformHttpServer {
         const job = await this.platform.externalIntegrations.startSetup(input.driver_id, input.setup_data || {});
         return job ? json(response, 201, job) : json(response, 404, { error: "Driver not found" });
       }
-      await this.platform.integrations.startSetup(record.id, Boolean(input.reconfigure), input.setup_data || {});
+      await this.platform.integrations.startSetup(record.id, Boolean(input.reconfigure), input.setup_data || {}, input.language);
       return json(response, 201, integrationSetupInfo(db.getIntegration(record.id)));
+    }
+    params = match(pathname, "/intg/setup/:id/keepalive");
+    if (params && method === "PUT") {
+      // The virtual Remote has no battery-bound setup limit: a keep-alive only
+      // confirms that the setup session exists.
+      const record = integrations().find((item) => (item.driver_id || item.id) === params.id);
+      if (!record || record.setup_state === "IDLE") return json(response, 404, { code: "NOT_FOUND", message: "Integration setup not found" });
+      return json(response, 200, integrationSetupInfo(record));
     }
     params = match(pathname, "/intg/setup/:id");
     if (params && method === "GET") {
@@ -1443,7 +1541,7 @@ export class PlatformHttpServer {
           : await this.platform.engine.runActivity(params.id, normalizeActivityAction(input.cmd_id))
         : macro ? this.platform.demo?.isIntegration(macro.integration_id)
           ? await this.platform.demo.command(params.id, input.cmd_id || "start", input.params)
-          : await this.platform.engine.runMacro(params.id)
+          : /(^|\.)stop$/i.test(String(input.cmd_id || "")) ? await this.platform.engine.stop(params.id) : await this.platform.engine.runMacro(params.id)
           : await this.platform.integrations.command(params.id, input.cmd_id, input.params);
       return json(response, 200, result || {});
     }
@@ -1453,8 +1551,10 @@ export class PlatformHttpServer {
       return item ? json(response, 200, coreEntity(item)) : json(response, 404, { error: "Not found" });
     }
     if (params && method === "PATCH") {
-      const item = db.updateConfiguredEntity(params.id, await body(request));
-      return item ? json(response, 200, coreEntity(item)) : json(response, 404, { error: "Not found" });
+      const item = db.updateEntityFromApi(params.id, await body(request));
+      if (!item) return json(response, 404, { code: "NOT_FOUND", message: "Entity not found" });
+      this.platform.events.publish("entity.change", item);
+      return json(response, 200, coreEntity(item));
     }
     if (params && method === "DELETE") return noContent(response, await this.platform.integrations.unconfigureEntity(params.id) ? 204 : 404);
 

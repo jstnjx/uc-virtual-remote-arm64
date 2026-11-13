@@ -310,7 +310,9 @@ export class DemoModeService {
         items: [
           { entity_id: demoEntityId("cover_living_room"), pos: 0 },
           { entity_id: demoEntityId("climate_living_room"), pos: 1 },
-          { entity_id: demoEntityId("light_living_room"), pos: 2 }
+          { entity_id: demoEntityId("light_living_room"), pos: 2 },
+          { entity_id: demoEntityId("number_bass"), pos: 3 },
+          { entity_id: demoEntityId("number_sleep_timer"), pos: 4 }
         ]
       }
     ];

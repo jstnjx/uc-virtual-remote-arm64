@@ -170,7 +170,8 @@
         "activity": "Activity",
         "macro": "Macro",
         "remote": "Remote",
-        "select": "Select"
+        "select": "Select",
+        "number": "Number"
       },
       "state": {
         "off": "off",
@@ -244,6 +245,10 @@
         "seek": "Seek",
         "dim": "Brightness",
         "position": "Position",
+        "tilt_position": "Tilt position",
+        "color_temperature": "Color temperature",
+        "target_temperature": "Target temperature",
+        "value": "Value",
         "no_features_found": "No features found."
       },
       "command": {
@@ -287,6 +292,16 @@
       "remove_entities": {
         "title": "Remove entities",
         "question": "Are you sure you want to remove the entities?"
+      },
+      "display": {
+        "title": "Display",
+        "description": "Override how the Remote shows this entity. The integration's own options stay unchanged.",
+        "default": "Default",
+        "decimals": "Decimal places",
+        "value": "Value",
+        "step": "Step",
+        "increase": "Increase",
+        "decrease": "Decrease"
       },
       "no_other_settings": "This entity has no other settings.",
       "missing_entity": {
@@ -618,6 +633,10 @@
           "title": "Select",
           "description": "Shows the current option of a select."
         },
+        "number": {
+          "title": "Number",
+          "description": "Shows a number entity as slider or stepper."
+        },
         "media": {
           "title": "Media Widget",
           "description": "Displays media artwork, title and source as well as progress.",
@@ -629,7 +648,7 @@
         },
         "slider": {
           "title": "Slider",
-          "description": "Control brightness, volume or other supported values."
+          "description": "Control brightness, volume, position, temperature or a number value."
         },
         "jump_to_page": {
           "title": "Jump to page",
@@ -650,7 +669,31 @@
         },
         "select": {
           "label": "Select entity",
-          "show_entity_name": "Show enity name"
+          "show_entity_name": "Show entity name"
+        },
+        "slider": {
+          "label": "Slider entity",
+          "show_value": "Show value",
+          "style": "Style",
+          "style_option": { "default": "Slider", "bar": "Level bar", "buttons": "Buttons" },
+          "update_mode": "Send value",
+          "update_mode_option": { "on_release": "On release", "live": "While moving" },
+          "color": "Color",
+          "color_option": { "auto": "Automatic", "neutral": "Neutral", "entity": "Light color", "gradient": "Gradient" },
+          "fill": "Fill",
+          "fill_option": { "auto": "Automatic", "start": "From start", "center": "From zero", "cursor": "Marker only" },
+          "icon_min": "Minimum icon",
+          "icon_max": "Maximum icon",
+          "min": "Minimum",
+          "max": "Maximum",
+          "limit_description": "Optional limits, clamped to the range of the entity feature."
+        },
+        "number": {
+          "label": "Number entity",
+          "display_mode": "Display mode",
+          "display_mode_option": { "auto": "Automatic", "slider": "Slider", "stepper": "Stepper" },
+          "step": "Step",
+          "step_description": "Optional step for this widget. Leave empty to use the step of the entity."
         },
         "error": {
           "invalid_size": "Button size is not valid. Please choose a valid size and try again."

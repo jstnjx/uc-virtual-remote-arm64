@@ -23,6 +23,7 @@ import { useEditorKeyboardEvents } from "@/composables/remote/editor";
 import { useWindowDimension } from "@/composables/windowDimension";
 import { getAvailableEntitesForActivityByType } from "@/composables/activities";
 import { useTiming } from "@/composables/timing";
+import { SLIDER_FEATURES, numberEntityData } from "@/composables/numberEntity";
 
 import UCToggle from "@/components/ui/UCToggle.vue";
 import CommandField from "@/components/ui/CommandField.vue";
@@ -58,11 +59,28 @@ const props = defineProps({
 const { editTouchSlider, popupLeft, startTouchSliderEdit } =
   useEditorKeyboardEvents(t);
 
-const featureMap: Record<string, string[]> = {
-  media_player: ["volume", "seek"],
-  light: ["dim"],
-  cover: ["position"],
-};
+// Slider-capable features per entity type (Core-API `EntityFeatureTarget`).
+const featureMap: Record<string, string[]> = Object.fromEntries(
+  Object.entries(SLIDER_FEATURES).map(([type, features]) => [
+    type,
+    Object.keys(features),
+  ]),
+);
+
+// Features of an entity that the touch slider can control. Number entities
+// always have the `value` feature, but only a bounded number is a target.
+function touchSliderFeatures(entity: ExtendedEntity | null | undefined) {
+  if (!entity?.entity_type || !featureMap[entity.entity_type]) return [];
+  if (entity.entity_type === EntityType.number) {
+    const full = allEntities.value.find(
+      (e) => e.entity_id === entity.entity_id,
+    );
+    return numberEntityData(full ?? entity).bounded ? ["value"] : [];
+  }
+  return featureMap[entity.entity_type].filter((x) =>
+    (entity.features ?? []).includes(x),
+  );
+}
 
 const defaultTouchSlider = { enabled: true };
 const sliderItemConfig = useTemplateRef<HTMLDivElement>("sliderItemConfig");
@@ -121,26 +139,10 @@ const activeEntityId = computed(() => {
 
 const activeFeature = computed(() => {
   const actEnt = getActiveEntity();
-  if (actEnt?.features && actEnt?.features.length > 0) {
-    if (
-      (actEnt.entity_type === EntityType.media_player ||
-        actEnt.entity_type === EntityType.light ||
-        actEnt.entity_type === EntityType.cover) &&
-      featureMap[actEnt.entity_type]
-    ) {
-      if (
-        featureMap[actEnt.entity_type].includes(
-          props.entity.options?.touch_slider?.target?.feature,
-        )
-      ) {
-        return props.entity.options?.touch_slider?.target?.feature;
-      } else {
-        const commonFeatures = featureMap[actEnt.entity_type].filter((x) =>
-          actEnt.features.includes(x),
-        );
-        return commonFeatures[0];
-      }
-    }
+  const features = touchSliderFeatures(actEnt);
+  if (features.length > 0) {
+    const configured = props.entity.options?.touch_slider?.target?.feature;
+    return features.includes(configured) ? configured : features[0];
   }
 
   return null;
@@ -151,21 +153,7 @@ const availableFeatureEntityIds = computed(() => {
 });
 
 const availableFeatures = computed(() => {
-  const actEnt = getActiveEntity();
-  if (
-    actEnt &&
-    (actEnt.entity_type === EntityType.media_player ||
-      actEnt.entity_type === EntityType.light ||
-      actEnt.entity_type === EntityType.cover) &&
-    featureMap[actEnt.entity_type]
-  ) {
-    const commonFeatures = featureMap[actEnt.entity_type].filter((x) =>
-      actEnt.features.includes(x),
-    );
-    return commonFeatures;
-  }
-
-  return [];
+  return touchSliderFeatures(getActiveEntity());
 });
 
 const entityList = computed(() => {
@@ -181,8 +169,21 @@ const entityList = computed(() => {
     props.entity as Activity,
     EntityType.cover,
   ) as IncludedEntity[];
+  const entitiesClimate = getAvailableEntitesForActivityByType(
+    props.entity as Activity,
+    EntityType.climate,
+  ) as IncludedEntity[];
+  const entitiesNumber = getAvailableEntitesForActivityByType(
+    props.entity as Activity,
+    EntityType.number,
+  ) as IncludedEntity[];
 
-  const entList = entitiesMediaPlayer.concat(entitiesLight, entitiesCover);
+  const entList = entitiesMediaPlayer.concat(
+    entitiesLight,
+    entitiesCover,
+    entitiesClimate,
+    entitiesNumber,
+  );
 
   const referenceMap: Record<string, string[] | undefined> =
     allEntities.value.reduce(
@@ -198,21 +199,9 @@ const entityList = computed(() => {
     features: referenceMap[item.entity_id] || [],
   })) as ExtendedEntity[];
 
-  return updatedEntList.filter((entity) => {
-    const type = entity.entity_type;
-    if (!type) return false;
-
-    const requiredFeatures = featureMap[type] ?? [];
-    if (requiredFeatures.length === 0) return false;
-
-    const entityFeatures = entity.features ?? [];
-
-    const intersection = entityFeatures.filter((f) =>
-      requiredFeatures.includes(f),
-    );
-
-    return intersection.length > 0;
-  });
+  return updatedEntList.filter(
+    (entity) => touchSliderFeatures(entity).length > 0,
+  );
 });
 
 const defaultEntity = computed(() => {

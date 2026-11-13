@@ -47,6 +47,8 @@ import type { WsEntityState, WsMsgData } from "@/types/websocket";
 import type { Headers } from "@/types/rest";
 import { appStateStore } from "@/stores/appState";
 
+import { SLIDER_ENTITY_TYPES } from "@/composables/numberEntity";
+
 const API = ApiConnection.integrations;
 
 /** Coalesces WS-event-triggered reloads (004-ws-event-handling-rework.md §3.2). */
@@ -122,6 +124,9 @@ export const integrationsStore = defineStore("integrations", {
     configuredEntities: [] as ConfiguredEntity[],
     configuredSensorEntities: createCachedList<ConfiguredEntity>(),
     configuredSelectEntities: createCachedList<ConfiguredEntity>(),
+    configuredNumberEntities: createCachedList<ConfiguredEntity>(),
+    /** Configured entities with slider-capable features (slider widget). */
+    configuredSliderEntities: createCachedList<ConfiguredEntity>(),
     /**
      * Fetch metadata for the flat list fields above (storeCache.ts, P1-3):
      * `loaded` separates a server-side empty list from "never fetched",
@@ -577,6 +582,8 @@ export const integrationsStore = defineStore("integrations", {
         this.$state.configuredEntitiesByPage.configuredEntities,
         this.$state.configuredSensorEntities.list,
         this.$state.configuredSelectEntities.list,
+        this.$state.configuredNumberEntities.list,
+        this.$state.configuredSliderEntities.list,
       ];
     },
 
@@ -696,14 +703,16 @@ export const integrationsStore = defineStore("integrations", {
      * thin wrappers so call sites read the same.
      */
     async getConfiguredEntitiesOfType(
-      type: EntityType.sensor | EntityType.select,
+      type: EntityType.sensor | EntityType.select | EntityType.number,
       update = false,
     ): Promise<ConfiguredEntity[]> {
       this.init();
       const cache =
         type === EntityType.select
           ? this.$state.configuredSelectEntities
-          : this.$state.configuredSensorEntities;
+          : type === EntityType.number
+            ? this.$state.configuredNumberEntities
+            : this.$state.configuredSensorEntities;
       return loadList(
         cache,
         () => API.getConfiguredEntitiesByTypes(type),
@@ -721,6 +730,24 @@ export const integrationsStore = defineStore("integrations", {
       update = false,
     ): Promise<ConfiguredEntity[]> {
       return this.getConfiguredEntitiesOfType(EntityType.select, update);
+    },
+
+    async getConfiguredNumberEntities(
+      update = false,
+    ): Promise<ConfiguredEntity[]> {
+      return this.getConfiguredEntitiesOfType(EntityType.number, update);
+    },
+
+    /** Configured entities of the slider-capable entity types. */
+    async getConfiguredSliderEntities(
+      update = false,
+    ): Promise<ConfiguredEntity[]> {
+      this.init();
+      return loadList(
+        this.$state.configuredSliderEntities,
+        () => API.getConfiguredEntitiesByTypes(SLIDER_ENTITY_TYPES.join(",")),
+        update,
+      );
     },
 
     async getConfiguredEntitiesByTypes(

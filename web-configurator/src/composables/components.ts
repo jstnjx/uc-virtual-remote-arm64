@@ -7,6 +7,8 @@ import ComponentButtonText from "@/components/ui/ComponentButtonText.vue";
 import ComponentButtonMedia from "@/components/ui/ComponentButtonMedia.vue";
 import ComponentButtonSensor from "@/components/ui/ComponentButtonSensor.vue";
 import ComponentButtonSelect from "@/components/ui/ComponentButtonSelect.vue";
+import ComponentButtonSlider from "@/components/ui/ComponentButtonSlider.vue";
+import ComponentButtonNumber from "@/components/ui/ComponentButtonNumber.vue";
 
 export function getComponent(type: string) {
   if (type === "icon") {
@@ -23,6 +25,12 @@ export function getComponent(type: string) {
   }
   if (type === "select") {
     return ComponentButtonSelect;
+  }
+  if (type === "slider") {
+    return ComponentButtonSlider;
+  }
+  if (type === "number") {
+    return ComponentButtonNumber;
   }
   console.warn("Unknown component type: " + type);
   return null;
@@ -76,7 +84,16 @@ export function getComponentPool(): ActivityUserInterfaceItem[] {
     },
     {
       type: "slider",
-      icon: "uc:volume",
+      text: "",
+      slider: {
+        entity_id: "",
+        show_name: true,
+        show_value: true,
+        update_mode: "on_release",
+        style: "default",
+        color: "auto",
+        fill: "auto",
+      },
       size: { width: 1, height: 1 },
       location: {
         x: 0,
@@ -128,6 +145,20 @@ export function getActivityComponentPool(): ActivityUserInterfaceItem[] {
       type: "media_player",
       media_player_id: "",
       size: { width: 1, height: 1 },
+      location: {
+        x: 0,
+        y: 0,
+      },
+    },
+    {
+      type: "number",
+      text: "",
+      number: {
+        number_id: "",
+        show_name: true,
+        display_mode: "auto",
+      },
+      size: { width: 2, height: 1 },
       location: {
         x: 0,
         y: 0,

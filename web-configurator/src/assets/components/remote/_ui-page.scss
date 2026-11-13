@@ -183,6 +183,173 @@
     }
   }
 
+  // Slider widget (UC Virtual Remote): label and value above a track.
+  &--slider {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.625rem;
+    background: var(--uc-theme-color-10);
+    padding: 0.375rem 0.75rem;
+    overflow: hidden;
+
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+
+    &__label {
+      font-size: 1rem;
+      color: var(--uc-foreground);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__value {
+      @include mixins.body-small;
+      color: var(--uc-theme-color-70);
+      white-space: nowrap;
+    }
+
+    &__track {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      min-width: 0;
+
+      i {
+        font-size: 1rem;
+        color: var(--uc-theme-color-70);
+      }
+    }
+
+    &__bar {
+      position: relative;
+      flex: 1;
+      height: 0.375rem;
+      border-radius: 1rem;
+      background: var(--uc-theme-color-20);
+      overflow: hidden;
+    }
+
+    &__fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      border-radius: 1rem;
+      background: var(--uc-foreground);
+    }
+
+    &__cursor {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0.25rem;
+      margin-left: -0.125rem;
+      border-radius: 1rem;
+      background: var(--uc-foreground);
+    }
+
+    &--bar &__bar {
+      height: 1.5rem;
+      border-radius: 0.5rem;
+    }
+
+    &--gradient &__bar {
+      background: linear-gradient(90deg, #ffb35c, #f7f7f5, #8ec5ff);
+    }
+
+    &--vertical {
+      align-items: center;
+
+      .ui-component--slider__track {
+        flex: 1;
+        flex-direction: column-reverse;
+        width: 100%;
+      }
+
+      .ui-component--slider__bar {
+        width: 0.375rem;
+        height: auto;
+        flex: 1;
+      }
+
+      .ui-component--slider__fill {
+        top: auto;
+        right: 0;
+        width: 100%;
+      }
+    }
+
+    &--empty {
+      align-items: center;
+
+      i {
+        font-size: 1.25rem;
+        color: var(--uc-theme-color-70);
+      }
+    }
+  }
+
+  // Number widget (UC Virtual Remote): slider or stepper.
+  &--number {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    border-radius: 0.625rem;
+    background: var(--uc-theme-color-10);
+    padding: 0.25rem 0.625rem;
+    overflow: hidden;
+
+    &__label {
+      font-size: 0.875rem;
+      color: var(--uc-theme-color-70);
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__stepper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.375rem;
+      min-width: 0;
+    }
+
+    &__button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 0 0 auto;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.375rem;
+      background: var(--uc-theme-color-20);
+
+      i {
+        font-size: 0.875rem;
+        color: var(--uc-foreground);
+      }
+    }
+
+    &__value {
+      font-size: 1rem;
+      color: var(--uc-foreground);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   &--media-player {
     position: relative;
     display: flex;

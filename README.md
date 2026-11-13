@@ -66,9 +66,11 @@ Source builds happen in the internal Docker daemon for the host architecture. Pr
 
 ### Virtual Remote Core
 
-- Remote Core REST API compatibility through `0.46.0`
-- Remote Core WebSocket API compatibility through `0.35.3-beta`
-- Integration API compatibility through `0.15.4-beta`
+- Remote Core REST API compatibility through `0.57.2`
+- Remote Core WebSocket API compatibility through `0.50.3`
+- Integration API compatibility through `0.17.1-beta`
+- Number entities (`number`) with slider and stepper display, user display overrides, and the `slider` and `number` activity UI widgets
+- Activity and macro readiness checks, asynchronous backup jobs, and stopping running sequences
 - Persistent entities, activities, macros, profiles, pages, groups, resources, and button mappings
 - Remote 3-style configuration and state handling
 - Media browsing, search, queue, and playback services

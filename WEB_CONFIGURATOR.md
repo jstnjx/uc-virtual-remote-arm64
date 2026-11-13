@@ -18,6 +18,7 @@ The build reflects the published 2.3.3 source snapshot plus the modifications do
 | Initial navigation | Authenticated sessions open in the Home section. |
 | Remote simulation | Added a first-class **Remote** section to the primary navigation, using the standard configurator tools-and-content layout rather than a detached detail route. |
 | Physical controls | Added simulated buttons, touch-slider commands, activity mappings, remote-entity mappings, and short/long-press behavior. |
+| Number entities and widgets | Added number entities, the **Slider** and **Number** activity widgets, entity display overrides, and extended touch-slider targets, implemented from the public Core-API documentation. |
 | Button backlight | Added live rendering of configured RGB color and brightness through modified Remote 3 artwork with transparent button symbols. |
 | Hardware-only features | Hidden, disabled, or replaced features that require physical Remote hardware with safe virtual behavior. |
 | Icons | Removed Font Awesome from the dependency and runtime payload and replaced its icon mapping with the locally hosted Material Symbols Sharp variable font. |

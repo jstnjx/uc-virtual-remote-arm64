@@ -8,9 +8,9 @@ function source(path) {
 
 test("platform advertises the implemented current API generations", () => {
   const platform = source("src/platform.js");
-  assert.match(platform, /restCoreApiVersion = "0\.46\.0"/);
-  assert.match(platform, /coreWebSocketApiVersion = "0\.35\.3-beta"/);
-  assert.match(platform, /integrationApiVersion = "0\.15\.4-beta"/);
+  assert.match(platform, /restCoreApiVersion = "0\.57\.2"/);
+  assert.match(platform, /coreWebSocketApiVersion = "0\.50\.3"/);
+  assert.match(platform, /integrationApiVersion = "0\.17\.1-beta"/);
   assert.match(platform, /"voice_assistant"/);
 });
 

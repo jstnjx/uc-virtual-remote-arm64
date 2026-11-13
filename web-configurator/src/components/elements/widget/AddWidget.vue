@@ -86,6 +86,8 @@ function selectType(item: ActivityUserInterfaceItem) {
     uiItem.size.height = mediaMinHeight || 3;
   } else if (item.type == "slider") {
     uiItem.size.width = gridCols;
+  } else if (item.type == "number") {
+    uiItem.size.width = Math.min(gridCols, uiItem.size.width || 2);
   }
   editButton.value = uiItem;
 }
@@ -225,6 +227,36 @@ function open() {
           <i class="fa-light fa-exclamation"></i>
           {{ $t("widget.type.media.no_space") }}
         </div>
+      </div>
+      <div
+        v-if="entityType == 'activity' && types[2] && types[2].type == 'slider'"
+        class="widget-card"
+        @click="selectType(types[2])"
+      >
+        <div class="widget-card__image">
+          <i class="fa-regular fa-sliders-simple"></i>
+        </div>
+        <h4 class="widget-card__title">
+          {{ $t("widget.type.slider.title") }}
+        </h4>
+        <span class="widget-card__description">
+          {{ $t("widget.type.slider.description") }}
+        </span>
+      </div>
+      <div
+        v-if="types[7] && types[7].type == 'number'"
+        class="widget-card"
+        @click="selectType(types[7])"
+      >
+        <div class="widget-card__image">
+          <i class="fa-regular fa-input-numeric"></i>
+        </div>
+        <h4 class="widget-card__title">
+          {{ $t("widget.type.number.title") }}
+        </h4>
+        <span class="widget-card__description">
+          {{ $t("widget.type.number.description") }}
+        </span>
       </div>
       <!-- <div v-if="types[2] && types[2].type == 'slider'" @click="selectType(types[2])" class="widget-card">
         <div class="widget-card__image widget-card__image--slider"></div>

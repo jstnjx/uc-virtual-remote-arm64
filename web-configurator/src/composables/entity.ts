@@ -33,6 +33,7 @@ const iconMap: Record<string, string> = {
   macro: "macro",
   activity: "activity",
   voice_assistant: "microphone",
+  number: "input-numeric",
 };
 
 export function getDefaultEntityIcon(
@@ -113,6 +114,11 @@ export function getPrimaryCommandByEntityState(
     return `${prefix}select_next`;
   }
 
+  // Number entities have no on / off command.
+  if (entity && entity.entity_type && entity.entity_type == EntityType.number) {
+    return null;
+  }
+
   if (entityFeatures.includes("toggle")) {
     return `${prefix}toggle`;
   }
@@ -165,6 +171,14 @@ export function getItemAttrValue(
       typeof decimals === "number" && Number.isFinite(decimals) && decimals >= 0
         ? decimals
         : 0;
+    // An explicit number of decimal places keeps trailing zeros (e.g. "1.50").
+    if (
+      typeof decimals === "number" &&
+      Number.isFinite(decimals) &&
+      decimals >= 0
+    ) {
+      return value.toFixed(precision);
+    }
     return Number(value.toFixed(precision)).toString();
   }
 

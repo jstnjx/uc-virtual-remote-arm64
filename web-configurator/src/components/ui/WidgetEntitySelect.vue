@@ -15,6 +15,7 @@ import translatedProperty, {
   searchLanguageText,
 } from "@/composables/translatedProperty";
 import { isTouchEnabled } from "@/composables/device";
+import { sliderFeaturesOf } from "@/composables/numberEntity";
 
 import UCSearch from "@/components/ui/UCSearch.vue";
 
@@ -40,10 +41,15 @@ const props = defineProps({
   entityType: {
     type: String,
     required: true,
+    // `slider`: every entity type with a slider-capable feature.
     validator: (val: string) =>
-      [EntityType.media_player, EntityType.sensor, EntityType.select].includes(
-        val as EntityType,
-      ),
+      [
+        EntityType.media_player,
+        EntityType.sensor,
+        EntityType.select,
+        EntityType.number,
+        "slider",
+      ].includes(val as EntityType),
   },
 });
 
@@ -114,7 +120,9 @@ function findWidgetEntities(list: ConfiguredEntity[]) {
 async function setWidgetEntities() {
   if (
     props.entityType == EntityType.sensor ||
-    props.entityType == EntityType.select
+    props.entityType == EntityType.select ||
+    props.entityType == EntityType.number ||
+    props.entityType == "slider"
   ) {
     try {
       await integrationsStorage.getInstances();
@@ -129,6 +137,13 @@ async function setWidgetEntities() {
         res = await integrationsStorage.getConfiguredSensorEntities(true);
       } else if (props.entityType == EntityType.select) {
         res = await integrationsStorage.getConfiguredSelectEntities(true);
+      } else if (props.entityType == EntityType.number) {
+        // Unbounded numbers can still be shown as a stepper.
+        res = await integrationsStorage.getConfiguredNumberEntities(true);
+      } else if (props.entityType == "slider") {
+        res = (
+          await integrationsStorage.getConfiguredSliderEntities(true)
+        ).filter((e) => sliderFeaturesOf(e).length > 0);
       }
 
       if (res != null) {
@@ -164,7 +179,9 @@ async function open() {
         <div class="modal-secondary__header__content">
           <h2>{{ $t("entity.assign.title") }}</h2>
           <span v-if="entityType">{{
-            $t(`entity.entity_type.${entityType}`)
+            entityType === "slider"
+              ? $t("widget.type.slider.title")
+              : $t(`entity.entity_type.${entityType}`)
           }}</span>
         </div>
       </template>

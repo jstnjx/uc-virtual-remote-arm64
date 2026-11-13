@@ -42,6 +42,17 @@ import RemoteCommandSelect from "@/components/ui/RemoteCommandSelect.vue";
 import CommandField from "@/components/ui/CommandField.vue";
 import CommandParam from "@/components/ui/CommandParam.vue";
 import WidgetEntitySelect from "@/components/ui/WidgetEntitySelect.vue";
+import WidgetOptionSelect from "@/components/ui/WidgetOptionSelect.vue";
+import {
+  NUMBER_DISPLAY_MODES,
+  SLIDER_COLORS,
+  SLIDER_FILLS,
+  SLIDER_STYLES,
+  SLIDER_UPDATE_MODES,
+  defaultSliderFeature,
+  numberEntityData,
+  sliderFeaturesOf,
+} from "@/composables/numberEntity";
 
 const { sleep } = useTiming();
 
@@ -85,8 +96,12 @@ const emit = defineEmits(["close", "delete", "change", "copy"]);
 
 const { t } = useTranslation();
 
-const { configuredSensorEntities, configuredSelectEntities } =
-  storeToRefs(integrationStorage);
+const {
+  configuredSensorEntities,
+  configuredSelectEntities,
+  configuredSliderEntities,
+  configuredNumberEntities,
+} = storeToRefs(integrationStorage);
 
 const settingsValue = { ...(props.settings as ActivityUserInterfaceItem) };
 if (!settingsValue.size) {
@@ -110,6 +125,12 @@ const text = ref(
 const sensorShowLabel = ref(props.settings.sensor?.show_label ?? false);
 const sensorShowUnit = ref(props.settings.sensor?.show_unit ?? false);
 const entSelectShowName = ref(props.settings.select?.show_name ?? false);
+const sliderShowName = ref(props.settings.slider?.show_name ?? false);
+const sliderShowValue = ref(props.settings.slider?.show_value ?? true);
+const sliderMin = ref<string | number>(props.settings.slider?.min ?? "");
+const sliderMax = ref<string | number>(props.settings.slider?.max ?? "");
+const numberShowName = ref(props.settings.number?.show_name ?? false);
+const numberStep = ref<string | number>(props.settings.number?.step ?? "");
 
 const optionalParamsStatus = ref<Record<string, any>>({});
 
@@ -127,6 +148,10 @@ const elSensorSelect =
   useTemplateRef<InstanceType<typeof WidgetEntitySelect>>("elSensorSelect");
 const elEntSelectSelect =
   useTemplateRef<InstanceType<typeof WidgetEntitySelect>>("elEntSelectSelect");
+const elSliderSelect =
+  useTemplateRef<InstanceType<typeof WidgetEntitySelect>>("elSliderSelect");
+const elNumberSelect =
+  useTemplateRef<InstanceType<typeof WidgetEntitySelect>>("elNumberSelect");
 const elRemoteCommandSelect = useTemplateRef<
   InstanceType<typeof RemoteCommandSelect>
 >("elRemoteCommandSelect");
@@ -202,8 +227,165 @@ const showPopupBody = computed(() => {
     return props.addItem || Object.keys(select).length > 0;
   }
 
+  if (type === "slider") {
+    return props.addItem || Boolean(props.settings.slider);
+  }
+
+  if (type === "number") {
+    return props.addItem || Boolean(props.settings.number);
+  }
+
   return true;
 });
+
+// Slider and number widgets (UC Virtual Remote implementation).
+const selectedSliderEntity = computed(() => {
+  const id = localSettings.value.slider?.entity_id;
+  if (!id) return null;
+  return (
+    configuredSliderEntities.value.list.find((e) => e.entity_id === id) ??
+    integrationStorage.findCachedEntity(id) ??
+    null
+  );
+});
+
+const sliderFeatureOptions = computed(() =>
+  sliderFeaturesOf(selectedSliderEntity.value).map((feature) => ({
+    label: t(`entity.features.${feature}`, feature),
+    value: feature,
+  })),
+);
+
+const selectedNumberEntity = computed(() => {
+  const id = localSettings.value.number?.number_id;
+  if (!id) return null;
+  return (
+    configuredNumberEntities.value.list.find((e) => e.entity_id === id) ??
+    integrationStorage.findCachedEntity(id) ??
+    null
+  );
+});
+
+const numberIsBounded = computed(
+  () => numberEntityData(selectedNumberEntity.value).bounded,
+);
+
+function optionList(values: string[], prefix: string) {
+  return values.map((value) => ({
+    label: t(`${prefix}.${value}`, value),
+    value,
+  }));
+}
+
+const sliderStyleOptions = computed(() =>
+  optionList(SLIDER_STYLES, "widget.popup.slider.style_option"),
+);
+const sliderUpdateModeOptions = computed(() =>
+  optionList(SLIDER_UPDATE_MODES, "widget.popup.slider.update_mode_option"),
+);
+const sliderColorOptions = computed(() =>
+  optionList(SLIDER_COLORS, "widget.popup.slider.color_option"),
+);
+const sliderFillOptions = computed(() =>
+  optionList(SLIDER_FILLS, "widget.popup.slider.fill_option"),
+);
+const numberDisplayModeOptions = computed(() =>
+  optionList(NUMBER_DISPLAY_MODES, "widget.popup.number.display_mode_option"),
+);
+
+function sliderEntityName(id: string) {
+  const entity =
+    configuredSliderEntities.value.list.find((e) => e.entity_id === id) ??
+    integrationStorage.findCachedEntity(id);
+  return entity ? translatedProperty(entity.name) : getNameById(id);
+}
+
+function numberEntityName(id: string) {
+  const entity =
+    configuredNumberEntities.value.list.find((e) => e.entity_id === id) ??
+    integrationStorage.findCachedEntity(id);
+  return entity ? translatedProperty(entity.name) : getNameById(id);
+}
+
+function doSliderEntitySelect(entity: IncludedEntity) {
+  if (!localSettings.value.slider || !entity.entity_id) return;
+  localSettings.value.slider.entity_id = entity.entity_id;
+  const features = sliderFeaturesOf(entity as ConfiguredEntity);
+  const current = localSettings.value.slider.feature;
+  if (!current || !features.includes(current)) {
+    // The default feature of the entity type is used without `feature`.
+    const fallback = features[0];
+    if (fallback && fallback !== defaultSliderFeature(entity.entity_type)) {
+      localSettings.value.slider.feature = fallback;
+    } else {
+      delete localSettings.value.slider.feature;
+    }
+  }
+  emitChange();
+}
+
+function changeSliderOption(key: string, value: unknown) {
+  if (!localSettings.value.slider) return;
+  const slider = localSettings.value.slider as Record<string, unknown>;
+  if (value === undefined || value === null || value === "") {
+    delete slider[key];
+  } else {
+    slider[key] = value;
+  }
+  emitChange();
+}
+
+function changeSliderFeature(feature: string) {
+  changeSliderOption(
+    "feature",
+    feature === defaultSliderFeature(selectedSliderEntity.value?.entity_type)
+      ? undefined
+      : feature,
+  );
+}
+
+function changeSliderLimit(key: "min" | "max", value: unknown) {
+  const number = value === "" || value == null ? null : Number(value);
+  changeSliderOption(
+    key,
+    number !== null && Number.isFinite(number) ? number : undefined,
+  );
+}
+
+function doNumberEntitySelect(entity: IncludedEntity) {
+  if (!localSettings.value.number || !entity.entity_id) return;
+  localSettings.value.number.number_id = entity.entity_id;
+  emitChange();
+}
+
+function changeNumberOption(key: string, value: unknown) {
+  if (!localSettings.value.number) return;
+  const number = localSettings.value.number as Record<string, unknown>;
+  if (value === undefined || value === null || value === "") {
+    delete number[key];
+  } else {
+    number[key] = value;
+  }
+  emitChange();
+}
+
+function changeNumberStep(value: unknown) {
+  const step = value === "" || value == null ? null : Number(value);
+  changeNumberOption(
+    "step",
+    step !== null && Number.isFinite(step) && step >= 0.000001
+      ? step
+      : undefined,
+  );
+}
+
+function openSliderSelect() {
+  elSliderSelect.value?.open();
+}
+
+function openNumberSelect() {
+  elNumberSelect.value?.open();
+}
 
 const maxButtonHeight = computed(() => {
   return validHeight(localSettings.value.size.height + 1)
@@ -311,7 +493,9 @@ function emitChange() {
 
   if (
     (message.type === EntityType.sensor ||
-      message.type === EntityType.select) &&
+      message.type === EntityType.select ||
+      message.type === "slider" ||
+      message.type === EntityType.number) &&
     typeof message.text != "undefined" &&
     message.text.length < 1
   ) {
@@ -400,7 +584,9 @@ function updateText() {
   if (
     (text.value && text.value.length > 0) ||
     localSettings.value.type === EntityType.sensor ||
-    localSettings.value.type === EntityType.select
+    localSettings.value.type === EntityType.select ||
+    localSettings.value.type === "slider" ||
+    localSettings.value.type === EntityType.number
   ) {
     localSettings.value.text = text.value;
     emitChange();
@@ -824,6 +1010,40 @@ onMounted(async () => {
   }
 
   if (
+    props.addItem &&
+    props.entityType === "activity" &&
+    props.settings.type === "slider" &&
+    !props.settings.slider?.entity_id
+  ) {
+    openSliderSelect();
+  }
+
+  if (
+    props.addItem &&
+    props.entityType === "activity" &&
+    props.settings.type === EntityType.number &&
+    !props.settings.number?.number_id
+  ) {
+    openNumberSelect();
+  }
+
+  if (
+    props.settings.type === "slider" &&
+    configuredSliderEntities.value.list.length < 1 &&
+    !configuredSliderEntities.value.fetching
+  ) {
+    integrationStorage.getConfiguredSliderEntities(false).catch(console.error);
+  }
+
+  if (
+    props.settings.type === EntityType.number &&
+    configuredNumberEntities.value.list.length < 1 &&
+    !configuredNumberEntities.value.fetching
+  ) {
+    integrationStorage.getConfiguredNumberEntities(false).catch(console.error);
+  }
+
+  if (
     configuredSensorEntities.value.list.length < 1 &&
     !configuredSensorEntities.value.fetching
   ) {
@@ -918,7 +1138,13 @@ onMounted(async () => {
               localSettings.sensor?.sensor_id) ||
             (localSettings.type === 'select' &&
               localSettings.select?.select_id &&
-              !entSelectShowName)
+              !entSelectShowName) ||
+            (localSettings.type === 'slider' &&
+              localSettings.slider?.entity_id &&
+              !sliderShowName) ||
+            (localSettings.type === 'number' &&
+              localSettings.number?.number_id &&
+              !numberShowName)
           "
           class="widget-popup__field widget-popup__field--text"
         >
@@ -1096,6 +1322,195 @@ onMounted(async () => {
             </div>
           </div>
         </template>
+        <template
+          v-else-if="localSettings.type === 'slider' && localSettings.slider"
+        >
+          <div
+            class="widget-popup__command-wrapper"
+            :class="{
+              'widget-popup__command-wrapper--minimal':
+                !localSettings.slider.entity_id,
+            }"
+          >
+            <CommandField
+              :id="localSettings.slider.entity_id"
+              :entity-type="entityType"
+              :name="sliderEntityName(localSettings.slider.entity_id || '')"
+              :entity="
+                localSettings.slider.entity_id
+                  ? getIntegrationNameById(localSettings.slider.entity_id)
+                  : ''
+              "
+              :extended-command-select="entityType === 'activity'"
+              :label="$t('widget.popup.slider.label')"
+              @open-command-select="openSliderSelect"
+            />
+            <WidgetEntitySelect
+              v-if="entityType === 'activity'"
+              :key="localSettings.slider.entity_id || $t('ui.none')"
+              ref="elSliderSelect"
+              :value="localSettings.slider.entity_id || ''"
+              :activity="entity"
+              :entity-type="'slider'"
+              @select="doSliderEntitySelect"
+            />
+          </div>
+          <template v-if="localSettings.slider.entity_id">
+            <WidgetOptionSelect
+              v-if="sliderFeatureOptions.length > 1"
+              :label="$t('ui.feature')"
+              :value="
+                localSettings.slider.feature ||
+                sliderFeatureOptions[0]?.value ||
+                ''
+              "
+              :options="sliderFeatureOptions"
+              @change="changeSliderFeature"
+            />
+            <UCToggle
+              v-model="sliderShowName"
+              :label="$t('widget.popup.select.show_entity_name')"
+              :full-w="true"
+              @change="changeSliderOption('show_name', sliderShowName)"
+            />
+            <UCToggle
+              v-model="sliderShowValue"
+              :label="$t('widget.popup.slider.show_value')"
+              :full-w="true"
+              @change="changeSliderOption('show_value', sliderShowValue)"
+            />
+            <WidgetOptionSelect
+              :label="$t('widget.popup.slider.style')"
+              :value="localSettings.slider.style || 'default'"
+              :options="sliderStyleOptions"
+              @change="(value: string) => changeSliderOption('style', value)"
+            />
+            <template v-if="localSettings.slider.style !== 'buttons'">
+              <WidgetOptionSelect
+                :label="$t('widget.popup.slider.update_mode')"
+                :value="localSettings.slider.update_mode || 'on_release'"
+                :options="sliderUpdateModeOptions"
+                @change="
+                  (value: string) => changeSliderOption('update_mode', value)
+                "
+              />
+              <WidgetOptionSelect
+                :label="$t('widget.popup.slider.color')"
+                :value="localSettings.slider.color || 'auto'"
+                :options="sliderColorOptions"
+                @change="(value: string) => changeSliderOption('color', value)"
+              />
+              <WidgetOptionSelect
+                :label="$t('widget.popup.slider.fill')"
+                :value="localSettings.slider.fill || 'auto'"
+                :options="sliderFillOptions"
+                @change="(value: string) => changeSliderOption('fill', value)"
+              />
+              <div class="widget-popup__field widget-popup__field--icon">
+                <label>{{ $t("widget.popup.slider.icon_min") }}</label>
+                <div class="widget-setting widget-setting--icon">
+                  <IconSelect
+                    :key="`min-${localSettings.slider.icon_min || ''}`"
+                    :value="localSettings.slider.icon_min || ''"
+                    :fallback="'fa-light fa-minus'"
+                    :change-callback="
+                      (change: ChangeCallbackParams) =>
+                        changeSliderOption('icon_min', change.value)
+                    "
+                  />
+                </div>
+              </div>
+              <div class="widget-popup__field widget-popup__field--icon">
+                <label>{{ $t("widget.popup.slider.icon_max") }}</label>
+                <div class="widget-setting widget-setting--icon">
+                  <IconSelect
+                    :key="`max-${localSettings.slider.icon_max || ''}`"
+                    :value="localSettings.slider.icon_max || ''"
+                    :fallback="'fa-light fa-plus'"
+                    :change-callback="
+                      (change: ChangeCallbackParams) =>
+                        changeSliderOption('icon_max', change.value)
+                    "
+                  />
+                </div>
+              </div>
+            </template>
+            <UCInput
+              v-model="sliderMin"
+              :type="'number'"
+              :full-w="true"
+              :label="$t('widget.popup.slider.min')"
+              :description="$t('widget.popup.slider.limit_description')"
+              @submit="changeSliderLimit('min', sliderMin)"
+            />
+            <UCInput
+              v-model="sliderMax"
+              :type="'number'"
+              :full-w="true"
+              :label="$t('widget.popup.slider.max')"
+              @submit="changeSliderLimit('max', sliderMax)"
+            />
+          </template>
+        </template>
+        <template
+          v-else-if="localSettings.type === 'number' && localSettings.number"
+        >
+          <div
+            class="widget-popup__command-wrapper"
+            :class="{
+              'widget-popup__command-wrapper--minimal':
+                !localSettings.number.number_id,
+            }"
+          >
+            <CommandField
+              :id="localSettings.number.number_id"
+              :entity-type="entityType"
+              :name="numberEntityName(localSettings.number.number_id || '')"
+              :entity="
+                localSettings.number.number_id
+                  ? getIntegrationNameById(localSettings.number.number_id)
+                  : ''
+              "
+              :extended-command-select="entityType === 'activity'"
+              :label="$t('widget.popup.number.label')"
+              @open-command-select="openNumberSelect"
+            />
+            <WidgetEntitySelect
+              v-if="entityType === 'activity'"
+              :key="localSettings.number.number_id || $t('ui.none')"
+              ref="elNumberSelect"
+              :value="localSettings.number.number_id || ''"
+              :activity="entity"
+              :entity-type="EntityType.number"
+              @select="doNumberEntitySelect"
+            />
+          </div>
+          <template v-if="localSettings.number.number_id">
+            <UCToggle
+              v-model="numberShowName"
+              :label="$t('widget.popup.select.show_entity_name')"
+              :full-w="true"
+              @change="changeNumberOption('show_name', numberShowName)"
+            />
+            <WidgetOptionSelect
+              :label="$t('widget.popup.number.display_mode')"
+              :value="localSettings.number.display_mode || 'auto'"
+              :options="numberDisplayModeOptions"
+              :disabled="!numberIsBounded"
+              @change="
+                (value: string) => changeNumberOption('display_mode', value)
+              "
+            />
+            <UCInput
+              v-model="numberStep"
+              :type="'number'"
+              :full-w="true"
+              :label="$t('widget.popup.number.step')"
+              :description="$t('widget.popup.number.step_description')"
+              @submit="changeNumberStep(numberStep)"
+            />
+          </template>
+        </template>
         <div
           v-else-if="localSettings.type !== 'numpad'"
           class="widget-popup__command-wrapper"
@@ -1222,7 +1637,11 @@ onMounted(async () => {
             localSettings.type !== 'numpad' &&
             (localSettings.type !== 'sensor' ||
               localSettings.sensor?.sensor_id) &&
-            (localSettings.type !== 'select' || localSettings.select?.select_id)
+            (localSettings.type !== 'select' ||
+              localSettings.select?.select_id) &&
+            (localSettings.type !== 'slider' ||
+              localSettings.slider?.entity_id) &&
+            (localSettings.type !== 'number' || localSettings.number?.number_id)
           "
           class="widget-popup__field widget-popup__field--size"
         >
@@ -1247,6 +1666,10 @@ onMounted(async () => {
               localSettings.sensor?.sensor_id) &&
             (localSettings.type !== 'select' ||
               localSettings.select?.select_id) &&
+            (localSettings.type !== 'slider' ||
+              localSettings.slider?.entity_id) &&
+            (localSettings.type !== 'number' ||
+              localSettings.number?.number_id) &&
             localSettings.type !== 'numpad'
           "
           class="widget-popup__field widget-popup__field--size"

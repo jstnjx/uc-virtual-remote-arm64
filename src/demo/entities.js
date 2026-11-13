@@ -140,7 +140,60 @@ function activityDefinition(mediaPlayer) {
             location: { x: 0, y: 0 },
             size: { width: 4, height: 6 }
           }]
+        }, {
+          page_id: "audio",
+          name: translated("Audio"),
+          grid: { width: 4, height: 6 },
+          items: [
+            {
+              type: "slider",
+              text: "Volume",
+              slider: {
+                entity_id: mediaPlayerId,
+                feature: "volume",
+                style: "bar",
+                icon_min: "uc:volume-low",
+                icon_max: "uc:volume-high",
+                max: 80,
+                update_mode: "live"
+              },
+              location: { x: 0, y: 0 },
+              size: { width: 4, height: 1 }
+            },
+            {
+              type: "number",
+              text: "Bass",
+              number: { number_id: demoEntityId("number_bass") },
+              location: { x: 0, y: 1 },
+              size: { width: 4, height: 1 }
+            },
+            {
+              type: "number",
+              text: "Treble",
+              number: { number_id: demoEntityId("number_treble"), display_mode: "stepper", step: 1 },
+              location: { x: 0, y: 2 },
+              size: { width: 4, height: 1 }
+            },
+            {
+              type: "slider",
+              text: "Light",
+              slider: { entity_id: demoEntityId("light_living_room"), feature: "dim", style: "default", color: "entity" },
+              location: { x: 0, y: 3 },
+              size: { width: 2, height: 1 }
+            },
+            {
+              type: "slider",
+              text: "Blinds",
+              slider: { entity_id: demoEntityId("cover_living_room"), feature: "position", style: "buttons" },
+              location: { x: 2, y: 3 },
+              size: { width: 2, height: 1 }
+            }
+          ]
         }]
+      },
+      touch_slider: {
+        enabled: true,
+        target: { entity_id: mediaPlayerId, feature: "volume" }
       }
     }
   );
@@ -158,15 +211,14 @@ function demoEntities() {
       ["on_off", "toggle", "dim", "brightness", "color_temperature", "color"],
       {
         state: "ON",
-        brightness: 62,
-        color_temperature: 3_200,
-        min_color_temperature: 2_200,
-        max_color_temperature: 6_500,
+        brightness: 158,
+        color_temperature: 50,
         hue: 32,
         saturation: 48,
         hs_color: [32, 48],
         color: { hue: 32, saturation: 48 }
-      }
+      },
+      { color_temperature_steps: 5 }
     ),
     entity(
       "cover_living_room",
@@ -232,6 +284,33 @@ function demoEntities() {
           }]
         }
       }
+    ),
+    entity(
+      "number_bass",
+      "number",
+      "Bass",
+      "uc:input-numeric",
+      ["value"],
+      { state: "ON", value: 1.5 },
+      { device_class: "audio_level", min: -10, max: 10, step: 0.5, decimals: 1 }
+    ),
+    entity(
+      "number_treble",
+      "number",
+      "Treble",
+      "uc:input-numeric",
+      ["value"],
+      { state: "ON", value: 0 },
+      { device_class: "audio_level", min: -6, max: 6, step: 1 }
+    ),
+    entity(
+      "number_sleep_timer",
+      "number",
+      "Sleep Timer",
+      "uc:timer",
+      ["value"],
+      { state: "ON", value: 30 },
+      { device_class: "duration", unit: "min", min: 0, max: null, step: 5, display_mode: "stepper" }
     ),
     activityDefinition(mediaPlayer)
   ];

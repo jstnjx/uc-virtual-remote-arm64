@@ -21,6 +21,7 @@ describe("INTEGRATION_ENTITY_TYPES", () => {
       "sensor",
       "switch",
       "select",
+      "number",
     ]);
   });
 

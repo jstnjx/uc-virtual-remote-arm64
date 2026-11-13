@@ -12,6 +12,7 @@ import { configStore } from "@/stores/config";
 import { getComponentClasses } from "@/composables/components";
 import { getBinarySensorState } from "@/composables/activities";
 import { getItemAttrValue } from "@/composables/entity";
+import { sensorDecimals } from "@/composables/numberEntity";
 
 const integrationsStorage = integrationsStore();
 const configStorage = configStore();
@@ -130,7 +131,7 @@ onMounted(async () => {
               getItemAttrValue(
                 attributes.value,
                 timeFormat24h,
-                options?.decimals as number | undefined,
+                sensorDecimals(entity),
               ),
             )
           }}

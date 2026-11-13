@@ -170,7 +170,8 @@
         "activity": "Aktivität",
         "macro": "Makro",
         "remote": "Fernbedienung",
-        "select": "Auswahl"
+        "select": "Auswahl",
+        "number": "Zahl"
       },
       "state": {
         "off": "aus",
@@ -244,6 +245,10 @@
         "seek": "Suchen",
         "dim": "Helligkeit",
         "position": "Position",
+        "tilt_position": "Neigung",
+        "color_temperature": "Farbtemperatur",
+        "target_temperature": "Zieltemperatur",
+        "value": "Wert",
         "no_features_found": "Keine Funktionen gefunden."
       },
       "command": {
@@ -287,6 +292,16 @@
       "remove_entities": {
         "title": "Entitäten entfernen",
         "question": "Bist du sicher, dass du die Entitäten entfernen möchtest?"
+      },
+      "display": {
+        "title": "Anzeige",
+        "description": "Lege fest, wie die Fernbedienung diese Entität anzeigt. Die Optionen der Integration bleiben unverändert.",
+        "default": "Standard",
+        "decimals": "Nachkommastellen",
+        "value": "Wert",
+        "step": "Schrittweite",
+        "increase": "Erhöhen",
+        "decrease": "Verringern"
       },
       "no_other_settings": "Diese Entität hat keine anderen Einstellungen.",
       "missing_entity": {
@@ -618,6 +633,10 @@
           "title": "Auswahl",
           "description": "Zeigt die aktuelle Option einer Auswahl an."
         },
+        "number": {
+          "title": "Zahl",
+          "description": "Zeigt eine Zahl-Entität als Schieberegler oder Stepper an."
+        },
         "media": {
           "title": "Medien-Bedienelement",
           "description": "Zeigt Mediengrafik, Titel und Quelle sowie den Fortschritt an.",
@@ -629,7 +648,7 @@
         },
         "slider": {
           "title": "Schieberegler",
-          "description": "Helligkeit, Lautstärke oder andere unterstützte Werte steuern."
+          "description": "Helligkeit, Lautstärke, Position, Temperatur oder einen Zahlenwert steuern."
         },
         "jump_to_page": {
           "title": "Zur Seite springen",
@@ -651,6 +670,30 @@
         "select": {
           "label": "Auswahl Entität",
           "show_entity_name": "Entitätsnamen anzeigen"
+        },
+        "slider": {
+          "label": "Schieberegler Entität",
+          "show_value": "Wert anzeigen",
+          "style": "Stil",
+          "style_option": { "default": "Schieberegler", "bar": "Pegelbalken", "buttons": "Tasten" },
+          "update_mode": "Wert senden",
+          "update_mode_option": { "on_release": "Beim Loslassen", "live": "Während der Bewegung" },
+          "color": "Farbe",
+          "color_option": { "auto": "Automatisch", "neutral": "Neutral", "entity": "Lichtfarbe", "gradient": "Verlauf" },
+          "fill": "Füllung",
+          "fill_option": { "auto": "Automatisch", "start": "Ab Anfang", "center": "Ab Null", "cursor": "Nur Markierung" },
+          "icon_min": "Symbol Minimum",
+          "icon_max": "Symbol Maximum",
+          "min": "Minimum",
+          "max": "Maximum",
+          "limit_description": "Optionale Grenzen, begrenzt auf den Bereich der Funktion."
+        },
+        "number": {
+          "label": "Zahl Entität",
+          "display_mode": "Darstellung",
+          "display_mode_option": { "auto": "Automatisch", "slider": "Schieberegler", "stepper": "Stepper" },
+          "step": "Schrittweite",
+          "step_description": "Optionale Schrittweite für dieses Bedienelement. Leer lassen für die Schrittweite der Entität."
         },
         "error": {
           "invalid_size": "Schaltflächengröße ist ungültig. Bitte wähle eine gültige Größe und versuche es erneut."

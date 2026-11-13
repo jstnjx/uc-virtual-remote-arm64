@@ -7,10 +7,43 @@ export class SequenceEngine {
   constructor(platform) {
     this.platform = platform;
     this.running = new Map();
+    this.runningTargets = new Map();
     this.activityGenerations = new Map();
   }
 
+  // Whether a sequence of the given activity or macro is running.
+  isRunning(targetId, kind = null) {
+    for (const target of this.runningTargets.values()) {
+      if (target.target_id === targetId && (!kind || target.kind === kind)) return true;
+    }
+    return false;
+  }
+
+  // `activity.stop` / `macro.stop`: abort a running sequence. Idempotent.
+  async stop(targetId) {
+    const executions = [...this.runningTargets.entries()].filter(([, target]) => target.target_id === targetId);
+    if (executions.length && this.activityGenerations.has(targetId)) {
+      this.activityGenerations.set(targetId, Number(this.activityGenerations.get(targetId) || 0) + 1);
+    }
+    for (const [executionId, target] of executions) {
+      target.stopped = true;
+      this.running.get(executionId)?.abort(new Error("Sequence stopped"));
+    }
+    if (!executions.length) return { stopped: false };
+    const deadline = Date.now() + 5000;
+    while (executions.some(([executionId]) => this.running.has(executionId)) && Date.now() < deadline) {
+      await sleep(25);
+    }
+    const activity = this.platform.db.getActivity(targetId);
+    if (activity) {
+      this.platform.db.setActivityState(targetId, "STOPPED");
+      this.platform.events.publish("activity.change", this.platform.db.getActivity(targetId));
+    }
+    return { stopped: true };
+  }
+
   async runActivity(id, action = "on") {
+    if (String(action).toLowerCase() === "stop") return this.stop(id);
     const activity = this.platform.db.getActivity(id);
     if (!activity) throw new Error(`Activity ${id} not found`);
     const normalized = String(action).toLowerCase();
@@ -59,6 +92,7 @@ export class SequenceEngine {
     const execution = this.platform.db.createExecution(kind, targetId, sequence.length);
     const controller = new AbortController();
     this.running.set(execution.id, controller);
+    this.runningTargets.set(execution.id, { kind, target_id: targetId });
     this.platform.events.publish("execution.change", execution);
     try {
       await this.#execute(sequence, { ...context, execution_id: execution.id, execution }, controller.signal, 0, execution);
@@ -70,7 +104,7 @@ export class SequenceEngine {
       this.platform.events.publish("execution.change", completed);
       return completed;
     } catch (error) {
-      const status = controller.signal.aborted ? "CANCELLED" : "FAILED";
+      const status = this.runningTargets.get(execution.id)?.stopped ? "STOPPED" : controller.signal.aborted ? "CANCELLED" : "FAILED";
       const failed = this.platform.db.updateExecution(execution.id, {
         status,
         error: error.message,
@@ -80,6 +114,7 @@ export class SequenceEngine {
       throw error;
     } finally {
       this.running.delete(execution.id);
+      this.runningTargets.delete(execution.id);
     }
   }
 

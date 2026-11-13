@@ -3,6 +3,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { displayName, jsonString, localEntityId, nowIso, parseJson, qualifiedEntityId, randomId, slug } from "../shared/util.js";
 import { entityCommandIds, normalizeButtonMappings } from "../core/device-metadata.js";
+import { applyEntityOptionsUpdate, mergeDriverOptions, normalizeNumberItem, normalizeSliderItem, validateFeatureTarget } from "../core/entity-options.js";
 
 function bool(value) { return Boolean(Number(value)); }
 function rowJson(row, fields = []) {
@@ -63,6 +64,11 @@ function normalizeActivityUiItem(value = {}) {
     item.select = select;
     delete item.select_id;
     delete item.show_name;
+  } else if (item.type === "slider") {
+    item.slider = normalizeSliderItem(typeof item.slider === "string" ? { entity_id: item.slider } : item.slider || { entity_id: item.entity_id });
+  } else if (item.type === "number") {
+    item.number = normalizeNumberItem(typeof item.number === "string" ? { number_id: item.number } : item.number || { number_id: item.number_id || item.entity_id });
+    delete item.number_id;
   } else if (item.type === "media_player") {
     item.media_player_id = String(item.media_player_id || item.mediaPlayerId || item.entity_id || "");
     delete item.mediaPlayerId;
@@ -83,7 +89,7 @@ function normalizeActivityUserInterface(value = {}) {
     return {
       ...source,
       page_id: String(source.page_id || source.id || `page-${index + 1}`),
-      name: String(source.name || `Page ${index + 1}`),
+      name: typeof source.name === "object" && source.name ? displayName(source.name, `Page ${index + 1}`) : String(source.name || `Page ${index + 1}`),
       grid: { width, height },
       items,
       gridCommands: items.map((item) => structuredClone(item))
@@ -571,6 +577,13 @@ export class PlatformDatabase {
     const timestamp = nowIso();
     const old = this.getConfiguredEntity(id);
     const metadata = { ...source, ...overrides, entity_id: id, integration_id: integrationId };
+    // `options.user` is reserved for the Remote: drop a driver supplied value
+    // and keep the overrides of an already configured entity.
+    metadata.options = mergeDriverOptions(old?.options, source.options, source.entity_type);
+    if (overrides.options && typeof overrides.options === "object") {
+      metadata.options = { ...metadata.options, ...overrides.options };
+      if (!overrides.options.user && metadata.options.user === undefined) delete metadata.options.user;
+    }
     delete metadata.configured_id;
     delete metadata.local_id;
     const name = displayName(overrides.name || source.name, localId);
@@ -596,6 +609,27 @@ export class PlatformDatabase {
       .run(name, patch.icon ?? existing.icon ?? null, jsonString(metadata), nowIso(), id);
     if (patch.attributes) this.updateEntityAttributes(id, patch.attributes);
     return this.getConfiguredEntity(id);
+  }
+
+  // Core-API entity update (`PATCH /entities/{id}`, WS `update_entity`):
+  // name, icon and description, and `options` as EntityOptionsUpdate, which
+  // only changes the user overrides in `options.user`.
+  updateEntityFromApi(id, input = {}) {
+    const existing = this.getConfiguredEntity(id);
+    if (!existing) return null;
+    const patch = {};
+    for (const key of ["name", "icon", "description"]) {
+      if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+      const value = input[key];
+      if (key === "icon") patch.icon = value === "" ? null : value;
+      else if (value === "" || (value && typeof value === "object" && !Object.keys(value).length)) patch[key] = key === "name" ? existing.name : undefined;
+      else patch[key] = value;
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "options")) {
+      patch.options = applyEntityOptionsUpdate(existing, input.options);
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "area")) patch.area = input.area;
+    return this.updateConfiguredEntity(id, patch);
   }
 
   deleteConfiguredEntity(id) { return this.db.prepare("DELETE FROM configured_entities WHERE id=?").run(id).changes > 0; }
@@ -718,6 +752,8 @@ export class PlatformDatabase {
       add(value.media_player_id, "media_player");
       add(value.sensor?.sensor_id, "sensor");
       add(value.select?.select_id, "select");
+      add(value.number?.number_id, "number");
+      add(value.slider?.entity_id, undefined);
       for (const item of Object.values(value)) visit(item);
     };
     visit(userInterface?.pages || []);
@@ -788,6 +824,7 @@ export class PlatformDatabase {
     const options = { ...(existing?.options || {}), ...(input.options || {}) };
     options.button_mapping = normalizeButtonMappings(options.button_mapping);
     options.user_interface = normalizeActivityUserInterface(options.user_interface);
+    this.#validateFeatureTargets(options);
     const explicitEntities = Array.isArray(input.options?.included_entities)
       ? input.options.included_entities
       : Array.isArray(input.entities)
@@ -821,6 +858,22 @@ export class PlatformDatabase {
       existing?.created_at || timestamp, timestamp, integrationId, jsonString(attributes)
     );
     return this.getActivity(id);
+  }
+
+  // Entity feature targets of slider items and the touch slider must reference
+  // a slider-capable feature with a bounded range (Core-API ui-widgets.md).
+  #validateFeatureTargets(options = {}) {
+    const lookup = (id) => this.getConfiguredEntity(id);
+    for (const page of options.user_interface?.pages || []) {
+      for (const item of page.items || []) {
+        if (item.type !== "slider") continue;
+        if (!item.slider?.entity_id) throw Object.assign(new Error("A slider item requires slider.entity_id"), { status: 422, code: "VALIDATION_ERROR" });
+        validateFeatureTarget(item.slider, lookup(item.slider.entity_id));
+      }
+    }
+    const target = options.touch_slider?.target;
+    if (options.touch_slider && options.touch_slider.enabled === false) delete options.touch_slider.target;
+    else if (target) validateFeatureTarget(target, lookup(target.entity_id), { touchSlider: true });
   }
 
   setActivityState(id, state) {

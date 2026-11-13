@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
 import { localEntityId, nowIso, sha256 } from "../shared/util.js";
-import { entityCommandMetadata } from "./device-metadata.js";
+import { entityCommandIds, entityCommandMetadata } from "./device-metadata.js";
+import { bridgeWebSocketMessage } from "./websocket-rest-bridge.js";
+import { sequenceReadiness } from "../engine/readiness.js";
+import { networkState, setEntityPowerState } from "../api/core-rest-current.js";
 import { normalizeActivityAction } from "../engine/activity-command.js";
 import { virtualPowerModeStatus } from "./virtual-power.js";
 import {
@@ -99,7 +102,7 @@ const CFG_MESSAGES = new Map([
 const EVENT_CHANNELS = Object.freeze([
   "all", "configuration", "entities", "entity_button", "entity_switch", "entity_climate", "entity_cover",
   "entity_light", "entity_media_player", "entity_sensor", "entity_activity", "entity_macro", "entity_remote",
-  "activity_groups", "integrations", "profiles", "emitters", "docks", "software_update", "power_mode", "battery_status",
+  "entity_select", "entity_number", "entity_ir_emitter", "entity_voice_assistant", "activity_groups", "backup_jobs", "integrations", "profiles", "emitters", "docks", "software_update", "power_mode", "battery_status",
   "ambient_light", "wifi", "media", "assistant"
 ]);
 
@@ -384,7 +387,7 @@ export class CoreWebSocketFacade {
       case "add_page": {
         const value = db.savePage(data);
         this.platform.events.publish("profile.change", { event_type: "NEW", profile_id: value.profile_id, page_id: value.id, new_state: { page: corePage(value) } });
-        return response(peer, id, "result", corePage(value), 201);
+        return response(peer, id, "page", corePage(value), 201);
       }
       case "update_page": {
         const value = db.savePage(data);
@@ -413,7 +416,7 @@ export class CoreWebSocketFacade {
       case "add_group": {
         const value = db.saveGroup(data);
         this.platform.events.publish("profile.change", { event_type: "NEW", profile_id: value.profile_id, group_id: value.id, new_state: { group: coreGroup(value) } });
-        return response(peer, id, "result", coreGroup(value), 201);
+        return response(peer, id, "group", coreGroup(value), 201);
       }
       case "update_group": {
         const value = db.saveGroup(data);
@@ -444,7 +447,7 @@ export class CoreWebSocketFacade {
       case "get_entities": {
         const filter = data.filter || {};
         const values = entityFilter(this.#allEntities(), filter).map(coreEntity);
-        const page = pageSlice(values, data.paging);
+        const page = pageSlice(values, { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "entities", { filter, paging: page.paging, entities: page.items });
       }
       case "get_entity": {
@@ -465,7 +468,7 @@ export class CoreWebSocketFacade {
         }
         let values = db.listAvailableEntities(integrationId);
         if (data.filter?.entity_type) values = values.filter((item) => item.entity_type === data.filter.entity_type);
-        const page = pageSlice(values.map(availableEntity), data.paging);
+        const page = pageSlice(values.map(availableEntity), { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "available_entities", {
           filter: data.filter || (integrationId ? { integration_id: integrationId } : {}),
           paging: page.paging,
@@ -482,7 +485,8 @@ export class CoreWebSocketFacade {
         return response(peer, id, "entity_commands", {
           entity_id: data.entity_id,
           entity_type: value?.entity_type,
-          commands: this.#commands(value)
+          // Core-API: an array of command identifiers (`cmd_id` strings).
+          commands: value ? entityCommandIds(value) : []
         });
       }
       case "configure_entities_from_integration": {
@@ -507,7 +511,8 @@ export class CoreWebSocketFacade {
         return response(peer, id, "entity", coreEntity(configured), 201);
       }
       case "update_entity": {
-        const value = db.updateConfiguredEntity(data.entity_id, data);
+        const { entity_id: _entityId, ...update } = data;
+        const value = db.updateEntityFromApi(data.entity_id, update);
         if (!value) throw Object.assign(new Error(`Entity ${data.entity_id} not found or not editable`), { status: 404 });
         this.platform.events.publish("entity.updated", value);
         return response(peer, id, "entity", coreEntity(value));
@@ -539,7 +544,7 @@ export class CoreWebSocketFacade {
 
       case "get_integration_driver_count": return response(peer, id, "integration_driver_count", { count: uniqueDrivers(integrations()).length });
       case "get_integration_drivers": {
-        const page = pageSlice(uniqueDrivers(integrations()), data.paging);
+        const page = pageSlice(uniqueDrivers(integrations()), { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "integration_drivers", { paging: page.paging, drivers: page.items });
       }
       case "get_integration_driver": {
@@ -586,7 +591,7 @@ export class CoreWebSocketFacade {
         let values = integrations().filter((item) => item.configured !== false);
         if (data.filter?.driver_id) values = values.filter((item) => (item.driver_id || item.id) === data.filter.driver_id);
         if (typeof data.filter?.enabled === "boolean") values = values.filter((item) => item.enabled === data.filter.enabled);
-        const page = pageSlice(values.map(integrationInstance), data.paging);
+        const page = pageSlice(values.map(integrationInstance), { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "integrations", { filter: data.filter || {}, paging: page.paging, integrations: page.items });
       }
       case "get_integration": {
@@ -620,7 +625,7 @@ export class CoreWebSocketFacade {
       }
       case "get_integration_status": {
         const values = integrations().filter((item) => item.configured !== false).map(integrationStatus);
-        const page = pageSlice(values, data.paging);
+        const page = pageSlice(values, { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "integration_status", { filter: data.filter || {}, paging: page.paging, status: page.items });
       }
       case "integration_cmd": {
@@ -670,8 +675,13 @@ export class CoreWebSocketFacade {
       case "setup_integration": {
         const record = integrations().find((item) => (item.driver_id || item.id) === data.driver_id);
         if (!record) throw Object.assign(new Error(`Integration driver ${data.driver_id} not found`), { status: 404 });
-        await this.platform.integrations.startSetup(record.id, false, data.setup_data || {});
+        await this.platform.integrations.startSetup(record.id, Boolean(data.reconfigure), data.setup_data || {}, data.language);
         return response(peer, id, "integration_setup_info", this.#setupInfo(db.getIntegration(record.id)));
+      }
+      case "integration_setup_keepalive": {
+        const record = integrations().find((item) => (item.driver_id || item.id) === data.driver_id);
+        if (!record || record.setup_state === "IDLE") throw Object.assign(new Error(`Integration setup ${data.driver_id} not found`), { status: 404 });
+        return response(peer, id, "integration_setup_info", this.#setupInfo(record));
       }
       case "set_integration_user_data": {
         const record = integrations().find((item) => (item.driver_id || item.id) === data.driver_id);
@@ -699,7 +709,7 @@ export class CoreWebSocketFacade {
       case "get_dock_count": return response(peer, id, "dock_count", { count: this.platform.docks.list().length });
       case "get_docks": {
         let values = this.platform.docks.list(typeof data.filter?.active === "boolean" ? data.filter.active : undefined);
-        const page = pageSlice(values, data.paging);
+        const page = pageSlice(values, { ...(data.paging || {}), sort: data.sort, order: data.order, lang: data.lang });
         return response(peer, id, "docks", { filter: data.filter || {}, paging: page.paging, docks: page.items });
       }
       case "create_dock": return response(peer, id, "dock", this.platform.docks.save(data), 201);
@@ -820,8 +830,21 @@ export class CoreWebSocketFacade {
         return response(peer, id, "result", successMessage());
       }
       case "del_all_standby_inhibitors": db.setSetting("standby_inhibitors", []); return response(peer, id, "result", successMessage());
-      default:
+      case "set_entity_state":
+        return response(peer, id, "entity", coreEntity(setEntityPowerState(this.platform, data.entity_id, data.state)));
+      case "get_sequence_readiness": {
+        const cmd = String(data.cmd_id || "");
+        const kind = cmd.startsWith("macro.") ? "macro" : cmd.startsWith("activity.") ? "activity" : undefined;
+        return response(peer, id, "sequence_readiness", sequenceReadiness(this.platform, data.entity_id, {
+          kind, command: cmd || undefined, lang: data.lang, errorPolicy: data.error_policy
+        }));
+      }
+      case "get_network_state": return response(peer, id, "network_state", networkState());
+      default: {
+        const bridged = await bridgeWebSocketMessage(this.platform, msg, data);
+        if (bridged) return response(peer, id, bridged.msg, bridged.data, bridged.code);
         throw Object.assign(new Error(`Unsupported Core WebSocket request: ${msg}`), { status: 501, errorCode: "NOT_IMPLEMENTED" });
+      }
     }
   }
 
@@ -837,13 +860,6 @@ export class CoreWebSocketFacade {
     return this.platform.db.getConfiguredEntity(id) || this.platform.db.getActivity(id) || this.platform.db.getMacro(id);
   }
 
-  #commands(entity) {
-    if (!entity) return [];
-    if (entity.entity_type === "activity") return ["on", "off"].map((cmd_id) => ({ cmd_id }));
-    if (entity.entity_type === "macro") return [{ cmd_id: "start" }];
-    return (entity.commands || entity.features || []).map((item) => typeof item === "string" ? { cmd_id: item } : item);
-  }
-
   async #command(entityId, commandId, params) {
     const activity = this.platform.db.getActivity(entityId);
     if (activity) {
@@ -853,6 +869,7 @@ export class CoreWebSocketFacade {
     const macro = this.platform.db.getMacro(entityId);
     if (macro) {
       if (this.platform.demo?.isIntegration(macro.integration_id)) return this.platform.demo.command(entityId, commandId || "start", params);
+      if (/(^|\.)stop$/i.test(String(commandId || ""))) return this.platform.engine.stop(entityId);
       return this.platform.engine.runMacro(entityId);
     }
     return this.platform.integrations.command(entityId, commandId, params);
@@ -914,6 +931,8 @@ export class CoreWebSocketFacade {
         }
       };
     }
+    if (platformEvent.type === "backup.job") return { channel: "backup_jobs", msg: "backup_job_change", cat: "REMOTE", data };
+    if (platformEvent.type === "network.change") return { channel: "configuration", msg: "network_change", cat: "REMOTE", data };
     if (platformEvent.type === "activity_group.change") return { channel: "activity_groups", msg: "activity_group_change", cat: "ENTITY", data };
     if (platformEvent.type === "profile.change") return {
       channel: "profiles", msg: "profile_change", cat: "UI",
@@ -931,6 +950,7 @@ export class CoreWebSocketFacade {
           driver_id: data.driver_id || data.id,
           state: data.state || "SETUP",
           ...(data.error ? { error: data.error } : {}),
+          ...(data.error_message !== undefined ? { error_message: data.error_message } : {}),
           ...(data.require_user_action ? { require_user_action: data.require_user_action } : {})
         }
       };
