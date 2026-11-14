@@ -205,6 +205,38 @@ curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main
   | sudo UCVR_PIN=1234 TZ=Europe/Berlin bash
 ```
 
+### Installer options
+
+Pass options after `bash -s --`:
+
+```bash
+# newest build of main (the :edge image, published on every push to main)
+curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh \
+  | sudo bash -s -- --channel edge
+
+# a specific release, or build the image locally from the checkout
+... | sudo bash -s -- --version 0.16.0
+... | sudo bash -s -- --build --no-cache
+
+# all options
+... | sudo bash -s -- --help
+```
+
+| Option | Purpose |
+|---|---|
+| `--channel stable\|edge\|source` | `stable` pulls the newest release (`:latest`, default), `edge` the newest main build (`:edge`), `source` builds the image locally. Shortcuts: `--stable`, `--edge`, `--build` |
+| `--version VERSION` | Check out tag `vVERSION` and run that release image |
+| `--branch NAME` / `--ref REF` | Check out a branch, tag or commit; with `edge`, `--ref` pulls the matching `sha-<commit>` image |
+| `--image IMAGE` | Run an exact image reference |
+| `--no-cache` | Build without the Docker layer cache |
+| `--keep-app-update` | Keep a Software Update installed from the Web Configurator active (see below) |
+| `--prune` | Remove dangling images afterwards |
+| `--prefix`, `--data-dir`, `--port`, `--pin`, `--name`, `--tz`, `--local` | Installation settings |
+
+The chosen channel is saved in `.env` (`UCVR_CHANNEL`), so later runs without options stay on it. `--version`, `--ref` and `--image` apply to that run only. Every run recreates the container, and the installer prints the image, version and commit that are running.
+
+A Software Update installed from the Web Configurator lives in the data directory and takes precedence over the code in the image. So that the build the installer deploys actually runs, the installer deactivates such an update (it keeps a copy next to `application/active.json`) unless `--keep-app-update` is given.
+
 Configuration is stored in:
 
 ```text
@@ -241,6 +273,8 @@ The only host persistence mount required by the application is `/data`. The inte
 docker compose pull
 docker compose up -d --no-build
 ```
+
+`UCVR_IMAGE` selects the image (default `ghcr.io/jstnjx/uc-virtual-remote-arm64:latest`), for example `UCVR_IMAGE=ghcr.io/jstnjx/uc-virtual-remote-arm64:edge` for the newest main build.
 
 Build locally:
 
@@ -288,6 +322,8 @@ Run the installer again:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jstnjx/uc-virtual-remote-arm64/main/install.sh | sudo bash
 ```
+
+It stays on the saved channel. To move to the newest main build, add `-s -- --channel edge` (see [Installer options](#installer-options)).
 
 Application updates are also available from **Settings → Software Update**.
 

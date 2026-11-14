@@ -1,7 +1,7 @@
 services:
   virtual-remote:
     build: .
-    image: ghcr.io/jstnjx/uc-virtual-remote-arm64:latest
+    image: "${UCVR_IMAGE:-ghcr.io/jstnjx/uc-virtual-remote-arm64:latest}"
     container_name: uc-virtual-remote-arm64
     restart: unless-stopped
     network_mode: host
@@ -35,7 +35,7 @@ services:
 
   demo-integration:
     build: .
-    image: ghcr.io/jstnjx/uc-virtual-remote-arm64:latest
+    image: "${UCVR_IMAGE:-ghcr.io/jstnjx/uc-virtual-remote-arm64:latest}"
     container_name: uc-virtual-remote-arm64-demo
     profiles: ["demo"]
     restart: unless-stopped
