@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
+import { spawn } from "node:child_process";
 import path from "node:path";
 import { extractZip, findDirectory, readJson } from "../shared/archive.js";
 import { logger } from "../shared/logger.js";
@@ -9,6 +10,48 @@ import { nowIso, slug } from "../shared/util.js";
 const log = logger("system-update");
 const DEFAULT_REPOSITORY = "jstnjx/uc-virtual-remote-arm64";
 const CACHE_MS = 5 * 60 * 1000;
+const CONFIGURATOR_BUILD_TIMEOUT_MS = 30 * 60 * 1000;
+
+/**
+ * Build the Web Configurator of a downloaded release from its own committed
+ * source, so the release serves a bundle that matches its backend. Release
+ * archives and commit zipballs carry the source only.
+ */
+export function buildReleaseWebConfigurator(releaseRoot, { timeoutMs = CONFIGURATOR_BUILD_TIMEOUT_MS } = {}) {
+  const script = path.join(releaseRoot, "tools", "prepare-web-configurator.js");
+  if (!fs.existsSync(script)) return Promise.reject(new Error("release has no Web Configurator build script"));
+  return new Promise((resolve, reject) => {
+    const output = [];
+    const child = spawn(process.execPath, [script], {
+      cwd: releaseRoot,
+      env: {
+        ...process.env,
+        UCVR_WEB_CONFIGURATOR_SOURCE_DIR: path.join(releaseRoot, "web-configurator"),
+        UCVR_WEB_CONFIGURATOR_DIR: path.join(releaseRoot, "web-configurator-build"),
+        UCVR_WEB_CONFIGURATOR_SOURCE_OUTPUT_DIR: path.join(releaseRoot, "web-configurator-source")
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true
+    });
+    const keep = (chunk) => {
+      output.push(String(chunk));
+      if (output.length > 200) output.splice(0, output.length - 200);
+    };
+    child.stdout.on("data", keep);
+    child.stderr.on("data", keep);
+    const timer = setTimeout(() => child.kill("SIGKILL"), timeoutMs);
+    child.once("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.once("exit", (code, signal) => {
+      clearTimeout(timer);
+      if (code === 0) return resolve();
+      const tail = output.join("").trim().split("\n").slice(-5).join(" | ");
+      reject(new Error(`Web Configurator build failed (${signal || `exit ${code}`})${tail ? `: ${tail}` : ""}`));
+    });
+  });
+}
 
 function normalizedVersion(value) {
   return String(value || "").trim().replace(/^v/i, "");
@@ -127,6 +170,7 @@ export class SystemUpdateService {
     this.tasks = new Map();
     this.progressState = new Map();
     this.lastError = null;
+    this.buildWebConfigurator = options.buildWebConfigurator || buildReleaseWebConfigurator;
     fs.mkdirSync(this.downloadDir, { recursive: true });
     fs.mkdirSync(this.releaseDir, { recursive: true });
   }
@@ -341,6 +385,7 @@ export class SystemUpdateService {
 
   async #install(update, archive) {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "ucvr-application-update-"));
+    let staging = null;
     try {
       this.#publish({ state: "START", update_id: update.id }, "START");
       extractZip(archive, temporary, { maximumUncompressedBytes: 1024 * 1024 * 1024 });
@@ -361,11 +406,19 @@ export class SystemUpdateService {
       const fingerprint = crypto.createHash("sha256").update(fs.readFileSync(archive)).digest("hex").slice(0, 16);
       const releaseId = safeUpdateId(`${update.id}-${fingerprint}`);
       const destination = path.join(this.releaseDir, releaseId);
-      const staging = `${destination}.staging-${process.pid}`;
+      staging = `${destination}.staging-${process.pid}`;
       fs.rmSync(staging, { recursive: true, force: true });
       fs.cpSync(root, staging, { recursive: true });
+      if (!fs.existsSync(path.join(staging, "web-configurator-build", "index.html"))) {
+        this.#publish({ state: "PROGRESS", update_id: update.id, progress_percent: 50 });
+        log.info(`Building the Web Configurator of software update ${update.id}`);
+        await this.buildWebConfigurator(staging);
+        fs.rmSync(path.join(staging, "web-configurator", "node_modules"), { recursive: true, force: true });
+        fs.rmSync(path.join(staging, "web-configurator", "dist"), { recursive: true, force: true });
+      }
       fs.rmSync(destination, { recursive: true, force: true });
       fs.renameSync(staging, destination);
+      staging = null;
       const metadata = {
         id: update.id,
         version: packageVersion,
@@ -396,6 +449,7 @@ export class SystemUpdateService {
       log.error(`Update installation failed: ${error.message}`);
     } finally {
       fs.rmSync(temporary, { recursive: true, force: true });
+      if (staging) fs.rmSync(staging, { recursive: true, force: true });
     }
   }
 }
