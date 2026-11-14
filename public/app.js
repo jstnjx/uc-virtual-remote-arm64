@@ -284,7 +284,7 @@ function renderConfigurator(configurator) {
   openConfigurator.setAttribute("aria-disabled", installed ? "false" : "true");
   openConfigurator.tabIndex = installed ? 0 : -1;
   configuratorMeta.innerHTML = installed ? [
-    `<span>Build <b>${escapeHtml(configurator.version || "2.3.3-unfoldedtools.8")}</b></span>`,
+    `<span>Build <b>${escapeHtml(configurator.version || "2.3.3-unfoldedtools.9")}</b></span>`,
     `<span>Upstream source <b>${escapeHtml(configurator.upstream_version || "2.3.3")}</b></span>`,
     `<span><b>${Number(configurator.asset_count || 0).toLocaleString()}</b> files</span>`,
     `<span>Source-built · bundled · read-only</span>`

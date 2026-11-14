@@ -3,10 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const BUNDLED_CONFIGURATOR_VERSION = "2.3.3-unfoldedtools.8";
+const BUNDLED_CONFIGURATOR_VERSION = "2.3.3-unfoldedtools.9";
 const UPSTREAM_CONFIGURATOR_VERSION = "2.3.3";
 const COMMUNITY_BUILD_PUBLISHED_AT = "2026-08-03";
-const COMMUNITY_BUILD_UPDATED_AT = "2026-08-05";
+const COMMUNITY_BUILD_UPDATED_AT = "2026-11-14";
 const applicationRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultRoot = path.join(applicationRoot, "web-configurator-build");
 const SOURCE_ARCHIVE_NAME = `web-configurator-${BUNDLED_CONFIGURATOR_VERSION}-source.tar.gz`;

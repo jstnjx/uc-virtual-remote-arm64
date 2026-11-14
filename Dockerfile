@@ -72,7 +72,7 @@ ENV NODE_ENV=production \
     UCVR_NATIVE_GID=1000 \
     DOCKER_HOST=unix:///var/run/docker.sock \
     UCVR_WEB_CONFIGURATOR_DIR=/app/web-configurator-build \
-    UCVR_WEB_CONFIGURATOR_SOURCE_ARCHIVE_PATH=/app/web-configurator-source/web-configurator-2.3.3-unfoldedtools.8-source.tar.gz
+    UCVR_WEB_CONFIGURATOR_SOURCE_ARCHIVE_PATH=/app/web-configurator-source/web-configurator-2.3.3-unfoldedtools.9-source.tar.gz
 
 EXPOSE 946 11090
 VOLUME ["/data"]

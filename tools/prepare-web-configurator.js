@@ -7,7 +7,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "2.3.3-unfoldedtools.8";
+const VERSION = "2.3.3-unfoldedtools.9";
 const SOURCE_DIRECTORY_NAME = `web-configurator-${VERSION}`;
 const SOURCE_ARCHIVE_NAME = `${SOURCE_DIRECTORY_NAME}-source.tar.gz`;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

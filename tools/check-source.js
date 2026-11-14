@@ -29,7 +29,7 @@ if (!fs.existsSync(packageFile) || !fs.existsSync(lockFile)) {
   throw new Error("web-configurator/: committed modified source tree is missing");
 }
 const configuratorPackage = JSON.parse(fs.readFileSync(packageFile, "utf8"));
-if (configuratorPackage.version !== "2.3.3-unfoldedtools.8") {
+if (configuratorPackage.version !== "2.3.3-unfoldedtools.9") {
   throw new Error(`web-configurator/: unexpected version ${configuratorPackage.version}`);
 }
 if (configuratorPackage.license !== "GPL-3.0-only") {
@@ -53,7 +53,7 @@ for (const relative of [
   }
 }
 const lockSha = crypto.createHash("sha256").update(fs.readFileSync(lockFile)).digest("hex");
-if (lockSha !== "4710cabe340f24cfa02dfb8f6ff143536c556fdf43fb9d88668e754ed007fddf") {
+if (lockSha !== "141356522311601b22f22ea7c24206142369c4b613afa44451c5cc98cf062509") {
   throw new Error(`web-configurator/package-lock.json: checksum mismatch (${lockSha})`);
 }
 

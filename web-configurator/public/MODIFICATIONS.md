@@ -1,10 +1,10 @@
 # Modifications to Unfolded Circle Web Configurator 2.3.3
 
-- **Community build:** `2.3.3-unfoldedtools.8`
+- **Community build:** `2.3.3-unfoldedtools.9`
 - **Source basis:** Unfolded Circle Web Configurator `2.3.3`
 - **Modified by:** Justin Jäger / Unfolded.Tools
 - **Initial publication:** 2026-08-03
-- **Current revision:** 2026-08-05
+- **Current revision:** 2026-11-14
 - **Remote artwork modification:** 2026-08-04
 - **License:** GPL-3.0-only
 
