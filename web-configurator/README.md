@@ -1,6 +1,6 @@
 # Web Configurator 2.3.3 — Unfolded.Tools community source
 
-This directory contains the complete modified source for Web Configurator build `2.3.3-unfoldedtools.8`, which is bundled with UC Virtual Remote and used by the Unfolded.Tools Remote Simulator.
+This directory contains the complete modified source for Web Configurator build `2.3.3-unfoldedtools.9`, which is bundled with UC Virtual Remote and used by the Unfolded.Tools Remote Simulator.
 
 The source is based on the Web Configurator 2.3.3 snapshot published by Unfolded Circle ApS and remains licensed under `GPL-3.0-only`. The dated change record is available in [`MODIFICATIONS.md`](MODIFICATIONS.md), and artwork attribution is documented in [`ARTWORK.md`](ARTWORK.md).
 

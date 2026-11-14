@@ -1,6 +1,6 @@
 {
   "name": "web-configurator",
-  "version": "2.3.3-unfoldedtools.8",
+  "version": "2.3.3-unfoldedtools.9",
   "license": "GPL-3.0-only",
   "description": "Web based application to configure Unfolded Circle's Remote Two/3",
   "private": true,

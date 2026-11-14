@@ -1,6 +1,6 @@
 ## Software license
 
-Web Configurator `2.3.3-unfoldedtools.8`  
+Web Configurator `2.3.3-unfoldedtools.9`  
 Based on Unfolded Circle Web Configurator `2.3.3`
 
 Copyright (C) 2024-2026 Unfolded Circle ApS  

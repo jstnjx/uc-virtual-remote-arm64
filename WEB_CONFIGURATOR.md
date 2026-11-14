@@ -1,6 +1,6 @@
 # Bundled community Web Configurator
 
-UC Virtual Remote includes the unofficial Unfolded.Tools Web Configurator build `2.3.3-unfoldedtools.8`. The build is based on Unfolded Circle Web Configurator 2.3.3, the only source release published by Unfolded Circle ApS.
+UC Virtual Remote includes the unofficial Unfolded.Tools Web Configurator build `2.3.3-unfoldedtools.9`. The build is based on Unfolded Circle Web Configurator 2.3.3, the only source release published by Unfolded Circle ApS.
 
 The complete modified source is stored in [`web-configurator/`](web-configurator/). It was not extracted from a physical Remote, and neither installation nor Docker builds download modified source or prebuilt configurator files from unfolded.tools.
 
@@ -54,7 +54,7 @@ A software update installed from the Web Configurator or the Core API runs the s
 A running instance serves the archive at:
 
 ```text
-/web-configurator-source/web-configurator-2.3.3-unfoldedtools.8-source.tar.gz
+/web-configurator-source/web-configurator-2.3.3-unfoldedtools.9-source.tar.gz
 ```
 
 ## Runtime behavior

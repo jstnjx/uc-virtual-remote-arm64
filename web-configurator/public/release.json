@@ -1,9 +1,9 @@
 {
-  "version": "2.3.3-unfoldedtools.8",
+  "version": "2.3.3-unfoldedtools.9",
   "requirements": {
     "firmware_version": ">=2.0.0"
   },
-  "release_date": "2026-08-04",
+  "release_date": "2026-11-14",
   "name": {
     "en": "Unfolded.Tools Remote Simulator Web Configurator"
   },
