@@ -14,8 +14,8 @@
     "check": "node tools/check-source.js",
     "ci": "npm run check && npm test",
     "prepare:web-configurator": "node tools/prepare-web-configurator.js",
-    "prestart": "npm run prepare-web-configurator",
-    "predev": "npm run prepare-web-configurator"
+    "prestart": "npm run prepare:web-configurator",
+    "predev": "npm run prepare:web-configurator"
   },
   "license": "MIT"
 }

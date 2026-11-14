@@ -237,7 +237,9 @@ if (prepared) {
   process.exit(0);
 }
 
-run("npm", ["ci"], sourceDir);
+// --include=dev: the build tools are dev dependencies, and NODE_ENV=production
+// (set in the runtime image) would otherwise leave them out.
+run("npm", ["ci", "--include=dev"], sourceDir);
 await fsp.rm(path.join(sourceDir, "dist"), { recursive: true, force: true });
 buildWithTemporaryEntry();
 const distDir = path.join(sourceDir, "dist");

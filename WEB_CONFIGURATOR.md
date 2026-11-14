@@ -47,6 +47,10 @@ performs the following steps:
 
 The Dockerfile uses the same build script in a dedicated build stage. The final container image contains both the compiled runtime and its corresponding source archive.
 
+A software update installed from the Web Configurator or the Core API runs the same script inside the downloaded release before it is activated, because release archives and development-build zipballs contain the source only. The server then serves the release's own `web-configurator-build/` in preference to `UCVR_WEB_CONFIGURATOR_DIR`, which points at the bundle of the base installation. This keeps the configurator and the backend on the same version; an older bundle served against a newer backend stays on "Reconnecting". If the build fails, the update reports `FAILURE` and the current version stays active. The build needs `npm` and access to the npm registry.
+
+`web-configurator/dist/` is a build intermediate and is not committed.
+
 A running instance serves the archive at:
 
 ```text

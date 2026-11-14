@@ -54,12 +54,22 @@ export class WebConfiguratorManager {
   constructor(_dataDir, options = {}) {
     const explicitDir = typeof options === "string" ? options : options.root;
     const explicitSourceRoot = typeof options === "object" && options ? options.sourceRoot : null;
+    // A release installed by a software update carries its own build next to
+    // its backend. It must win over UCVR_WEB_CONFIGURATOR_DIR, which points at
+    // the bundle of the base installation (e.g. the Docker image): serving
+    // that older bundle against a newer backend leaves the configurator
+    // stuck on "Reconnecting".
+    const ownBuild = fs.existsSync(path.join(defaultRoot, "index.html"));
     this.root = explicitDir
       ? path.resolve(explicitDir)
-      : path.resolve(process.env.UCVR_WEB_CONFIGURATOR_DIR || defaultRoot);
+      : path.resolve(ownBuild ? defaultRoot : process.env.UCVR_WEB_CONFIGURATOR_DIR || defaultRoot);
     this.sourceArchive = explicitSourceRoot
       ? path.resolve(explicitSourceRoot, SOURCE_ARCHIVE_NAME)
-      : path.resolve(process.env.UCVR_WEB_CONFIGURATOR_SOURCE_ARCHIVE_PATH || defaultSourceArchive);
+      : path.resolve(
+        ownBuild && fs.existsSync(defaultSourceArchive)
+          ? defaultSourceArchive
+          : process.env.UCVR_WEB_CONFIGURATOR_SOURCE_ARCHIVE_PATH || defaultSourceArchive
+      );
     this.sourceRoute = SOURCE_ARCHIVE_ROUTE;
   }
 
